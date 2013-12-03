@@ -1,6 +1,5 @@
 package jabot;
 
-import org.jivesoftware.smack.XMPPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,36 +22,72 @@ public final class App {
             return;
         }
 
-        String config = args[0];
+        Properties props = getProperties(args[0]);
+        if (props == null) {
+            return;
+        }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                LOGGER.info("shutdown");
+            }
+        });
+
+        final Bot bot = new Bot(getBotConfig(props));
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    bot.start();
+                } catch (Exception e) {
+                    LOGGER.error("Bot error", e);
+                }
+            }
+        }).start();
+
+        LOGGER.info("started");
+
+    }
+
+    private static Properties getProperties(String config) {
         File fileConfig = new File(config);
 
         if (!fileConfig.exists() || !fileConfig.canRead()) {
             err(MessageFormat.format("problem with config file {0}", config));
-            return;
+            return null;
         }
 
         Properties props = new Properties();
+        FileInputStream inStream = null;
         try {
-            props.load(new FileInputStream(config));
+            inStream = new FileInputStream(config);
+            props.load(inStream);
         } catch (IOException e) {
             LOGGER.error("fail read file {}", config, e);
-            return;
+            return null;
         }
+        finally {
+            if (inStream != null){
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("fail close stream {}", config, e);
+                }
+            }
+        }
+        return props;
+    }
 
+    private static BotConfig getBotConfig(Properties props) {
         BotConfig b = new BotConfig();
         b.setLogin(props.getProperty("login"));
         b.setPassword(props.getProperty("password"));
         b.setPort(Integer.parseInt(props.getProperty("port")));
         b.setHost(props.getProperty("host"));
         b.setServiceName(props.getProperty("service"));
-
-        Bot bot = new Bot(b);
-        try {
-            bot.start();
-        } catch (XMPPException e) {
-            LOGGER.error("Bot error", e);
-        }
-
+        return b;
     }
 
     private static void err(String err) {

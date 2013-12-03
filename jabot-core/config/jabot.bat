@@ -1,1 +1,0 @@
-java -Xmx200m -server -Dlogback.configurationFile=logback.xml -jar jabot-1.0-SNAPSHOT.jar jabot.properties

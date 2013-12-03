@@ -15,14 +15,14 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}</directory>
+            <directory>../jabot-core/target</directory>
             <includes>
                 <include>*.jar</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/lib</directory>
+            <directory>../jabot-core/target/lib</directory>
             <includes>
                 <include>*.*</include>
             </includes>
