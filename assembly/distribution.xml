@@ -8,6 +8,13 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
+            <directory>${basedir}/config</directory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.build.directory}</directory>
             <includes>
                 <include>*.jar</include>

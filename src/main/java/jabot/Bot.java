@@ -26,9 +26,8 @@ public class Bot {
     public void start() throws XMPPException {
         ConnectionConfiguration connConfig = new ConnectionConfiguration(botConfig.getHost(), botConfig.getPort(),
                 botConfig.getServiceName());
-        connConfig.setSASLAuthenticationEnabled(false);
 
-        logger.trace("botConfig {}", botConfig);
+        logger.debug("botConfig {}", botConfig);
 
         XMPPConnection connection;
 
