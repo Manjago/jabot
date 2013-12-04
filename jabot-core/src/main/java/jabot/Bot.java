@@ -8,17 +8,17 @@ import org.jivesoftware.smack.packet.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class Bot {
 
-    private static final int SEC_DELAY = 1000;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
-    private final PriorityBlockingQueue<QueueItem> queue;
+    private final BlockingQueue<OutQueueItem> queue;
     private XMPPConnection connection;
 
     public Bot(BotConfig botConfig) {
@@ -26,7 +26,7 @@ public class Bot {
             throw new IllegalArgumentException("bot parameters is null");
         }
         this.botConfig = new BotConfig(botConfig);
-        queue = new PriorityBlockingQueue<>();
+        queue = new SynchronousQueue<>();
     }
 
     private static String toString(Message msg) {
@@ -64,25 +64,20 @@ public class Bot {
         Roster roster = connection.getRoster();
         roster.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
-        connection.addPacketListener(new BotListener(queue), null);
+        final BotListener botListener = new BotListener();
+        botListener.start(queue);
+        connection.addPacketListener(botListener, null);
 
+        OutQueueItem task = null;
         try {
-            //noinspection InfiniteLoopStatement
             while (true) {
-
-                QueueItem task = queue.peek();
-                if (task == null || task.getDueDate().isAfterNow()) {
-                    Thread.sleep(SEC_DELAY);
-                    continue;
-                }
-
-                task = queue.poll();
-                sendMessage(task.getMsgTo(), task.getMsgBody());
-
+                task = queue.take();
+                sendMessage(task.getTo(), task.getBody());
             }
         } catch (InterruptedException e) {
-            logger.warn("interrupted", e);
+            logger.debug("interrupted", e);
         }
+
     }
 
     private void sendMessage(String to, String body) {
