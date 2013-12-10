@@ -1,8 +1,8 @@
 package jabot.test;
 
-import jabot.BotPlugin;
-import jabot.InQueueItem;
-import jabot.OutQueueItem;
+import jabot.chat.ChatInQueueItem;
+import jabot.chat.ChatOutQueueItem;
+import jabot.chat.ChatPlugin;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -10,26 +10,26 @@ import java.util.concurrent.SynchronousQueue;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class EchoPlugin implements BotPlugin {
+public class EchoPlugin implements ChatPlugin {
 
-    private BlockingQueue<InQueueItem> inQueue = new SynchronousQueue<>();
-    private BlockingQueue<OutQueueItem> outQueue;
+    private BlockingQueue<ChatInQueueItem> inQueue = new SynchronousQueue<>();
+    private BlockingQueue<ChatOutQueueItem> outQueue;
 
     @Override
-    public void setOutQueue(BlockingQueue<OutQueueItem> queue) {
+    public void setOutQueue(BlockingQueue<ChatOutQueueItem> queue) {
         outQueue = queue;
     }
 
     @Override
-    public void putItem(InQueueItem item) throws InterruptedException {
+    public void putItem(ChatInQueueItem item) throws InterruptedException {
         inQueue.put(item);
     }
 
     @Override
     public void start() throws InterruptedException {
         while (true) {
-            InQueueItem item = inQueue.take();
-            outQueue.put(new OutQueueItem(item.getFrom(), item.getBody()));
+            ChatInQueueItem item = inQueue.take();
+            outQueue.put(new ChatOutQueueItem(item.getFrom(), item.getBody()));
         }
 
     }

@@ -1,5 +1,8 @@
 package jabot;
 
+import jabot.chat.ChatInQueueItem;
+import jabot.chat.ChatOutQueueItem;
+import jabot.chat.ChatPlugin;
 import jabot.test.Echo2Plugin;
 import jabot.test.EchoPlugin;
 import org.jivesoftware.smack.PacketListener;
@@ -16,16 +19,15 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class BotListener implements PacketListener {
+public class ChatListener implements PacketListener {
 
-    public static final int DELAY = 200;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private List<BotPlugin> plugins = new ArrayList<>();
+    private List<ChatPlugin> plugins = new ArrayList<>();
 
-    public void start(BlockingQueue<OutQueueItem> queue){
+    public void start(BlockingQueue<ChatOutQueueItem> queue){
         plugins.add(new EchoPlugin());
         plugins.add(new Echo2Plugin());
-        for (final BotPlugin p : plugins) {
+        for (final ChatPlugin p : plugins) {
             p.setOutQueue(queue);
             new Thread(new Runnable() {
                 @Override
@@ -53,8 +55,8 @@ public class BotListener implements PacketListener {
 
             if (Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
-                    for (BotPlugin p : plugins) {
-                        p.putItem(new InQueueItem(msg.getFrom(), msg.getBody()));
+                    for (ChatPlugin p : plugins) {
+                        p.putItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
                     }
                 } catch (InterruptedException e) {
                     logger.info("interrupted", e);
