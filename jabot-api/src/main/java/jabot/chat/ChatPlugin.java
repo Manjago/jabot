@@ -1,12 +1,9 @@
 package jabot.chat;
 
-import java.util.concurrent.BlockingQueue;
+import jabot.BotPlugin;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public interface ChatPlugin {
-    void setOutQueue(BlockingQueue<ChatOutQueueItem> queue);
-    void putItem(ChatInQueueItem item) throws InterruptedException;
-    void start() throws InterruptedException;
+public interface ChatPlugin extends BotPlugin<ChatOutQueueItem, ChatInQueueItem> {
 }
