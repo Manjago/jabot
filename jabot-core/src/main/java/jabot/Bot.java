@@ -47,19 +47,32 @@ public class Bot {
         roster.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
         initMultiChats();
-        initChat();
+        initChat(botConfig.getChatPlugins());
     }
 
     private void initMultiChats() throws XMPPException {
-        final String room = "fido828@conference.jabber.ru";
-        final String nick = "jabot";
-        joinMultiUserChat(room, nick);
+        String[] mucParams = botConfig.getRoomsConfig().split(",");
+
+        for(String mucParam : mucParams){
+            String[] roomParams = mucParam.split("\\|");
+
+            if (roomParams.length != 3){
+                continue;
+            }
+
+            final String room = roomParams[0];
+            final String nick = roomParams[1];
+            final String pluginStr = roomParams[2];
+            joinMultiUserChat(room, nick, pluginStr);
+        }
+
+
     }
 
-    private void initChat() {
+    private void initChat(String pluginStr) {
         final BlockingQueue<ChatOutQueueItem> queue = new SynchronousQueue<>();
         final ChatListener chatListener = new ChatListener();
-        chatListener.start(queue);
+        chatListener.start(pluginStr, queue);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
 
         ChatOutQueueItem task = null;
@@ -73,7 +86,7 @@ public class Bot {
         }
     }
 
-    private void joinMultiUserChat(String room, String nick) throws XMPPException {
+    private void joinMultiUserChat(String room, String nick, String pluginStr) throws XMPPException {
         final int maxStanzas = 5;
         final String meAddr = room + "/" + nick;
 
@@ -86,7 +99,7 @@ public class Bot {
         final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
 
         final RoomListener roomListener = new RoomListener(meAddr);
-        roomListener.start(queue);
+        roomListener.start(pluginStr, queue);
         muc.addMessageListener(roomListener);
 
         new Thread(new Runnable() {

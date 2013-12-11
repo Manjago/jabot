@@ -9,6 +9,8 @@ public class BotConfig {
     private int port;
     private String serviceName;
     private String host;
+    private String chatPlugins;
+    private String roomsConfig;
 
     public BotConfig() {
     }
@@ -19,6 +21,24 @@ public class BotConfig {
         this.port = b.getPort();
         this.serviceName = b.getServiceName();
         this.host = b.getHost();
+        this.chatPlugins = b.getChatPlugins();
+        this.roomsConfig = b.getRoomsConfig();
+    }
+
+    public String getRoomsConfig() {
+        return roomsConfig;
+    }
+
+    public void setRoomsConfig(String roomsConfig) {
+        this.roomsConfig = roomsConfig;
+    }
+
+    public String getChatPlugins() {
+        return chatPlugins;
+    }
+
+    public void setChatPlugins(String chatPlugins) {
+        this.chatPlugins = chatPlugins;
     }
 
     public String getLogin() {
@@ -65,9 +85,12 @@ public class BotConfig {
     public String toString() {
         final StringBuilder sb = new StringBuilder("BotConfig{");
         sb.append("login='").append(login).append('\'');
+        sb.append(", password='").append(password).append('\'');
         sb.append(", port=").append(port);
         sb.append(", serviceName='").append(serviceName).append('\'');
         sb.append(", host='").append(host).append('\'');
+        sb.append(", chatPlugins='").append(chatPlugins).append('\'');
+        sb.append(", roomsConfig='").append(roomsConfig).append('\'');
         sb.append('}');
         return sb.toString();
     }

@@ -1,8 +1,8 @@
 package jabot.test;
 
+import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
-import jabot.chat.ChatInQueueItem;
 
 import java.util.concurrent.BlockingQueue;
 

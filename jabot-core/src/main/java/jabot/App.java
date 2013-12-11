@@ -87,6 +87,8 @@ public final class App {
         b.setPort(Integer.parseInt(props.getProperty("port")));
         b.setHost(props.getProperty("host"));
         b.setServiceName(props.getProperty("service"));
+        b.setChatPlugins(props.getProperty("chatPlugins", ""));
+        b.setRoomsConfig(props.getProperty("roomsConfig", ""));
         return b;
     }
 

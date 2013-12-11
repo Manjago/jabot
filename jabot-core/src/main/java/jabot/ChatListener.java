@@ -3,8 +3,6 @@ package jabot;
 import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
-import jabot.test.Echo2Plugin;
-import jabot.test.EchoPlugin;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -12,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -22,11 +19,12 @@ import java.util.concurrent.BlockingQueue;
 public class ChatListener implements PacketListener {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private List<ChatPlugin> plugins = new ArrayList<>();
+    private List<ChatPlugin> plugins;
 
-    public void start(BlockingQueue<ChatOutQueueItem> queue){
-        plugins.add(new EchoPlugin());
-        plugins.add(new Echo2Plugin());
+    public void start(String pluginStr, BlockingQueue<ChatOutQueueItem> queue) {
+
+        plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
+
         for (final ChatPlugin p : plugins) {
             p.setOutQueue(queue);
             new Thread(new Runnable() {
@@ -45,7 +43,6 @@ public class ChatListener implements PacketListener {
 
     }
 
-
     @Override
     public void processPacket(Packet packet) {
 
@@ -53,7 +50,7 @@ public class ChatListener implements PacketListener {
             Message msg = (Message) packet;
             logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
 
-            if (Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
+            if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
                     for (ChatPlugin p : plugins) {
                         p.putItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
