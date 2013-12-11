@@ -1,16 +1,15 @@
 package jabot;
 
 import jabot.chat.ChatOutQueueItem;
+import jabot.room.RoomOutQueueItem;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
@@ -21,7 +20,6 @@ public class Bot {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
-    private final BlockingQueue<ChatOutQueueItem> queue;
     private XMPPConnection connection;
 
     public Bot(BotConfig botConfig) {
@@ -29,29 +27,6 @@ public class Bot {
             throw new IllegalArgumentException("bot parameters is null");
         }
         this.botConfig = new BotConfig(botConfig);
-        queue = new SynchronousQueue<>();
-    }
-
-    private static String toString(Message msg) {
-        if (msg == null) {
-            return "null";
-        }
-
-        return "to:"
-                + msg.getTo()
-                + ", from:"
-                + msg.getFrom()
-                + ", body:"
-                + msg.getBody()
-                + (isDelayedMessage(msg) ? " (delayed)" : "");
-    }
-
-    private static boolean isDelayedMessage(Message msg) {
-        return msg != null && msg.getExtension("delay", "urn:xmpp:delay") != null;
-    }
-
-    private static boolean isSubjectMessage(Message msg) {
-        return msg != null && msg.getExtension("delay", "urn:xmpp:delay") != null;
     }
 
     public void start() throws XMPPException {
@@ -65,56 +40,27 @@ public class Bot {
         connection.connect();
         logger.info("connect ok");
 
-        logger.debug("Connection {} {}", connection.isConnected(), connection.isAuthenticated());
-
         connection.login(botConfig.getLogin(), botConfig.getPassword());
         logger.info("login ok");
-
-        logger.debug("Connection {} {}", connection.isConnected(), connection.isAuthenticated());
 
         Roster roster = connection.getRoster();
         roster.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
+        initMultiChats();
+        initChat();
+    }
+
+    private void initMultiChats() throws XMPPException {
+        final String room = "fido828@conference.jabber.ru";
+        final String nick = "jabot";
+        joinMultiUserChat(room, nick);
+    }
+
+    private void initChat() {
+        final BlockingQueue<ChatOutQueueItem> queue = new SynchronousQueue<>();
         final ChatListener chatListener = new ChatListener();
         chatListener.start(queue);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
-
-        final String room = "fido828@conference.jabber.ru";
-        final String nick = "jabot";
-        final String  full = room + "/" + nick;
-
-        final MultiUserChat muc = new MultiUserChat(connection, room);
-        DiscussionHistory history = new DiscussionHistory();
-        history.setMaxStanzas(5);
-        muc.join(nick, "", history, SmackConfiguration
-                .getPacketReplyTimeout());
-        muc.addMessageListener(new PacketListener() {
-            @Override
-            public void processPacket(Packet packet) {
-                if (packet instanceof Message) {
-                    Message msg = (Message) packet;
-                    logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
-
-                    if (!isDelayedMessage(msg)){
-                       logger.debug("get not delayed");
-
-                       if (msg.getSubjects().size() == 0 && !full.equals(msg.getFrom())){
-                           try {
-                               muc.sendMessage("Я - веселый бот, прочитал тут " + msg.getBody());
-                           } catch (XMPPException e) {
-                               logger.debug("fail send muc ", e);
-                           }
-                       }
-
-                    }
-
-                } else {
-                    logger.debug("pkt " + packet);
-                }
-                logger.debug("xml " + packet.toXML());
-
-            }
-        });
 
         ChatOutQueueItem task = null;
         try {
@@ -125,9 +71,42 @@ public class Bot {
         } catch (InterruptedException e) {
             logger.debug("interrupted", e);
         }
+    }
 
+    private void joinMultiUserChat(String room, String nick) throws XMPPException {
+        final int maxStanzas = 5;
+        final String meAddr = room + "/" + nick;
 
+        final MultiUserChat muc = new MultiUserChat(connection, room);
+        DiscussionHistory history = new DiscussionHistory();
+        history.setMaxStanzas(maxStanzas);
+        muc.join(nick, "", history, SmackConfiguration
+                .getPacketReplyTimeout());
 
+        final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
+
+        final RoomListener roomListener = new RoomListener(meAddr);
+        roomListener.start(queue);
+        muc.addMessageListener(roomListener);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RoomOutQueueItem task = null;
+                    try {
+                        while (true) {
+                            task = queue.take();
+                            muc.sendMessage(task.getBody());
+                        }
+                    } catch (InterruptedException e) {
+                        logger.debug("interrupted", e);
+                    }
+                } catch (Exception e) {
+                    logger.error("MultiChat error", e);
+                }
+            }
+        }).start();
 
 
     }
@@ -141,7 +120,7 @@ public class Bot {
 
         msg.setBody(body);
 
-        logger.debug("send pkt " + toString(msg));
+        logger.debug("send pkt " + MessageUtils.toString(msg));
         connection.sendPacket(msg);
     }
 }
