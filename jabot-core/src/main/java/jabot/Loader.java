@@ -48,8 +48,7 @@ public class Loader <E>  {
 
                     if (config == null){
                         plugin = (E) clazz
-                                .getConstructor().newInstance(
-                                        config);
+                                .getConstructor().newInstance();
 
                     } else{
                         plugin = (E) clazz

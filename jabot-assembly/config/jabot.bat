@@ -1,1 +1,9 @@
-java -Xmx200m -server -Dlogback.configurationFile=logback.xml -jar jabot-core-1.0-SNAPSHOT.jar jabot.properties
+@echo off
+setLocal EnableDelayedExpansion
+set CLASSPATH=.
+for /R ./lib %%a in (*.jar) do (
+   set CLASSPATH=!CLASSPATH!;"%%a"
+)
+set CLASSPATH=!CLASSPATH!
+echo !CLASSPATH!
+java -Xmx100m -server -cp !CLASSPATH! jabot.App jabot.properties

@@ -19,7 +19,14 @@
             <includes>
                 <include>*.jar</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../jabot-test/target</directory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>../jabot-core/target/lib</directory>
