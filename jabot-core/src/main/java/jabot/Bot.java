@@ -8,6 +8,7 @@ import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.SubjectUpdatedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +107,7 @@ public class Bot {
         final RoomListener roomListener = new RoomListener(meAddr);
         roomListener.start(pluginStr, queue, chatPlugins);
         muc.addMessageListener(roomListener);
+        muc.addSubjectUpdatedListener(roomListener);
 
         new Thread(new Runnable() {
             @Override

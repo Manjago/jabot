@@ -7,6 +7,7 @@ import jabot.room.RoomPlugin;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smackx.muc.SubjectUpdatedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 // todo генерик с ChatListener
-public class RoomListener implements PacketListener {
+public class RoomListener implements PacketListener, SubjectUpdatedListener {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String meAddress;
@@ -95,5 +96,29 @@ public class RoomListener implements PacketListener {
             logger.debug("pkt " + packet);
         }
         logger.debug("xml " + packet.toXML());
+    }
+
+    @Override
+    public void subjectUpdated(String subject, String from) {
+        logger.debug(MessageFormat.format("{0} установил субжект {1}", from, subject));
+
+        if (plugins != null) {
+            try {
+                for (RoomPlugin p : plugins) {
+                    p.putRoomItem(new RoomInQueueItem(
+                            from,
+                            subject,
+                            false,
+                            true,
+                            meAddress.equals(from),
+                            null
+                    ));
+                }
+            } catch (InterruptedException e) {
+                logger.info("interrupted", e);
+            }
+
+        }
+
     }
 }

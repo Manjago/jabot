@@ -107,18 +107,25 @@ public class Translator implements RoomPlugin, ChatPlugin {
         while (true) {
             RoomInQueueItem item = roomInQueue.take();
 
-            if (!item.isDelayed()) {
-                chatOut(item);
+            if (item.isSubject()) {
+               chatOut(MessageFormat.format("{0} установил субжект \"{1}\"", item.getFrom(), item.getBody()));
+            } else {
+                if (!item.isDelayed()) {
+                    chatOut(item);
+                }
             }
+
 
         }
 
     }
 
+    private void chatOut(String s) throws InterruptedException {
+        chatOutQueue.put(new ChatOutQueueItem(addrTo, s));
+    }
+
     private void chatOut(RoomInQueueItem item) throws InterruptedException {
-        chatOutQueue.put(new ChatOutQueueItem(addrTo,
-                MessageFormat.format("{0}: {1}", item.getFrom(), item.getBody())
-        ));
+        chatOut(MessageFormat.format("{0}: {1}", item.getFrom(), item.getBody()));
     }
 
 }
