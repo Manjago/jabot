@@ -21,6 +21,15 @@ public class Loader<E> {
         }
 
         List<E> result = new ArrayList<>();
+
+        if (Helper.isNonEmptyStr(plugins)) {
+            loadPlugins(plugins, result);
+        }
+
+        return result;
+    }
+
+    private void loadPlugins(String plugins, List<E> result) {
         String[] modules = plugins.split(";");
 
         for (String module : modules) {
@@ -66,8 +75,6 @@ public class Loader<E> {
                 result.add(plugin);
             }
         }
-
-        return result;
     }
 
     private E instPlugin(String config, Class<?> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
