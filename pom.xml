@@ -55,6 +55,7 @@
         <module>jabot-core</module>
         <module>jabot-api</module>
         <module>jabot-test</module>
+        <module>jabot-translator</module>
         <module>jabot-assembly</module>
     </modules>
 

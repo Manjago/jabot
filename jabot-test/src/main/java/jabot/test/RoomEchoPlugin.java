@@ -16,12 +16,12 @@ public class RoomEchoPlugin implements RoomPlugin {
     private BlockingQueue<RoomOutQueueItem> outQueue;
 
     @Override
-    public void setOutQueue(BlockingQueue<RoomOutQueueItem> queue) {
+    public void setRoomOutQueue(BlockingQueue<RoomOutQueueItem> queue) {
         outQueue = queue;
     }
 
     @Override
-    public void putItem(RoomInQueueItem item) throws InterruptedException {
+    public void putRoomItem(RoomInQueueItem item) throws InterruptedException {
         inQueue.put(item);
     }
 

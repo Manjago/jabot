@@ -21,12 +21,18 @@ public class ChatListener implements PacketListener {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private List<ChatPlugin> plugins;
 
-    public void start(String pluginStr, BlockingQueue<ChatOutQueueItem> queue) {
+    public void start(String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
 
+        if (chatPlugins != null){
+            for(ChatPlugin chatPlugin : chatPlugins){
+                plugins.add(chatPlugin);
+            }
+        }
+
         for (final ChatPlugin p : plugins) {
-            p.setOutQueue(queue);
+            p.setChatOutQueue(queue);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -53,7 +59,7 @@ public class ChatListener implements PacketListener {
             if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
                     for (ChatPlugin p : plugins) {
-                        p.putItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
+                        p.putChatItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
                     }
                 } catch (InterruptedException e) {
                     logger.info("interrupted", e);

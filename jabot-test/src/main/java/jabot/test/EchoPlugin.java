@@ -16,12 +16,12 @@ public class EchoPlugin implements ChatPlugin {
     private BlockingQueue<ChatOutQueueItem> outQueue;
 
     @Override
-    public void setOutQueue(BlockingQueue<ChatOutQueueItem> queue) {
+    public void setChatOutQueue(BlockingQueue<ChatOutQueueItem> queue) {
         outQueue = queue;
     }
 
     @Override
-    public void putItem(ChatInQueueItem item) throws InterruptedException {
+    public void putChatItem(ChatInQueueItem item) throws InterruptedException {
         inQueue.put(item);
     }
 

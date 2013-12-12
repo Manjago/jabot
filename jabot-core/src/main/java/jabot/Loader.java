@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class Loader <E>  {
+public class Loader<E> {
 
     private final Logger logger = LoggerFactory.getLogger(Loader.class);
 
@@ -43,18 +43,10 @@ public class Loader <E>  {
                     logger.error("not found plugin {}, skipped", className, e);
                     continue;
                 }
-                E plugin = null;
+                E plugin;
                 try {
 
-                    if (config == null){
-                        plugin = (E) clazz
-                                .getConstructor().newInstance();
-
-                    } else{
-                        plugin = (E) clazz
-                                .getConstructor(String.class).newInstance(
-                                        config);
-                    }
+                    plugin = instPlugin(config, clazz);
 
                 } catch (InstantiationException e) {
                     skipBadPlugin(className, e);
@@ -76,6 +68,18 @@ public class Loader <E>  {
         }
 
         return result;
+    }
+
+    private E instPlugin(String config, Class<?> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        if (config == null) {
+            return (E) clazz
+                    .getConstructor().newInstance();
+
+        } else {
+            return (E) clazz
+                    .getConstructor(String.class).newInstance(
+                            config);
+        }
     }
 
     private void skipBadPlugin(String className, Exception e) {

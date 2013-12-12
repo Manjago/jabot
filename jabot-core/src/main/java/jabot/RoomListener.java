@@ -1,5 +1,6 @@
 package jabot;
 
+import jabot.chat.ChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomOutQueueItem;
 import jabot.room.RoomPlugin;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -30,24 +32,39 @@ public class RoomListener implements PacketListener {
         this.meAddress = meAddress;
     }
 
-    public void start(String pluginStr, BlockingQueue<RoomOutQueueItem> queue) {
-        plugins = new Loader<RoomPlugin>().loadPlugins(pluginStr);
-        for (final RoomPlugin p : plugins) {
-            p.setOutQueue(queue);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        p.start();
-                    } catch (Exception e) {
-                        logger.error("Plugin {} error", p, e);
-                    }
+    public void start(String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+
+        plugins = new ArrayList<>();
+
+        List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(pluginStr);
+
+        for (final BotPlugin b : botPlugins) {
+
+            if (b instanceof RoomPlugin) {
+                final RoomPlugin roomPlugin = (RoomPlugin) b;
+                roomPlugin.setRoomOutQueue(queue);
+                plugins.add(roomPlugin);
+            }
+
+            // запускаем только если это не ChatPlugin - его мы запустим потом
+            if (b instanceof ChatPlugin){
+                if (chatPlugins != null){
+                    chatPlugins.add((ChatPlugin) b);
                 }
-            }).start();
+            } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            b.start();
+                        } catch (Exception e) {
+                            logger.error("Plugin {} error", b, e);
+                        }
+                    }
+                }).start();
+            }
 
         }
-
-
     }
 
     @Override
@@ -59,7 +76,7 @@ public class RoomListener implements PacketListener {
             if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
                     for (RoomPlugin p : plugins) {
-                        p.putItem(new RoomInQueueItem(msg.getFrom(), msg.getBody(), MessageUtils.isDelayedMessage(msg),
+                        p.putRoomItem(new RoomInQueueItem(msg.getFrom(), msg.getBody(), MessageUtils.isDelayedMessage(msg),
                                 MessageUtils.isSubjectMessage(msg), meAddress.equals(msg.getFrom())));
                     }
                 } catch (InterruptedException e) {
