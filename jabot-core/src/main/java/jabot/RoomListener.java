@@ -47,8 +47,8 @@ public class RoomListener implements PacketListener {
             }
 
             // запускаем только если это не ChatPlugin - его мы запустим потом
-            if (b instanceof ChatPlugin){
-                if (chatPlugins != null){
+            if (b instanceof ChatPlugin) {
+                if (chatPlugins != null) {
                     chatPlugins.add((ChatPlugin) b);
                 }
             } else {
@@ -76,8 +76,14 @@ public class RoomListener implements PacketListener {
             if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
                     for (RoomPlugin p : plugins) {
-                        p.putRoomItem(new RoomInQueueItem(msg.getFrom(), msg.getBody(), MessageUtils.isDelayedMessage(msg),
-                                MessageUtils.isSubjectMessage(msg), meAddress.equals(msg.getFrom())));
+                        p.putRoomItem(new RoomInQueueItem(
+                                msg.getFrom(),
+                                msg.getBody(),
+                                MessageUtils.isDelayedMessage(msg),
+                                MessageUtils.isSubjectMessage(msg),
+                                meAddress.equals(msg.getFrom()),
+                                MessageUtils.getDelayStamp(msg)
+                        ));
                     }
                 } catch (InterruptedException e) {
                     logger.info("interrupted", e);

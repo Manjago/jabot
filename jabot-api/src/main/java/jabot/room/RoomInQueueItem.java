@@ -2,6 +2,8 @@ package jabot.room;
 
 import jabot.Helper;
 
+import java.util.Date;
+
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
@@ -11,8 +13,9 @@ public class RoomInQueueItem {
     private final boolean delayed;
     private final boolean subject;
     private final boolean fromMe;
+    private final Date delayStamp;
 
-    public RoomInQueueItem(String from, String body, boolean delayed, boolean subject, boolean fromMe) {
+    public RoomInQueueItem(String from, String body, boolean delayed, boolean subject, boolean fromMe, Date delayStamp) {
         if (Helper.isEmptyStr(from) || Helper.isEmptyStr(body)) {
             throw new IllegalArgumentException("bad args");
         }
@@ -21,6 +24,11 @@ public class RoomInQueueItem {
         this.delayed = delayed;
         this.subject = subject;
         this.fromMe = fromMe;
+        this.delayStamp = delayStamp;
+    }
+
+    public Date getDelayStamp() {
+        return delayStamp;
     }
 
     public boolean isDelayed() {
@@ -51,6 +59,7 @@ public class RoomInQueueItem {
         sb.append(", delayed=").append(delayed);
         sb.append(", subject=").append(subject);
         sb.append(", fromMe=").append(fromMe);
+        sb.append(", delayStamp=").append(delayStamp);
         sb.append('}');
         return sb.toString();
     }

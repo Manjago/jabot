@@ -24,7 +24,6 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private BlockingQueue<RoomOutQueueItem> roomOutQueue;
     private BlockingQueue<ChatInQueueItem> chatInQueue = new SynchronousQueue<>();
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
-
     private String addrTo;
 
     public Translator(String config) {
@@ -40,15 +39,15 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
     }
 
-    private boolean init(Properties props){
+    private boolean init(Properties props) {
 
-        if (props == null){
+        if (props == null) {
             logger.error("empty properties");
             return false;
         }
 
         addrTo = props.getProperty("addrTo");
-        if (Helper.isEmptyStr(addrTo)){
+        if (Helper.isEmptyStr(addrTo)) {
             logger.error("no address to");
             return false;
         }
@@ -78,7 +77,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
     @Override
     public void start() throws InterruptedException {
-        if (!inited || roomOutQueue == null || chatOutQueue == null){
+        if (!inited || roomOutQueue == null || chatOutQueue == null) {
             return;
         }
 
@@ -108,13 +107,18 @@ public class Translator implements RoomPlugin, ChatPlugin {
         while (true) {
             RoomInQueueItem item = roomInQueue.take();
 
-            // todo сообщения с историей попадают вперемешку - сортируй их, что ли
+            if (!item.isDelayed()) {
+                chatOut(item);
+            }
 
-            chatOutQueue.put(new ChatOutQueueItem(addrTo,
-                    MessageFormat.format("{0}: {1}", item.getFrom(), item.getBody())
-            ));
         }
 
+    }
+
+    private void chatOut(RoomInQueueItem item) throws InterruptedException {
+        chatOutQueue.put(new ChatOutQueueItem(addrTo,
+                MessageFormat.format("{0}: {1}", item.getFrom(), item.getBody())
+        ));
     }
 
 }
