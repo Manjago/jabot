@@ -3,9 +3,7 @@ package jabot;
 import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
-import jabot.room.RoomInQueueItem;
-import jabot.room.RoomOutQueueItem;
-import jabot.room.RoomPlugin;
+import jabot.room.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,12 +105,22 @@ public class Translator implements RoomPlugin, ChatPlugin {
         while (true) {
             RoomInQueueItem item = roomInQueue.take();
 
-            if (item.isSubject()) {
-               chatOut(MessageFormat.format("{0} установил субжект \"{1}\"", item.getFrom(), item.getBody()));
-            } else {
-                if (!item.isDelayed()) {
-                    chatOut(item);
-                }
+            switch (item.getType()) {
+                case MSG:
+                    RoomMessage msg = (RoomMessage) item;
+                    chatOut(MessageFormat.format("{0}: {1}", msg.getFrom(), msg.getBody()));
+                    break;
+                case SUBJECT:
+                    RoomSubjectMessage sm = (RoomSubjectMessage) item;
+                    chatOut(MessageFormat.format("{0} установил субжект \"{1}\"", sm.getFrom(), sm.getSubject()));
+                    break;
+                case DELAYED_MSG:
+                    // ignore
+                    break;
+                default:
+                    logger.error("Unkonown type {}", item.getType());
+                    break;
+
             }
 
 
@@ -122,10 +130,6 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
     private void chatOut(String s) throws InterruptedException {
         chatOutQueue.put(new ChatOutQueueItem(addrTo, s));
-    }
-
-    private void chatOut(RoomInQueueItem item) throws InterruptedException {
-        chatOut(MessageFormat.format("{0}: {1}", item.getFrom(), item.getBody()));
     }
 
 }

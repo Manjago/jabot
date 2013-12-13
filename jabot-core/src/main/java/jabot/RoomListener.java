@@ -1,9 +1,7 @@
 package jabot;
 
 import jabot.chat.ChatPlugin;
-import jabot.room.RoomInQueueItem;
-import jabot.room.RoomOutQueueItem;
-import jabot.room.RoomPlugin;
+import jabot.room.*;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -19,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-// todo генерик с ChatListener
 public class RoomListener implements PacketListener, SubjectUpdatedListener {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -74,17 +71,24 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener {
             Message msg = (Message) packet;
             logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
 
+            if (MessageUtils.isSubjectMessage(msg)){
+                return;
+            }
+
             if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 try {
                     for (RoomPlugin p : plugins) {
-                        p.putRoomItem(new RoomInQueueItem(
-                                msg.getFrom(),
-                                msg.getBody(),
-                                MessageUtils.isDelayedMessage(msg),
-                                MessageUtils.isSubjectMessage(msg),
-                                meAddress.equals(msg.getFrom()),
-                                MessageUtils.getDelayStamp(msg)
-                        ));
+
+
+                        if (MessageUtils.isDelayedMessage(msg)) {
+                            p.putRoomItem(new RoomDelayedMessage(msg.getFrom(),
+                                    msg.getBody(), meAddress.equals(msg.getFrom()), MessageUtils.getDelayStamp(msg)));
+                        } else {
+                            p.putRoomItem(new RoomMessage(msg.getFrom(),
+                                    msg.getBody(), meAddress.equals(msg.getFrom())));
+
+                        }
+
                     }
                 } catch (InterruptedException e) {
                     logger.info("interrupted", e);
@@ -105,14 +109,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener {
         if (plugins != null) {
             try {
                 for (RoomPlugin p : plugins) {
-                    p.putRoomItem(new RoomInQueueItem(
-                            from,
-                            subject,
-                            false,
-                            true,
-                            meAddress.equals(from),
-                            null
-                    ));
+                    p.putRoomItem(new RoomSubjectMessage(subject, from));
                 }
             } catch (InterruptedException e) {
                 logger.info("interrupted", e);

@@ -3,6 +3,8 @@ package jabot.room;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public interface RoomInQueueItem {
-    RoomMessageType getType();
+public enum RoomMessageType {
+    MSG,
+    DELAYED_MSG,
+    SUBJECT
 }

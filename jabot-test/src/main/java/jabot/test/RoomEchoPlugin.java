@@ -1,8 +1,6 @@
 package jabot.test;
 
-import jabot.room.RoomInQueueItem;
-import jabot.room.RoomOutQueueItem;
-import jabot.room.RoomPlugin;
+import jabot.room.*;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -30,9 +28,11 @@ public class RoomEchoPlugin implements RoomPlugin {
         while (true) {
             RoomInQueueItem item = inQueue.take();
 
-            if (!item.isDelayed() && !item.isFromMe() && !item.isSubject()) {
-                outQueue.put(new RoomOutQueueItem("Веселый бот услышал, что \"" + item.getBody() + "\""));
+            if (item.getType() == RoomMessageType.MSG) {
+                RoomMessage msg = (RoomMessage) item;
+                outQueue.put(new RoomOutQueueItem("Веселый бот услышал, что \"" + msg.getBody() + "\""));
             }
+
 
         }
 

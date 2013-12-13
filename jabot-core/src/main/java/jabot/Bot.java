@@ -8,7 +8,6 @@ import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.SubjectUpdatedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +58,10 @@ public class Bot {
         final int paramsCount = 3;
         String[] mucParams = botConfig.getRoomsConfig().split(",");
 
-        for(String mucParam : mucParams){
+        for (String mucParam : mucParams) {
             String[] roomParams = mucParam.split("\\|");
 
-            if (roomParams.length != paramsCount){
+            if (roomParams.length != paramsCount) {
                 continue;
             }
 
