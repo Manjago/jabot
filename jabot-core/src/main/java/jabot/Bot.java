@@ -101,12 +101,15 @@ public class Bot {
         muc.join(nick, "", history, SmackConfiguration
                 .getPacketReplyTimeout());
 
+        logger.info("joined in {} as {}", room, nick);
+
         final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
 
         final RoomListener roomListener = new RoomListener(meAddr);
         roomListener.start(pluginStr, queue, chatPlugins);
         muc.addMessageListener(roomListener);
         muc.addSubjectUpdatedListener(roomListener);
+        muc.addParticipantStatusListener(roomListener);
 
         new Thread(new Runnable() {
             @Override

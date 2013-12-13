@@ -70,7 +70,7 @@ public class ChatListener implements PacketListener {
         } else {
             logger.debug("pkt " + packet);
         }
-        logger.debug("xml " + packet.toXML());
+        logger.trace("xml " + packet.toXML());
 
 
     }

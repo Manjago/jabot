@@ -105,6 +105,13 @@ public class Translator implements RoomPlugin, ChatPlugin {
         while (true) {
             RoomInQueueItem item = roomInQueue.take();
 
+            if (item instanceof RoomParticipantMessage) {
+
+                processParticipantMessage((RoomParticipantMessage) item);
+
+                return;
+            }
+
             switch (item.getType()) {
                 case MSG:
                     RoomMessage msg = (RoomMessage) item;
@@ -117,8 +124,17 @@ public class Translator implements RoomPlugin, ChatPlugin {
                 case DELAYED_MSG:
                     // ignore
                     break;
+                case KICKED:
+                    chatOut(MessageFormat.format("{0} был выкинут товарищем {1}. Причина: {2}", ((RoomParticipantBannedMessage) item).getParticipant(), ((RoomParticipantBannedMessage) item).getActor(), ((RoomParticipantBannedMessage) item).getReason()));
+                    break;
+                case BANNED:
+                    chatOut(MessageFormat.format("{0} был забанен товарищем {1}. Причина: {2}", ((RoomParticipantBannedMessage) item).getParticipant(), ((RoomParticipantBannedMessage) item).getActor(), ((RoomParticipantBannedMessage) item).getReason()));
+                    break;
+                case NICKNAME_CHANGED:
+                    chatOut(MessageFormat.format("{0} теперь известен как {1}", ((RoomNickChangedMessage) item).getParticipant(), ((RoomNickChangedMessage) item).getNewNick()));
+                    break;
                 default:
-                    logger.error("Unkonown type {}", item.getType());
+                    logger.error("Unknown type {}", item.getType());
                     break;
 
             }
@@ -126,6 +142,60 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
         }
 
+    }
+
+    private void processParticipantMessage(RoomParticipantMessage item) throws InterruptedException {
+        switch (item.getType()) {
+            case JOINED:
+                chatOut(MessageFormat.format("К нам явился дорогой {0}", item.getParticipant()));
+                break;
+            case LEFT:
+                chatOut(MessageFormat.format("{0} ушел в жестокий внешний мир", item.getParticipant()));
+                break;
+            case VOICE_GRANTED:
+                chatOut(MessageFormat.format("{0} получил право голоса", item.getParticipant()));
+                break;
+            case VOICE_REVOKED:
+                chatOut(MessageFormat.format("{0} лишился права голоса", item.getParticipant()));
+                break;
+            default:
+                processRareParticipantMessage(item);
+                break;
+
+        }
+    }
+
+    private void processRareParticipantMessage(RoomParticipantMessage item) throws InterruptedException {
+        switch (item.getType()) {
+            case MEMBERSHIP_GRANTED:
+                chatOut(MessageFormat.format("{0} стал полноправным членом", item.getParticipant()));
+                break;
+            case MEMBERSHIP_REVOKED:
+                chatOut(MessageFormat.format("{0} перестал быть полноправным членом, очень прискорбно", item.getParticipant()));
+                break;
+            case MODERATOR_GRANTED:
+                chatOut(MessageFormat.format("{0} стал мурдератором", item.getParticipant()));
+                break;
+            case MODERATOR_REVOKED:
+                chatOut(MessageFormat.format("{0} перестал быть мурдератором", item.getParticipant()));
+                break;
+            case OWNERSHIP_GRANTED:
+                chatOut(MessageFormat.format("{0} стал собственником", item.getParticipant()));
+                break;
+            case OWNERSHIP_REVOKED:
+                chatOut(MessageFormat.format("{0} перестал быть собственником", item.getParticipant()));
+                break;
+            case ADMIN_GRANTED:
+                chatOut(MessageFormat.format("{0} стал админом", item.getParticipant()));
+                break;
+            case ADMIN_REVOKED:
+                chatOut(MessageFormat.format("{0} перестал быть админом", item.getParticipant()));
+                break;
+            default:
+                logger.error("Unknown type {}", item.getType());
+                break;
+
+        }
     }
 
     private void chatOut(String s) throws InterruptedException {
