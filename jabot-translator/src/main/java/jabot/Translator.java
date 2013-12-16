@@ -17,12 +17,12 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class Translator implements RoomPlugin, ChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private boolean inited;
+    private volatile boolean inited;
     private BlockingQueue<RoomInQueueItem> roomInQueue = new SynchronousQueue<>();
     private BlockingQueue<RoomOutQueueItem> roomOutQueue;
     private BlockingQueue<ChatInQueueItem> chatInQueue = new SynchronousQueue<>();
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
-    private String addrTo;
+    private volatile String addrTo;
 
     public Translator(String config) {
         Properties props;
@@ -97,7 +97,21 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private void processChat() throws InterruptedException {
         while (true) {
             ChatInQueueItem item = chatInQueue.take();
-            roomOutQueue.put(new RoomOutQueueItem(item.getBody()));
+
+            String simpleAddr;
+            try {
+                simpleAddr = Addr3D.fromRaw(item.getFrom()).getNameServer();
+            } catch (IllegalArgumentException e) {
+                logger.error("fail process message {}", item, e);
+                continue;
+            }
+
+            if (addrTo.equals(simpleAddr)) {
+                roomOutQueue.put(new RoomOutQueueItem(item.getBody()));
+            } else {
+                logger.trace("skip message from wrong address {}", simpleAddr);
+            }
+
         }
     }
 
