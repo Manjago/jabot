@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -31,7 +32,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
         this.meAddress = meAddress;
     }
 
-    public void start(String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         plugins = new ArrayList<>();
 
@@ -51,7 +52,8 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                     chatPlugins.add((ChatPlugin) b);
                 }
             } else {
-                new Thread(new Runnable() {
+                b.setExecutor(executor);
+                executor.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -60,7 +62,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                             logger.error("Plugin {} error", b, e);
                         }
                     }
-                }).start();
+                });
             }
 
         }

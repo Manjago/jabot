@@ -3,7 +3,10 @@ package jabot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class App {
 
@@ -38,20 +41,55 @@ public final class App {
             }
         });
 
-        final Bot bot = new Bot(getBotConfig(props));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    bot.start();
-                } catch (Exception e) {
-                    LOGGER.error("Bot error", e);
+        while(!Thread.interrupted()){
+            ExecutorService executor = Executors.newCachedThreadPool();
+            final Bot bot = new Bot(getBotConfig(props), executor);
+
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        bot.start();
+                    } catch (Exception e) {
+                        LOGGER.error("Bot error", e);
+                    }
                 }
-            }
-        }).start();
+            });
 
-        LOGGER.info("started");
+            LOGGER.info("started");
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            LOGGER.info("try stop");
+            bot.stop();
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("try shutdown");
+            List<Runnable> bads =  executor.shutdownNow();
+
+            LOGGER.debug("bad count {}", bads.size() );
+
+
+            System.gc();
+
+            LOGGER.info("try shutdown ok");
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("start again hahahaha");
+
+        }
+
+
 
     }
 

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -21,7 +22,7 @@ public class ChatListener implements PacketListener {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private List<ChatPlugin> plugins;
 
-    public void start(String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(Executor executor, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
 
@@ -33,7 +34,8 @@ public class ChatListener implements PacketListener {
 
         for (final ChatPlugin p : plugins) {
             p.setChatOutQueue(queue);
-            new Thread(new Runnable() {
+            p.setExecutor(executor);
+            executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -42,7 +44,7 @@ public class ChatListener implements PacketListener {
                         logger.error("Plugin {} error", p, e);
                     }
                 }
-            }).start();
+            });
 
         }
 

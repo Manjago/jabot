@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -24,12 +25,25 @@ public class Bot {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
     private XMPPConnection connection;
+    private final Executor executor;
 
-    public Bot(BotConfig botConfig) {
+    public Bot(BotConfig botConfig, Executor executor) {
         if (botConfig == null) {
             throw new IllegalArgumentException("bot parameters is null");
         }
+        this.executor = executor;
         this.botConfig = new BotConfig(botConfig);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        logger.debug("Good bye, cruel world");
+        super.finalize();
+    }
+
+    public void stop(){
+       connection.disconnect();
+        logger.info("disconneted");
     }
 
     public void start() throws XMPPException {
@@ -77,12 +91,12 @@ public class Bot {
     private void initChat(String pluginStr, List<ChatPlugin> chatPlugins) {
         final BlockingQueue<ChatOutQueueItem> queue = new SynchronousQueue<>();
         final ChatListener chatListener = new ChatListener();
-        chatListener.start(pluginStr, queue, chatPlugins);
+        chatListener.start(executor, pluginStr, queue, chatPlugins);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
 
-        ChatOutQueueItem task = null;
+        ChatOutQueueItem task;
         try {
-            while (true) {
+            while (!Thread.interrupted()) {
                 task = queue.take();
                 sendMessage(task.getTo(), task.getBody());
             }
@@ -106,18 +120,18 @@ public class Bot {
         final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
 
         final RoomListener roomListener = new RoomListener(meAddr);
-        roomListener.start(pluginStr, queue, chatPlugins);
+        roomListener.start(executor, pluginStr, queue, chatPlugins);
         muc.addMessageListener(roomListener);
         muc.addSubjectUpdatedListener(roomListener);
         muc.addParticipantStatusListener(roomListener);
 
-        new Thread(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    RoomOutQueueItem task = null;
+                    RoomOutQueueItem task;
                     try {
-                        while (true) {
+                        while (!Thread.interrupted()) {
                             task = queue.take();
                             muc.sendMessage(task.getBody());
                         }
@@ -128,8 +142,7 @@ public class Bot {
                     logger.error("MultiChat error", e);
                 }
             }
-        }).start();
-
+        });
 
     }
 

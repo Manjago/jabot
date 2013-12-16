@@ -3,6 +3,7 @@ package jabot.test;
 import jabot.room.*;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -25,7 +26,7 @@ public class RoomEchoPlugin implements RoomPlugin {
 
     @Override
     public void start() throws InterruptedException {
-        while (true) {
+        while (!Thread.interrupted()) {
             RoomInQueueItem item = inQueue.take();
 
             if (item.getType() == RoomMessageType.MSG) {
@@ -36,6 +37,10 @@ public class RoomEchoPlugin implements RoomPlugin {
 
         }
 
+    }
+
+    @Override
+    public void setExecutor(Executor executor) {
     }
 
 }

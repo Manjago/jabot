@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -23,8 +25,11 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private BlockingQueue<ChatInQueueItem> chatInQueue = new SynchronousQueue<>();
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
+    private Executor executor;
+    private final static AtomicLong counter = new AtomicLong();
 
     public Translator(String config) {
+        logger.debug("now {} instances", counter.incrementAndGet());
         Properties props;
         try {
             props = Helper.getProperties(config);
@@ -75,12 +80,12 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
     @Override
     public void start() throws InterruptedException {
-        if (!inited || roomOutQueue == null || chatOutQueue == null) {
+        if (!inited || roomOutQueue == null || chatOutQueue == null || executor == null) {
             return;
         }
 
         // в отдельной нити - цикл ожидания из чата
-        new Thread(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -89,13 +94,18 @@ public class Translator implements RoomPlugin, ChatPlugin {
                     logger.error("Chat thread error", e);
                 }
             }
-        }).start();
+        });
 
         processRoom();
     }
 
+    @Override
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
+    }
+
     private void processChat() throws InterruptedException {
-        while (true) {
+        while (!Thread.interrupted()) {
             ChatInQueueItem item = chatInQueue.take();
 
             String simpleAddr;
@@ -116,7 +126,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     private void processRoom() throws InterruptedException {
-        while (true) {
+        while (!Thread.interrupted()) {
             RoomInQueueItem item = roomInQueue.take();
 
             if (item instanceof RoomParticipantMessage) {

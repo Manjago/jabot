@@ -5,6 +5,7 @@ import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -27,10 +28,14 @@ public class EchoPlugin implements ChatPlugin {
 
     @Override
     public void start() throws InterruptedException {
-        while (true) {
+        while (!Thread.interrupted()) {
             ChatInQueueItem item = inQueue.take();
             outQueue.put(new ChatOutQueueItem(item.getFrom(), item.getBody()));
         }
 
+    }
+
+    @Override
+    public void setExecutor(Executor executor) {
     }
 }
