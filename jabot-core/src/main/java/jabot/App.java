@@ -3,6 +3,8 @@ package jabot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -43,45 +45,54 @@ public final class App {
 
 
         while(!Thread.interrupted()){
-            ExecutorService executor = Executors.newCachedThreadPool();
-            final Bot bot = new Bot(getBotConfig(props), executor);
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        bot.start();
-                    } catch (Exception e) {
-                        LOGGER.error("Bot error", e);
-                    }
+            {
+                URL url = null;
+                try {
+                    url = new URL("file:///C:\\temp\\bot\\jabot-translator-1.0-SNAPSHOT.jar");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
                 }
-            });
+                ClassLoader cl = new CustomClassLoader(url);
+                ExecutorService executor = Executors.newCachedThreadPool();
+                final Bot bot = new Bot(getBotConfig(props), executor, cl);
 
-            LOGGER.info("started");
-            try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            bot.start();
+                        } catch (Exception e) {
+                            LOGGER.error("Bot error", e);
+                        }
+                    }
+                });
+
+                LOGGER.info("started");
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                LOGGER.info("try stop");
+                bot.stop();
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                LOGGER.info("try shutdown");
+                List<Runnable> bads =  executor.shutdownNow();
+
+                LOGGER.debug("bad count {}", bads.size() );
+
             }
-
-            LOGGER.info("try stop");
-            bot.stop();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            LOGGER.info("try shutdown");
-            List<Runnable> bads =  executor.shutdownNow();
-
-            LOGGER.debug("bad count {}", bads.size() );
-
 
             System.gc();
-
-            LOGGER.info("try shutdown ok");
+            LOGGER.info("wait after gc ok");
             try {
-                Thread.sleep(20000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

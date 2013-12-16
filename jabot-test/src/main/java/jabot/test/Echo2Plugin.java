@@ -5,6 +5,7 @@ import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -25,6 +26,10 @@ public class Echo2Plugin implements ChatPlugin {
 
     @Override
     public void start() {
+    }
+
+    @Override
+    public void setExecutor(Executor executor) {
     }
 }
 

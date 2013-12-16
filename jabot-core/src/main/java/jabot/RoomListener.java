@@ -32,11 +32,11 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
         this.meAddress = meAddress;
     }
 
-    public void start(Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(ClassLoader cl, Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         plugins = new ArrayList<>();
 
-        List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(pluginStr);
+        List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(cl, pluginStr);
 
         for (final BotPlugin b : botPlugins) {
 
