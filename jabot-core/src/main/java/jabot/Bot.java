@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -27,10 +26,8 @@ public class Bot {
     private final BotConfig botConfig;
     private XMPPConnection connection;
     private final Executor executor;
-    private final ClassLoader cl;
 
-    public Bot(BotConfig botConfig, Executor executor, ClassLoader cl) {
-        this.cl = cl;
+    public Bot(BotConfig botConfig, Executor executor) {
         if (botConfig == null) {
             throw new IllegalArgumentException("bot parameters is null");
         }
@@ -38,8 +35,8 @@ public class Bot {
         this.botConfig = new BotConfig(botConfig);
     }
 
-    public void stop(){
-       connection.disconnect();
+    public void stop() {
+        connection.disconnect();
         logger.info("disconneted");
     }
 
@@ -88,7 +85,7 @@ public class Bot {
     private void initChat(String pluginStr, List<ChatPlugin> chatPlugins) {
         final BlockingQueue<ChatOutQueueItem> queue = new SynchronousQueue<>();
         final ChatListener chatListener = new ChatListener();
-        chatListener.start(cl, executor, pluginStr, queue, chatPlugins);
+        chatListener.start(executor, pluginStr, queue, chatPlugins);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
 
         ChatOutQueueItem task;
@@ -117,7 +114,7 @@ public class Bot {
         final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
 
         final RoomListener roomListener = new RoomListener(meAddr);
-        roomListener.start(cl, executor, pluginStr, queue, chatPlugins);
+        roomListener.start(executor, pluginStr, queue, chatPlugins);
         muc.addMessageListener(roomListener);
         muc.addSubjectUpdatedListener(roomListener);
         muc.addParticipantStatusListener(roomListener);

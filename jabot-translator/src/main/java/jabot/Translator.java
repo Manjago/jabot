@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)

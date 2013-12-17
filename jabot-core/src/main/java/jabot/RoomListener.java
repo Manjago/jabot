@@ -32,11 +32,11 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
         this.meAddress = meAddress;
     }
 
-    public void start(ClassLoader cl, Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         plugins = new ArrayList<>();
 
-        List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(cl, pluginStr);
+        List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(pluginStr);
 
         for (final BotPlugin b : botPlugins) {
 
@@ -76,18 +76,17 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
             if (
                     Helper.isEmptyStr(msg.getFrom()) ||
-                    Helper.isEmptyStr(msg.getBody())) {
+                            Helper.isEmptyStr(msg.getBody())) {
                 return;
             }
 
 
             RoomInQueueItem item;
 
-            if (MessageUtils.isSubjectMessage(msg)){
-               item = new RoomMessage(msg.getFrom(),
-                       msg.getBody(), meAddress.equals(msg.getFrom()));
-            }
-            else if (MessageUtils.isDelayedMessage(msg)) {
+            if (MessageUtils.isSubjectMessage(msg)) {
+                item = new RoomMessage(msg.getFrom(),
+                        msg.getBody(), meAddress.equals(msg.getFrom()));
+            } else if (MessageUtils.isDelayedMessage(msg)) {
                 item = new RoomDelayedMessage(msg.getFrom(),
                         msg.getBody(), meAddress.equals(msg.getFrom()), MessageUtils.getDelayStamp(msg));
             } else {
@@ -106,7 +105,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void subjectUpdated(String subject, String from) {
         logger.debug(MessageFormat.format("message: {0} set subject {1}", from, subject));
 
-        if (from != null && from.contains("/")){
+        if (from != null && from.contains("/")) {
             send(new RoomSubjectMessage(subject, from));
         }
 

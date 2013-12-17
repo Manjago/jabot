@@ -3,9 +3,6 @@ package jabot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,31 +41,16 @@ public final class App {
         });
 
 
-        while(!Thread.interrupted()){
-
-            try {
-                runBot(props);
-            } catch (MalformedURLException e) {
-                err("bad urls in config", e);
-                return;
-            }
-
-
-
-        }
-
-
+        runBot(props);
 
     }
 
-    private static void runBot(Properties props) throws MalformedURLException {
+    private static void runBot(Properties props) {
         final BotConfig botConfig = getBotConfig(props);
-
-        ClassLoader cl = new CustomClassLoader(botConfig.getPluginJars());
 
         final ExecutorService executor = Executors.newCachedThreadPool();
 
-        final Bot bot = new Bot(botConfig, executor, cl);
+        final Bot bot = new Bot(botConfig, executor);
 
         executor.execute(new Runnable() {
 
@@ -81,19 +63,9 @@ public final class App {
                 }
             }
         });
-
-        try {
-            Thread.sleep(20000); //test
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        bot.stop();
-        List<Runnable> bads =  executor.shutdownNow();
-        LOGGER.info("shutdown, bad count {}", bads.size());
-
     }
 
-    private static BotConfig getBotConfig(Properties props) throws MalformedURLException {
+    private static BotConfig getBotConfig(Properties props) {
         BotConfig b = new BotConfig();
         b.setLogin(props.getProperty("login"));
         b.setPassword(props.getProperty("password"));
@@ -102,16 +74,6 @@ public final class App {
         b.setServiceName(props.getProperty("service"));
         b.setChatPlugins(props.getProperty("chatPlugins", ""));
         b.setRoomsConfig(props.getProperty("roomsConfig", ""));
-
-        String allJars = props.getProperty("pluginsJars", "");
-        if (Helper.isNonEmptyStr(allJars)){
-            String[] jars = allJars.split(";");
-            URL[] urls = new URL[jars.length];
-            for(int i=0; i < jars.length; ++i){
-               urls[i] = new URL(jars[i]);
-            }
-            b.setPluginJars(urls);
-        }
 
         return b;
     }

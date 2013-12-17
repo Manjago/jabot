@@ -22,12 +22,12 @@ public class ChatListener implements PacketListener {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private List<ChatPlugin> plugins;
 
-    public void start(ClassLoader cl, Executor executor, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(Executor executor, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
-        plugins = new Loader<ChatPlugin>().loadPlugins(cl, pluginStr);
+        plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
 
-        if (chatPlugins != null){
-            for(ChatPlugin chatPlugin : chatPlugins){
+        if (chatPlugins != null) {
+            for (ChatPlugin chatPlugin : chatPlugins) {
                 plugins.add(chatPlugin);
             }
         }

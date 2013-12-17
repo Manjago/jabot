@@ -1,8 +1,5 @@
 package jabot;
 
-import java.net.URL;
-import java.util.Arrays;
-
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
@@ -14,7 +11,6 @@ public class BotConfig {
     private String host;
     private String chatPlugins;
     private String roomsConfig;
-    private URL[] pluginJars;
 
     public BotConfig() {
     }
@@ -27,15 +23,6 @@ public class BotConfig {
         this.host = b.getHost();
         this.chatPlugins = b.getChatPlugins();
         this.roomsConfig = b.getRoomsConfig();
-        this.pluginJars = pluginJars == null ? null : Arrays.copyOf(pluginJars, pluginJars.length);
-    }
-
-    public URL[] getPluginJars() {
-        return pluginJars == null ? null : Arrays.copyOf(pluginJars, pluginJars.length);
-    }
-
-    public void setPluginJars(URL[] pluginJars) {
-        this.pluginJars = pluginJars == null ? null : Arrays.copyOf(pluginJars, pluginJars.length);
     }
 
     public String getRoomsConfig() {
@@ -104,7 +91,6 @@ public class BotConfig {
         sb.append(", host='").append(host).append('\'');
         sb.append(", chatPlugins='").append(chatPlugins).append('\'');
         sb.append(", roomsConfig='").append(roomsConfig).append('\'');
-        sb.append(", pluginJars=").append(Arrays.toString(pluginJars));
         sb.append('}');
         return sb.toString();
     }

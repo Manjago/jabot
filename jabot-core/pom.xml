@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>jabot</artifactId>
-    <groupId>jabot</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <artifactId>jabot</artifactId>
+        <groupId>jabot</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <artifactId>jabot-core</artifactId>
     <packaging>jar</packaging>
@@ -76,6 +76,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>jabot</groupId>
+            <artifactId>jabot-translator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

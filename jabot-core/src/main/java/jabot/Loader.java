@@ -14,7 +14,7 @@ public class Loader<E> {
 
     private final Logger logger = LoggerFactory.getLogger(Loader.class);
 
-    public List<E> loadPlugins(ClassLoader cl, String plugins) {
+    public List<E> loadPlugins(String plugins) {
 
         if (plugins == null) {
             throw new IllegalArgumentException("plugins");
@@ -23,13 +23,13 @@ public class Loader<E> {
         List<E> result = new ArrayList<>();
 
         if (Helper.isNonEmptyStr(plugins)) {
-            loadPlugins(cl, plugins, result);
+            loadPlugins(plugins, result);
         }
 
         return result;
     }
 
-    private void loadPlugins(ClassLoader cl, String plugins, List<E> result) {
+    private void loadPlugins(String plugins, List<E> result) {
         String[] modules = plugins.split(";");
 
         for (String module : modules) {
@@ -47,8 +47,7 @@ public class Loader<E> {
                 }
                 Class<?> clazz = null;
                 try {
-                    clazz = Class.forName(className, true, cl);
-                    //clazz = Class.forName(className);
+                    clazz = Class.forName(className);
                 } catch (ClassNotFoundException e) {
                     logger.error("not found plugin {}, skipped", className, e);
                     continue;
