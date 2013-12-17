@@ -48,6 +48,7 @@ public class Loader<E> {
                 Class<?> clazz = null;
                 try {
                     clazz = Class.forName(className, true, cl);
+                    //clazz = Class.forName(className);
                 } catch (ClassNotFoundException e) {
                     logger.error("not found plugin {}, skipped", className, e);
                     continue;

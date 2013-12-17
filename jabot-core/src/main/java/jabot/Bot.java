@@ -28,22 +28,14 @@ public class Bot {
     private XMPPConnection connection;
     private final Executor executor;
     private final ClassLoader cl;
-    private final static AtomicLong counter = new AtomicLong();
 
     public Bot(BotConfig botConfig, Executor executor, ClassLoader cl) {
-        logger.debug("bot has {} instances", counter.incrementAndGet());
         this.cl = cl;
         if (botConfig == null) {
             throw new IllegalArgumentException("bot parameters is null");
         }
         this.executor = executor;
         this.botConfig = new BotConfig(botConfig);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        logger.debug("Good bye, cruel world {}", counter.decrementAndGet());
-        super.finalize();
     }
 
     public void stop(){

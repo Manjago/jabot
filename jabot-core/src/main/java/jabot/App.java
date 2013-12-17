@@ -46,57 +46,14 @@ public final class App {
 
         while(!Thread.interrupted()){
 
-            {
-                URL url = null;
-                try {
-                    url = new URL("file:///C:\\temp\\bot\\jabot-translator-1.0-SNAPSHOT.jar");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                ClassLoader cl = new CustomClassLoader(url);
-                ExecutorService executor = Executors.newCachedThreadPool();
-                final Bot bot = new Bot(getBotConfig(props), executor, cl);
-
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            bot.start();
-                        } catch (Exception e) {
-                            LOGGER.error("Bot error", e);
-                        }
-                    }
-                });
-
-                LOGGER.info("started");
-                try {
-                    Thread.sleep(20000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                LOGGER.info("try stop");
-                bot.stop();
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                LOGGER.info("try shutdown");
-                List<Runnable> bads =  executor.shutdownNow();
-
-                LOGGER.debug("bad count {}", bads.size() );
-
-            }
-
-            System.gc();
-            LOGGER.info("wait after gc ok");
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                runBot(props);
+            } catch (MalformedURLException e) {
+                err("bad urls in config", e);
+                return;
             }
-            LOGGER.info("start again hahahaha");
+
+
 
         }
 
@@ -104,7 +61,39 @@ public final class App {
 
     }
 
-    private static BotConfig getBotConfig(Properties props) {
+    private static void runBot(Properties props) throws MalformedURLException {
+        final BotConfig botConfig = getBotConfig(props);
+
+        ClassLoader cl = new CustomClassLoader(botConfig.getPluginJars());
+
+        final ExecutorService executor = Executors.newCachedThreadPool();
+
+        final Bot bot = new Bot(botConfig, executor, cl);
+
+        executor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    bot.start();
+                } catch (Exception e) {
+                    LOGGER.error("Bot error", e);
+                }
+            }
+        });
+
+        try {
+            Thread.sleep(20000); //test
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        bot.stop();
+        List<Runnable> bads =  executor.shutdownNow();
+        LOGGER.info("shutdown, bad count {}", bads.size());
+
+    }
+
+    private static BotConfig getBotConfig(Properties props) throws MalformedURLException {
         BotConfig b = new BotConfig();
         b.setLogin(props.getProperty("login"));
         b.setPassword(props.getProperty("password"));
@@ -113,6 +102,17 @@ public final class App {
         b.setServiceName(props.getProperty("service"));
         b.setChatPlugins(props.getProperty("chatPlugins", ""));
         b.setRoomsConfig(props.getProperty("roomsConfig", ""));
+
+        String allJars = props.getProperty("pluginsJars", "");
+        if (Helper.isNonEmptyStr(allJars)){
+            String[] jars = allJars.split(";");
+            URL[] urls = new URL[jars.length];
+            for(int i=0; i < jars.length; ++i){
+               urls[i] = new URL(jars[i]);
+            }
+            b.setPluginJars(urls);
+        }
+
         return b;
     }
 

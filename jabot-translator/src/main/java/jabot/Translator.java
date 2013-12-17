@@ -26,10 +26,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
     private Executor executor;
-    private final static AtomicLong counter = new AtomicLong();
 
     public Translator(String config) {
-        logger.debug("now {} instances, hahaha", counter.incrementAndGet());
         Properties props;
         try {
             props = Helper.getProperties(config);
@@ -76,12 +74,6 @@ public class Translator implements RoomPlugin, ChatPlugin {
     @Override
     public void putChatItem(ChatInQueueItem item) throws InterruptedException {
         chatInQueue.put(item);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        logger.debug("Translator finalize!! {}", counter.decrementAndGet());
     }
 
     @Override
