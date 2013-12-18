@@ -4,12 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public final class App {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+    private static final int BOUND = 20;
+    private static final int SLEEP = 5000;
 
     private App() {
     }
@@ -42,7 +46,7 @@ public final class App {
 
 
         try {
-            while(!Thread.interrupted()){
+            while (!Thread.interrupted()) {
                 runBot(props);
             }
         } catch (InterruptedException e) {
@@ -57,7 +61,8 @@ public final class App {
 
         final ExecutorService executor = Executors.newCachedThreadPool();
 
-        final Bot bot = new Bot(botConfig, executor);
+        final BlockingQueue<Object> ctrlQueue = new LinkedBlockingQueue<>(BOUND);
+        final Bot bot = new Bot(botConfig, executor, ctrlQueue);
 
         executor.execute(new Runnable() {
 
@@ -71,10 +76,11 @@ public final class App {
             }
         });
 
-        Thread.sleep(20000);
+        ctrlQueue.take();
+        LOGGER.info("restart");
         bot.stop();
         executor.shutdownNow();
-        Thread.sleep(5000);
+        Thread.sleep(SLEEP);
     }
 
     private static BotConfig getBotConfig(Properties props) {

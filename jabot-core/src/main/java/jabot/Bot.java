@@ -23,12 +23,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Bot {
 
     private static final int BOUND = 20;
+    private static final long CHECK_INTERVAL = 5000L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
     private final Executor executor;
+    private final BlockingQueue<Object> ctrlQueue;
     private XMPPConnection connection;
 
-    public Bot(BotConfig botConfig, Executor executor) {
+    public Bot(BotConfig botConfig, Executor executor, BlockingQueue<Object> ctrlQueue) {
+        this.ctrlQueue = ctrlQueue;
         if (botConfig == null) {
             throw new IllegalArgumentException("bot parameters is null");
         }
@@ -120,6 +123,26 @@ public class Bot {
         muc.addMessageListener(roomListener);
         muc.addSubjectUpdatedListener(roomListener);
         muc.addParticipantStatusListener(roomListener);
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+
+                    while (!Thread.interrupted()) {
+                        Thread.sleep(CHECK_INTERVAL);
+                        if (!muc.isJoined()) {
+                            ctrlQueue.add(new Object());
+                        }
+                    }
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+            }
+        });
 
         executor.execute(new Runnable() {
             @Override
