@@ -6,7 +6,6 @@ import jabot.chat.ChatPlugin;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)

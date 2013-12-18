@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -26,8 +25,8 @@ public class Bot {
     private static final int BOUND = 20;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
-    private XMPPConnection connection;
     private final Executor executor;
+    private XMPPConnection connection;
 
     public Bot(BotConfig botConfig, Executor executor) {
         if (botConfig == null) {
@@ -85,7 +84,7 @@ public class Bot {
     }
 
     private void initChat(String pluginStr, List<ChatPlugin> chatPlugins) {
-        final BlockingQueue<ChatOutQueueItem> queue = new SynchronousQueue<>();
+        final BlockingQueue<ChatOutQueueItem> queue = new LinkedBlockingQueue<>(BOUND);
         final ChatListener chatListener = new ChatListener();
         chatListener.start(executor, pluginStr, queue, chatPlugins);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
