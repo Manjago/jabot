@@ -64,7 +64,8 @@ public class ChatListener implements PacketListener {
                         p.putChatItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
                     }
                 } catch (InterruptedException e) {
-                    logger.info("interrupted", e);
+                    Thread.currentThread().interrupt();
+                    logger.info("interrupted");
                 }
 
             }

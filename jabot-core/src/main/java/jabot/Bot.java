@@ -95,7 +95,8 @@ public class Bot {
                 sendMessage(task.getTo(), task.getBody());
             }
         } catch (InterruptedException e) {
-            logger.debug("interrupted", e);
+            Thread.currentThread().interrupt();
+            logger.debug("interrupted");
         }
     }
 
@@ -130,7 +131,8 @@ public class Bot {
                             muc.sendMessage(task.getBody());
                         }
                     } catch (InterruptedException e) {
-                        logger.debug("interrupted", e);
+                        Thread.currentThread().interrupt();
+                        logger.debug("interrupted");
                     }
                 } catch (Exception e) {
                     logger.error("MultiChat error", e);

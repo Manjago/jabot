@@ -119,7 +119,8 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
             try {
                 p.putRoomItem(item);
             } catch (InterruptedException e) {
-                logger.info("interrupted", e);
+                Thread.currentThread().interrupt();
+                logger.info("interrupted");
             }
         }
     }

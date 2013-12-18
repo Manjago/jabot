@@ -41,11 +41,18 @@ public final class App {
         });
 
 
-        runBot(props);
+        try {
+            while(!Thread.interrupted()){
+                runBot(props);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
 
     }
 
-    private static void runBot(Properties props) {
+    private static void runBot(Properties props) throws InterruptedException {
         final BotConfig botConfig = getBotConfig(props);
 
         final ExecutorService executor = Executors.newCachedThreadPool();
@@ -63,6 +70,11 @@ public final class App {
                 }
             }
         });
+
+        Thread.sleep(20000);
+        bot.stop();
+        executor.shutdownNow();
+        Thread.sleep(5000);
     }
 
     private static BotConfig getBotConfig(Properties props) {
