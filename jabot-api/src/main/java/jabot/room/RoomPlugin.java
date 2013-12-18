@@ -9,8 +9,5 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface RoomPlugin extends BotPlugin {
     void setRoomOutQueue(BlockingQueue<RoomOutQueueItem> queue);
-
-    void putRoomItem(RoomInQueueItem item) throws InterruptedException;
-
-
+    void setRoomInQueue(BlockingQueue<RoomInQueueItem> queue);
 }

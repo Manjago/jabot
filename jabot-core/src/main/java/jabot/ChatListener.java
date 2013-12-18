@@ -12,22 +12,29 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class ChatListener implements PacketListener {
 
+    public static final int BOUND = 20;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private List<ChatPlugin> plugins;
+    private List<BlockingQueue<ChatInQueueItem>> pluginInQueues;
 
     public void start(Executor executor, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
-        plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
+        List<ChatPlugin> plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
+        pluginInQueues = new CopyOnWriteArrayList<>();
 
         if (chatPlugins != null) {
             for (ChatPlugin chatPlugin : chatPlugins) {
+                final LinkedBlockingQueue<ChatInQueueItem> q = new LinkedBlockingQueue<>(BOUND);
+                pluginInQueues.add(q);
+                chatPlugin.setChatInQueue(q);
                 plugins.add(chatPlugin);
             }
         }
@@ -58,16 +65,10 @@ public class ChatListener implements PacketListener {
             Message msg = (Message) packet;
             logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
 
-            if (plugins != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
-                try {
-                    for (ChatPlugin p : plugins) {
-                        p.putChatItem(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.info("interrupted");
+            if (pluginInQueues != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
+                for (BlockingQueue<ChatInQueueItem> q : pluginInQueues) {
+                    q.add(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
                 }
-
             }
 
         } else {

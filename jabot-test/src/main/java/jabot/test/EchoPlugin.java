@@ -13,7 +13,7 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class EchoPlugin implements ChatPlugin {
 
-    private BlockingQueue<ChatInQueueItem> inQueue = new SynchronousQueue<>();
+    private BlockingQueue<ChatInQueueItem> inQueue;
     private BlockingQueue<ChatOutQueueItem> outQueue;
 
     @Override
@@ -22,8 +22,8 @@ public class EchoPlugin implements ChatPlugin {
     }
 
     @Override
-    public void putChatItem(ChatInQueueItem item) throws InterruptedException {
-        inQueue.put(item);
+    public void setChatInQueue(BlockingQueue<ChatInQueueItem> queue) {
+        inQueue = queue;
     }
 
     @Override

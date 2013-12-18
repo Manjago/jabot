@@ -4,14 +4,13 @@ import jabot.room.*;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class RoomEchoPlugin implements RoomPlugin {
 
-    private BlockingQueue<RoomInQueueItem> inQueue = new SynchronousQueue<>();
+    private BlockingQueue<RoomInQueueItem> inQueue;
     private BlockingQueue<RoomOutQueueItem> outQueue;
 
     @Override
@@ -20,8 +19,8 @@ public class RoomEchoPlugin implements RoomPlugin {
     }
 
     @Override
-    public void putRoomItem(RoomInQueueItem item) throws InterruptedException {
-        inQueue.put(item);
+    public void setRoomInQueue(BlockingQueue<RoomInQueueItem> queue) {
+        inQueue = queue;
     }
 
     @Override

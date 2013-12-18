@@ -9,6 +9,5 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface ChatPlugin extends BotPlugin {
     void setChatOutQueue(BlockingQueue<ChatOutQueueItem> queue);
-
-    void putChatItem(ChatInQueueItem item) throws InterruptedException;
+    void setChatInQueue(BlockingQueue<ChatInQueueItem> queue);
 }

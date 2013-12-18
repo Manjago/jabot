@@ -11,7 +11,6 @@ import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -19,9 +18,9 @@ import java.util.concurrent.SynchronousQueue;
 public class Translator implements RoomPlugin, ChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private volatile boolean inited;
-    private BlockingQueue<RoomInQueueItem> roomInQueue = new SynchronousQueue<>();
+    private BlockingQueue<RoomInQueueItem> roomInQueue;
     private BlockingQueue<RoomOutQueueItem> roomOutQueue;
-    private BlockingQueue<ChatInQueueItem> chatInQueue = new SynchronousQueue<>();
+    private BlockingQueue<ChatInQueueItem> chatInQueue;
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
     private Executor executor;
@@ -61,8 +60,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     @Override
-    public void putRoomItem(RoomInQueueItem item) throws InterruptedException {
-        roomInQueue.put(item);
+    public void setRoomInQueue(BlockingQueue<RoomInQueueItem> queue) {
+        roomInQueue = queue;
     }
 
     @Override
@@ -71,8 +70,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     @Override
-    public void putChatItem(ChatInQueueItem item) throws InterruptedException {
-        chatInQueue.put(item);
+    public void setChatInQueue(BlockingQueue<ChatInQueueItem> queue) {
+        chatInQueue = queue;
     }
 
     @Override

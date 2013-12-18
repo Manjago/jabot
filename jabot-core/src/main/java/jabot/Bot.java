@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -22,6 +23,7 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class Bot {
 
+    private static final int BOUND = 20;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
     private XMPPConnection connection;
@@ -112,7 +114,7 @@ public class Bot {
 
         logger.info("joined in {} as {}", room, nick);
 
-        final BlockingQueue<RoomOutQueueItem> queue = new SynchronousQueue<>();
+        final BlockingQueue<RoomOutQueueItem> queue = new LinkedBlockingQueue<>(BOUND);
 
         final RoomListener roomListener = new RoomListener(meAddr);
         roomListener.start(executor, pluginStr, queue, chatPlugins);

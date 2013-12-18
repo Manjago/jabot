@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
  */
 public class Echo2Plugin implements ChatPlugin {
 
+    private BlockingQueue<ChatInQueueItem> inQueue;
     private BlockingQueue<ChatOutQueueItem> outQueue;
 
     @Override
@@ -20,16 +21,22 @@ public class Echo2Plugin implements ChatPlugin {
     }
 
     @Override
-    public void putChatItem(ChatInQueueItem item) throws InterruptedException {
-        outQueue.put(new ChatOutQueueItem(item.getFrom(), item.getBody() + item.getBody()));
+    public void setChatInQueue(BlockingQueue<ChatInQueueItem> queue) {
+        inQueue = queue;
     }
 
     @Override
-    public void start() {
+    public void start() throws InterruptedException {
+        while (!Thread.interrupted()) {
+            ChatInQueueItem item = inQueue.take();
+            outQueue.put(new ChatOutQueueItem(item.getFrom(), item.getBody()));
+        }
+
     }
 
     @Override
     public void setExecutor(Executor executor) {
     }
+
 }
 

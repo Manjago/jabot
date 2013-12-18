@@ -14,16 +14,19 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class RoomListener implements PacketListener, SubjectUpdatedListener, ParticipantStatusListener {
 
+    private static final int BOUND = 20;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String meAddress;
-    private List<RoomPlugin> plugins;
+    private List<BlockingQueue<RoomInQueueItem>> pluginsInQueue;
 
     public RoomListener(String meAddress) {
         if (meAddress == null) {
@@ -34,7 +37,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     public void start(Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
-        plugins = new ArrayList<>();
+        pluginsInQueue = new CopyOnWriteArrayList<>();
 
         List<BotPlugin> botPlugins = new Loader<BotPlugin>().loadPlugins(pluginStr);
 
@@ -43,7 +46,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
             if (b instanceof RoomPlugin) {
                 final RoomPlugin roomPlugin = (RoomPlugin) b;
                 roomPlugin.setRoomOutQueue(queue);
-                plugins.add(roomPlugin);
+                BlockingQueue<RoomInQueueItem> inQueue = new LinkedBlockingQueue<>(BOUND);
+                roomPlugin.setRoomInQueue(inQueue);
+                pluginsInQueue.add(inQueue);
             }
 
             // запускаем только если это не ChatPlugin - его мы запустим потом
@@ -112,16 +117,17 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     private void send(RoomInQueueItem item) {
-        if (item == null || plugins == null) {
+        if (item == null || pluginsInQueue == null) {
             return;
         }
-        for (RoomPlugin p : plugins) {
-            try {
-                p.putRoomItem(item);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.info("interrupted");
+
+        try {
+            for (BlockingQueue<RoomInQueueItem> q : pluginsInQueue) {
+                q.put(item);
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.info("interrupted");
         }
     }
 
