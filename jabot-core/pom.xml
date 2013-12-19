@@ -76,12 +76,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>jabot</groupId>
-            <artifactId>jabot-translator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 
 </project>
