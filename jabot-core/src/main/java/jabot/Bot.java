@@ -4,7 +4,6 @@ import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPlugin;
 import jabot.room.RoomOutQueueItem;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.MessageTypeFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -93,11 +92,13 @@ public class Bot {
         final BlockingQueue<ChatOutQueueItem> queue = new LinkedBlockingQueue<>(BOUND);
         final ChatListener chatListener = new ChatListener();
         chatListener.start(executor, pluginStr, queue, chatPlugins);
-        connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
         connection.addPacketListener(chatListener, new PacketFilter() {
             @Override
             public boolean accept(Packet packet) {
-                return packet instanceof Presence;
+                return (packet instanceof Presence) ||
+                        (packet instanceof Message && Message.Type.chat.equals(
+                                ((Message) packet).getType()
+                        ));
             }
         });
 
