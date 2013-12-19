@@ -104,6 +104,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
         while (!Thread.interrupted()) {
             ChatInQueueItem item = chatInQueue.take();
 
+            logger.debug("got chat item {}", item);
+
             String simpleAddr;
             try {
                 simpleAddr = Addr3D.fromRaw(item.getFrom()).getNameServer();
@@ -113,9 +115,11 @@ public class Translator implements RoomPlugin, ChatPlugin {
             }
 
             if (addrTo.equals(simpleAddr)) {
-                roomOutQueue.put(new RoomOutQueueItem(item.getBody()));
+                final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(item.getBody());
+                roomOutQueue.put(outQueueItem);
+                logger.debug("send room item {}", outQueueItem);
             } else {
-                logger.trace("skip message from wrong address {}", simpleAddr);
+                logger.debug("skip message from wrong address {}", simpleAddr);
             }
 
         }
@@ -124,6 +128,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private void processRoom() throws InterruptedException {
         while (!Thread.interrupted()) {
             RoomInQueueItem item = roomInQueue.take();
+
+            logger.debug("got room item {}", item);
 
             if (item instanceof RoomParticipantMessage) {
 
@@ -219,7 +225,9 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     private void chatOut(String s) throws InterruptedException {
-        chatOutQueue.put(new ChatOutQueueItem(addrTo, s));
+        final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, s);
+        chatOutQueue.put(chatOutQueueItem);
+        logger.debug("send to chat {}", chatOutQueueItem);
     }
 
 }

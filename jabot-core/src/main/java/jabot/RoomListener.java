@@ -128,6 +128,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
             Thread.currentThread().interrupt();
             logger.info("interrupted");
         }
+        logger.debug("sent roomItem {} to all", item);
     }
 
     @Override

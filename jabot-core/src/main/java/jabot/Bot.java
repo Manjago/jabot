@@ -97,6 +97,7 @@ public class Bot {
             while (!Thread.interrupted()) {
                 task = queue.take();
                 sendMessage(task.getTo(), task.getBody());
+                logger.debug("send chat item {}", task);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
