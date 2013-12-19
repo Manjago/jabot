@@ -1,11 +1,10 @@
 package jabot;
 
-import jabot.chat.ChatInQueueItem;
-import jabot.chat.ChatOutQueueItem;
-import jabot.chat.ChatPlugin;
+import jabot.chat.*;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,12 +65,24 @@ public class ChatListener implements PacketListener {
             logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
 
             if (pluginInQueues != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
+                final ChatMessage chatMessage = new ChatMessage(msg.getFrom(), msg.getBody());
                 for (BlockingQueue<ChatInQueueItem> q : pluginInQueues) {
-                    q.add(new ChatInQueueItem(msg.getFrom(), msg.getBody()));
+                    q.add(chatMessage);
                 }
             }
 
-        } else {
+        } else if (packet instanceof Presence){
+            Presence p = (Presence) packet;
+            logger.debug("presence {} {}", p.getType(), p.getFrom());
+
+            if (pluginInQueues != null) {
+                final ChatPresence chatPresence = new ChatPresence(p.getType().name(), p.getFrom());
+                for (BlockingQueue<ChatInQueueItem> q : pluginInQueues) {
+                    q.add(chatPresence);
+                }
+            }
+        }
+        else {
             logger.debug("pkt " + packet);
         }
         logger.trace("xml " + packet.toXML());

@@ -1,8 +1,6 @@
 package jabot;
 
-import jabot.chat.ChatInQueueItem;
-import jabot.chat.ChatOutQueueItem;
-import jabot.chat.ChatPlugin;
+import jabot.chat.*;
 import jabot.room.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,22 +104,62 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
             logger.debug("got chat item {}", item);
 
-            String simpleAddr;
-            try {
-                simpleAddr = Addr3D.fromRaw(item.getFrom()).getNameServer();
-            } catch (IllegalArgumentException e) {
-                logger.error("fail process message {}", item, e);
-                continue;
+            switch (item.getType()) {
+                case MSG:
+                    processChatMessage((ChatMessage) item);
+                    break;
+                case PRESENCE:
+                    processPresence((ChatPresence) item);
+                    break;
+                default:
+                    logger.error("unknown chatMessageType {}", item.getType());
+                    break;
             }
 
-            if (addrTo.equals(simpleAddr)) {
-                final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(item.getBody());
-                roomOutQueue.put(outQueueItem);
-                logger.debug("send room item {}", outQueueItem);
-            } else {
-                logger.debug("skip message from wrong address {}", simpleAddr);
-            }
 
+        }
+    }
+
+    private void processChatMessage(ChatMessage chatMessage) throws InterruptedException {
+        String simpleAddr;
+        try {
+            simpleAddr = Addr3D.fromRaw(chatMessage.getFrom()).getNameServer();
+        } catch (IllegalArgumentException e) {
+            logger.error("fail process message {}", chatMessage, e);
+            return;
+        }
+
+        if (addrTo.equals(simpleAddr)) {
+            final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
+            roomOutQueue.put(outQueueItem);
+            logger.debug("send room item {}", outQueueItem);
+        } else {
+            logger.debug("skip message from wrong address {}", simpleAddr);
+        }
+    }
+
+    private void processPresence(ChatPresence chatMessage) throws InterruptedException {
+
+        if (!"available".equals(chatMessage.getStatus())) {
+            logger.trace("bad status {}", chatMessage.getStatus());
+            return;
+        }
+
+        String simpleAddr;
+        try {
+            simpleAddr = Addr3D.fromRaw(chatMessage.getFrom()).getNameServer();
+        } catch (IllegalArgumentException e) {
+            logger.error("fail process message {}", chatMessage, e);
+            return;
+        }
+
+        if (addrTo.equals(simpleAddr)) {
+            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, MessageFormat.format("Привет, дружище {0}!", addrTo));
+            chatOutQueue.put(chatOutQueueItem);
+
+            logger.debug("send to chat {}", chatOutQueueItem);
+        } else {
+            logger.trace("skip message from not our address {}", simpleAddr);
         }
     }
 

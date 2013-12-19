@@ -5,7 +5,10 @@ import jabot.chat.ChatPlugin;
 import jabot.room.RoomOutQueueItem;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
+import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
@@ -91,6 +94,12 @@ public class Bot {
         final ChatListener chatListener = new ChatListener();
         chatListener.start(executor, pluginStr, queue, chatPlugins);
         connection.addPacketListener(chatListener, new MessageTypeFilter(Message.Type.chat));
+        connection.addPacketListener(chatListener, new PacketFilter() {
+            @Override
+            public boolean accept(Packet packet) {
+                return packet instanceof Presence;
+            }
+        });
 
         ChatOutQueueItem task;
         try {
