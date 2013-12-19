@@ -4,7 +4,7 @@
     <parent>
         <artifactId>jabot</artifactId>
         <groupId>jabot</groupId>
-        <version>1.0.1</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>jabot-api</artifactId>
     <packaging>jar</packaging>
