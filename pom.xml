@@ -70,6 +70,7 @@
         <module>jabot-core</module>
         <module>jabot-api</module>
         <module>jabot-translator</module>
+        <module>jabot-logger</module>
         <module>jabot-assembly</module>
     </modules>
 
