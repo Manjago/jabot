@@ -70,12 +70,13 @@ public class Bot {
 
     private void initMultiChats(List<ChatPlugin> chatPlugins) throws XMPPException {
         final int paramsCount = 3;
-        String[] mucParams = botConfig.getRoomsConfig().split(",");
+        String[] mucParams = botConfig.getRoomsConfig().split(";");
 
         for (String mucParam : mucParams) {
             String[] roomParams = mucParam.split("\\|");
 
             if (roomParams.length != paramsCount) {
+                logger.error("bad room config item {}", mucParam);
                 continue;
             }
 
