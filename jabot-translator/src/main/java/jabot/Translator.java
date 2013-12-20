@@ -33,6 +33,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
         }
 
         inited = init(props);
+        logger.debug("inited");
 
     }
 
@@ -75,6 +76,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
     @Override
     public void start() throws InterruptedException {
         if (!inited || roomOutQueue == null || chatOutQueue == null || executor == null) {
+            logger.error("not inited!");
             return;
         }
 
@@ -84,12 +86,18 @@ public class Translator implements RoomPlugin, ChatPlugin {
             public void run() {
                 try {
                     processChat();
-                } catch (Exception e) {
+                }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.debug("Interrupted");
+                }
+                catch (Exception e) {
                     logger.error("Chat thread error", e);
                 }
             }
         });
 
+        logger.debug("inited, before room process loop");
         processRoom();
     }
 
@@ -98,17 +106,33 @@ public class Translator implements RoomPlugin, ChatPlugin {
         this.executor = executor;
     }
 
+    @Override
+    public PluginVersion getPluginVersion() {
+        return new PluginVersion() {
+            @Override
+            public int getMajor() {
+                return 1;
+            }
+
+            @Override
+            public int getMinor() {
+                return 0;
+            }
+        };
+    }
+
     private void processChat() throws InterruptedException {
         while (!Thread.interrupted()) {
             ChatInQueueItem item = chatInQueue.take();
 
-            logger.debug("got chat item {}", item);
 
             switch (item.getType()) {
                 case MSG:
+                    logger.debug("got message item {}", item);
                     processChatMessage((ChatMessage) item);
                     break;
                 case PRESENCE:
+                    logger.trace("got presense item {}", item);
                     processPresence((ChatPresence) item);
                     break;
                 default:
@@ -164,7 +188,9 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     private void processRoom() throws InterruptedException {
+
         while (!Thread.interrupted()) {
+            logger.debug("waiting room item");
             RoomInQueueItem item = roomInQueue.take();
 
             logger.debug("got room item {}", item);
@@ -173,7 +199,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
                 processParticipantMessage((RoomParticipantMessage) item);
 
-                return;
+                continue;
             }
 
             switch (item.getType()) {
@@ -205,6 +231,8 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
 
         }
+
+        logger.info("leave thread");
 
     }
 

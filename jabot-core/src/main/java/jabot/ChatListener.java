@@ -31,10 +31,12 @@ public class ChatListener implements PacketListener {
 
         if (chatPlugins != null) {
             for (ChatPlugin chatPlugin : chatPlugins) {
+                logger.debug("loaded plugin {}", Helper.displayPlugin(chatPlugin));
                 final LinkedBlockingQueue<ChatInQueueItem> q = new LinkedBlockingQueue<>(BOUND);
                 pluginInQueues.add(q);
                 chatPlugin.setChatInQueue(q);
                 plugins.add(chatPlugin);
+                logger.debug("plugin {} inited as chatPlugin, queue {}", Helper.displayPlugin(chatPlugin), q);
             }
         }
 
@@ -45,16 +47,21 @@ public class ChatListener implements PacketListener {
                 @Override
                 public void run() {
                     try {
+                        logger.debug("plugin {} started", Helper.displayPlugin(p));
                         p.start();
+                    } catch (InterruptedException e) {
+                        logger.debug("interrupted");
+                        Thread.currentThread().interrupt();
                     } catch (Exception e) {
                         logger.error("Plugin {} error", p, e);
                     }
+
+
                 }
+
+
             });
-
         }
-
-
     }
 
     @Override
@@ -71,7 +78,7 @@ public class ChatListener implements PacketListener {
                 }
             }
 
-        } else if (packet instanceof Presence){
+        } else if (packet instanceof Presence) {
             Presence p = (Presence) packet;
             logger.debug("presence {} {}", p.getType(), p.getFrom());
 
@@ -81,8 +88,7 @@ public class ChatListener implements PacketListener {
                     q.add(chatPresence);
                 }
             }
-        }
-        else {
+        } else {
             logger.debug("pkt " + packet);
         }
         logger.trace("xml " + packet.toXML());

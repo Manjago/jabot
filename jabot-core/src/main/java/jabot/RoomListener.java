@@ -42,18 +42,22 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
         for (final BotPlugin b : botPlugins) {
 
+            logger.debug("loaded plugin {}", Helper.displayPlugin(b));
+
             if (b instanceof RoomPlugin) {
                 final RoomPlugin roomPlugin = (RoomPlugin) b;
                 roomPlugin.setRoomOutQueue(queue);
                 BlockingQueue<RoomInQueueItem> inQueue = new LinkedBlockingQueue<>(BOUND);
                 roomPlugin.setRoomInQueue(inQueue);
                 pluginsInQueue.add(inQueue);
+                logger.debug("plugin {} inited as roomPlugin, queue {}", Helper.displayPlugin(b), inQueue);
             }
 
             // запускаем только если это не ChatPlugin - его мы запустим потом
             if (b instanceof ChatPlugin) {
                 if (chatPlugins != null) {
                     chatPlugins.add((ChatPlugin) b);
+                    logger.debug("plugin {} deffered as chatPlugin", Helper.displayPlugin(b));
                 }
             } else {
                 b.setExecutor(executor);
@@ -61,6 +65,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                     @Override
                     public void run() {
                         try {
+                            logger.debug("plugin {} started", Helper.displayPlugin(b));
                             b.start();
                         } catch (Exception e) {
                             logger.error("Plugin {} error", b, e);
@@ -123,12 +128,12 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
         try {
             for (BlockingQueue<RoomInQueueItem> q : pluginsInQueue) {
                 q.put(item);
+                logger.debug("put roomItem {} to queue {}", item, q);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.info("interrupted");
         }
-        logger.debug("sent roomItem {} to all", item);
     }
 
     @Override

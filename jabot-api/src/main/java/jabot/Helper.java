@@ -21,11 +21,11 @@ public final class Helper {
         return !isEmptyStr(s);
     }
 
-    public static Properties getProperties(String config) throws JabotException{
+    public static Properties getProperties(String config) throws JabotException {
         File fileConfig = new File(config);
 
         if (!fileConfig.exists() || !fileConfig.canRead()) {
-            throw  new JabotException(MessageFormat.format("problem with config file {0}", config));
+            throw new JabotException(MessageFormat.format("problem with config file {0}", config));
         }
 
         Properties props = new Properties();
@@ -35,9 +35,8 @@ public final class Helper {
             props.load(inStream);
         } catch (IOException e) {
             throw new JabotException(MessageFormat.format("fail read file {0}", config), e);
-        }
-        finally {
-            if (inStream != null){
+        } finally {
+            if (inStream != null) {
                 try {
                     inStream.close();
                 } catch (IOException e) {
@@ -48,5 +47,9 @@ public final class Helper {
         return props;
     }
 
+    public static String displayPlugin(BotPlugin botPlugin) {
+        return botPlugin == null ? "null" : String.format("%s %s", botPlugin.getClass().getSimpleName(), botPlugin.getPluginVersion()
+                .toString());
+    }
 
 }
