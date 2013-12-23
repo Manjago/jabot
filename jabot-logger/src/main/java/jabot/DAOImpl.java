@@ -51,6 +51,34 @@ public class DAOImpl implements DAO {
     }
 
     @Override
+    public LogEntry getById(long id) throws SQLException {
+        try (Connection conn = db.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT , CONFERENCE , NICK  FROM LOGDATA WHERE ID = ?");
+
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.first()){
+                return null;
+            }
+
+            LogEntry r = new LogEntry();
+            r.setConference(rs.getString("CONFERENCE"));
+            r.setEventDate(rs.getDate("EVENTDATE"));
+            r.setFrom(rs.getString("NICK"));
+            r.setId(rs.getLong("ID"));
+
+            Clob clob = rs.getClob("TEXT");
+            if (clob != null){
+                r.setText(clob.getSubString(1, (int) clob.length()));
+            }
+
+            return r;
+
+        }
+    }
+
+    @Override
     public List<LogEntry> getByPeriod(Date from, Date to) {
         return null;
     }

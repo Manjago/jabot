@@ -47,6 +47,7 @@ public class Database implements AutoCloseable {
                         "    ENTRYTYPE TINYINT NOT NULL\n" +
                         ");\n");
                 conn.createStatement().execute("ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
+                conn.createStatement().execute("CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
             }
 
         }
