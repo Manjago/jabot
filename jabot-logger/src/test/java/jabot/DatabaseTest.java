@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -97,4 +98,49 @@ public class DatabaseTest {
 
     }
 
+    @Test
+    public void testGetByPeriod() throws Exception {
+
+        try(Database d = Database.init("jdbc:h2:mem:test", "sa", "sa");){
+            d.check();
+
+            DAOImpl dao = new DAOImpl();
+            dao.setDb(d);
+
+            LogEntry e = new LogEntry();
+            e.setConference("testconf");
+            e.setEventDate(new Date(2013, 1, 1, 1, 1, 2));
+            e.setFrom("fromm");
+            e.setText("texxt");
+
+            dao.store(e);
+
+            LogEntry e2 = new LogEntry();
+            e2.setConference("testconf");
+            e2.setEventDate(new Date(2013, 1, 1, 1, 5, 2));
+            e2.setFrom("fromm");
+            e2.setText("texxt");
+
+            dao.store(e2);
+
+
+            List<LogEntry> data = dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2));
+            TestCase.assertEquals(2, data.size());
+
+            LogEntry loaded = data.get(1);
+            TestCase.assertNotNull(loaded);
+            TestCase.assertEquals(2L, loaded.getId());
+            TestCase.assertEquals("testconf", loaded.getConference());
+            TestCase.assertEquals(new Date(2013, 1, 1, 1, 5, 2), loaded.getEventDate());
+            TestCase.assertEquals("fromm", loaded.getFrom());
+            TestCase.assertEquals("texxt", loaded.getText());
+
+            TestCase.assertEquals(0, dao.getByPeriod(new Date(2016, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2)).size());
+
+            TestCase.assertEquals(2, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 2)).size());
+            TestCase.assertEquals(1, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 1)).size());
+
+        }
+
+    }
 }

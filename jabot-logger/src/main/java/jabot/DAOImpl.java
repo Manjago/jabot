@@ -4,6 +4,7 @@ import jabot.dto.LogEntry;
 
 import java.io.StringReader;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class DAOImpl implements DAO {
 
             ps.setString(1, logEntry.getConference());
             ps.setByte(2, (byte) 0);
-            ps.setDate(3, new java.sql.Date(logEntry.getEventDate().getTime()));
+            ps.setTimestamp(3, new Timestamp(logEntry.getEventDate().getTime()));
             ps.setString(4, logEntry.getFrom());
             ps.setClob(5, new StringReader(logEntry.getText()));
             ps.execute();
@@ -64,7 +65,7 @@ public class DAOImpl implements DAO {
 
             LogEntry r = new LogEntry();
             r.setConference(rs.getString("CONFERENCE"));
-            r.setEventDate(rs.getDate("EVENTDATE"));
+            r.setEventDate(rs.getTimestamp("EVENTDATE"));
             r.setFrom(rs.getString("NICK"));
             r.setId(rs.getLong("ID"));
 
@@ -79,8 +80,40 @@ public class DAOImpl implements DAO {
     }
 
     @Override
-    public List<LogEntry> getByPeriod(Date from, Date to) {
-        return null;
+    public List<LogEntry> getByPeriod(Date from, Date to) throws SQLException {
+
+        if (from == null || to == null){
+            throw new IllegalArgumentException("bad args " + String.valueOf(from) + " " + String.valueOf(to));
+        }
+
+        try (Connection conn = db.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT , CONFERENCE , NICK  FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE");
+
+            ps.setTimestamp(1, new Timestamp(from.getTime()));
+            ps.setTimestamp(2, new Timestamp(to.getTime()));
+            ResultSet rs = ps.executeQuery();
+
+            List<LogEntry> result = new ArrayList<>();
+
+            while(rs.next()){
+                LogEntry r = new LogEntry();
+                r.setConference(rs.getString("CONFERENCE"));
+                r.setEventDate(rs.getTimestamp("EVENTDATE"));
+                r.setFrom(rs.getString("NICK"));
+                r.setId(rs.getLong("ID"));
+
+                Clob clob = rs.getClob("TEXT");
+                if (clob != null){
+                    r.setText(clob.getSubString(1, (int) clob.length()));
+                }
+
+                result.add(r);
+
+            }
+
+            return result;
+
+        }
     }
 
     @Override
