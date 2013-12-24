@@ -2,10 +2,9 @@ package jabot;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+
+import static jabot.Helper.checkNotNull;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -32,12 +31,9 @@ public class Database implements AutoCloseable {
 
     public void check() throws SQLException {
         try (Connection conn = getConnection()) {
-            PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?");
-            checkTable.setString(1, "LOGDATA");
-            ResultSet rs = checkTable.executeQuery();
-            boolean needDbCreate = !rs.first();
-            if (needDbCreate) {
-                conn.createStatement().execute("CREATE TABLE LOGDATA\n" +
+
+            if (isNeedDbCreate(conn)) {
+                execStatement(conn, "CREATE TABLE LOGDATA\n" +
                         "(\n" +
                         "    ID IDENTITY PRIMARY KEY NOT NULL,\n" +
                         "    EVENTDATE TIMESTAMP NOT NULL,\n" +
@@ -46,22 +42,25 @@ public class Database implements AutoCloseable {
                         "    NICK VARCHAR(200) NOT NULL,\n" +
                         "    ENTRYTYPE TINYINT NOT NULL\n" +
                         ");\n");
-                conn.createStatement().execute("ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
-                conn.createStatement().execute("CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
-                conn.createStatement().execute("CREATE ALIAS FINDBYREGEXP FOR \"jabot.UserFunctions.findByPattern\";");
+                execStatement(conn, "ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
+                execStatement(conn, "CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
+                execStatement(conn, "CREATE ALIAS FINDBYREGEXP FOR \"jabot.UserFunctions.findByPattern\";");
             }
 
         }
     }
 
-    public void executeSql(String sql) throws SQLException {
-
-        if (cp == null || sql == null) {
-            return;
+    private static boolean isNeedDbCreate(Connection conn) throws SQLException {
+        try(PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?");){
+            checkTable.setString(1, "LOGDATA");
+            ResultSet rs = checkTable.executeQuery();
+            return !rs.first();
         }
+    }
 
-        try (Connection conn = cp.getConnection()) {
-            conn.createStatement().execute(sql);
+    private static void execStatement(Connection conn, String sql) throws SQLException {
+        try(Statement statement = checkNotNull(conn).createStatement()){
+            statement.execute(checkNotNull(sql));
         }
     }
 

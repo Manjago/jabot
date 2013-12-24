@@ -52,4 +52,11 @@ public final class Helper {
                 .toString());
     }
 
+    public static <T> T checkNotNull(T reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException();
+        }
+        return reference;
+    }
+
 }

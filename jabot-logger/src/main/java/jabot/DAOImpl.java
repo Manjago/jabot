@@ -28,25 +28,31 @@ public class DAOImpl implements DAO {
         }
 
         try (Connection conn = db.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT )\n" +
-                    "VALUES (?, ?, ?, ?, ?)");
 
-            ps.setString(1, logEntry.getConference());
-            ps.setByte(2, (byte) 0);
-            ps.setTimestamp(3, new Timestamp(logEntry.getEventDate().getTime()));
-            ps.setString(4, logEntry.getFrom());
-            ps.setClob(5, new StringReader(logEntry.getText()));
-            ps.execute();
+            try(PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT )\n" +
+                    "VALUES (?, ?, ?, ?, ?)")){
+                ps.setString(1, logEntry.getConference());
+                ps.setByte(2, (byte) 0);
+                ps.setTimestamp(3, new Timestamp(logEntry.getEventDate().getTime()));
+                ps.setString(4, logEntry.getFrom());
+                ps.setClob(5, new StringReader(logEntry.getText()));
+                ps.execute();
+                conn.commit();
+
+                System.out.println("logEntry = " + logEntry);
+
+                CallableStatement cs = conn.prepareCall("{ ? = call IDENTITY()}");
+                    cs.registerOutParameter(1, Types.BIGINT);
+                    cs.execute();
+                    long id = cs.getLong(1);
+                    System.out.println("id=" + id);
+                    return id;
+
+            }
 
 
-            CallableStatement cs = conn.prepareCall("{ ? = call IDENTITY()}");
-            cs.registerOutParameter(1, Types.BIGINT);
-            cs.execute();
-            long id = cs.getLong(1);
 
-            conn.commit();
 
-            return id;
         }
 
 
@@ -55,27 +61,25 @@ public class DAOImpl implements DAO {
     @Override
     public LogEntry getById(long id) throws SQLException {
         try (Connection conn = db.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT , CONFERENCE , NICK  FROM LOGDATA WHERE ID = ?");
+            try(PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT , CONFERENCE , NICK  FROM LOGDATA WHERE ID = ?")){
+                ps.setLong(1, id);
+                ResultSet rs = ps.executeQuery();
 
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
+                if (!rs.first()){
+                    return null;
+                }
 
-            if (!rs.first()){
-                return null;
-            }
+                LogEntry r = new LogEntry();
+                r.setConference(rs.getString("CONFERENCE"));
+                r.setEventDate(rs.getTimestamp("EVENTDATE"));
+                r.setFrom(rs.getString("NICK"));
+                r.setId(rs.getLong("ID"));
 
-            LogEntry r = new LogEntry();
-            r.setConference(rs.getString("CONFERENCE"));
-            r.setEventDate(rs.getTimestamp("EVENTDATE"));
-            r.setFrom(rs.getString("NICK"));
-            r.setId(rs.getLong("ID"));
-
-            Clob clob = rs.getClob("TEXT");
-            if (clob != null){
+                Clob clob = rs.getClob("TEXT");
                 r.setText(clob.getSubString(1, (int) clob.length()));
-            }
 
-            return r;
+                return r;
+            }
 
         }
     }
@@ -88,18 +92,16 @@ public class DAOImpl implements DAO {
         }
 
         try (Connection conn = db.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE");
+            try(PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE")){
+                ps.setTimestamp(1, new Timestamp(from.getTime()));
+                ps.setTimestamp(2, new Timestamp(to.getTime()));
+                ResultSet rs = ps.executeQuery();
 
-            ps.setTimestamp(1, new Timestamp(from.getTime()));
-            ps.setTimestamp(2, new Timestamp(to.getTime()));
-            ResultSet rs = ps.executeQuery();
+                List<LogEntry> result = new ArrayList<>();
+                extractLogEntryList(rs, result);
+                return result;
 
-            List<LogEntry> result = new ArrayList<>();
-
-            extractLogEntryList(rs, result);
-
-            return result;
-
+            }
         }
     }
 
@@ -110,17 +112,15 @@ public class DAOImpl implements DAO {
         }
 
         try (Connection conn = db.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 ORDER BY EVENTDATE DESC LIMIT ?");
+            try(PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 ORDER BY EVENTDATE DESC LIMIT ?");){
+                ps.setString(1, reg);
+                ps.setInt(2, limit);
+                ResultSet rs = ps.executeQuery();
 
-            ps.setString(1, reg);
-            ps.setInt(2, limit);
-            ResultSet rs = ps.executeQuery();
-
-            List<LogEntry> result = new ArrayList<>();
-
-            extractLogEntryList(rs, result);
-
-            return result;
+                List<LogEntry> result = new ArrayList<>();
+                extractLogEntryList(rs, result);
+                return result;
+            }
 
         }
 
