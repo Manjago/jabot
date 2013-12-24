@@ -7,6 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -87,7 +88,7 @@ public class DAOImpl implements DAO {
         }
 
         try (Connection conn = db.getConnection()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT , CONFERENCE , NICK  FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE");
+            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE");
 
             ps.setTimestamp(1, new Timestamp(from.getTime()));
             ps.setTimestamp(2, new Timestamp(to.getTime()));
@@ -95,21 +96,7 @@ public class DAOImpl implements DAO {
 
             List<LogEntry> result = new ArrayList<>();
 
-            while(rs.next()){
-                LogEntry r = new LogEntry();
-                r.setConference(rs.getString("CONFERENCE"));
-                r.setEventDate(rs.getTimestamp("EVENTDATE"));
-                r.setFrom(rs.getString("NICK"));
-                r.setId(rs.getLong("ID"));
-
-                Clob clob = rs.getClob("TEXT");
-                if (clob != null){
-                    r.setText(clob.getSubString(1, (int) clob.length()));
-                }
-
-                result.add(r);
-
-            }
+            extractLogEntryList(rs, result);
 
             return result;
 
@@ -117,7 +104,44 @@ public class DAOImpl implements DAO {
     }
 
     @Override
-    public List<LogEntry> getByReg(String reg, int limit) {
-        return null;
+    public List<LogEntry> getByReg(String reg, int limit) throws SQLException {
+        if (reg == null || limit <=0){
+            throw new IllegalArgumentException();
+        }
+
+        try (Connection conn = db.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 ORDER BY EVENTDATE DESC LIMIT ?");
+
+            ps.setString(1, reg);
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+
+            List<LogEntry> result = new ArrayList<>();
+
+            extractLogEntryList(rs, result);
+
+            return result;
+
+        }
+
+
+    }
+
+    private void extractLogEntryList(ResultSet rs, List<LogEntry> result) throws SQLException {
+        while(rs.next()){
+            LogEntry r = new LogEntry();
+            r.setConference(rs.getString("CONFERENCE"));
+            r.setEventDate(rs.getTimestamp("EVENTDATE"));
+            r.setFrom(rs.getString("NICK"));
+            r.setId(rs.getLong("ID"));
+
+            Clob clob = rs.getClob("TEXT");
+            if (clob != null){
+                r.setText(clob.getSubString(1, (int) clob.length()));
+            }
+
+            result.add(r);
+
+        }
     }
 }

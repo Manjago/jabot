@@ -48,6 +48,7 @@ public class Database implements AutoCloseable {
                         ");\n");
                 conn.createStatement().execute("ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
                 conn.createStatement().execute("CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
+                conn.createStatement().execute("CREATE ALIAS FINDBYREGEXP FOR \"jabot.UserFunctions.findByPattern\";");
             }
 
         }
