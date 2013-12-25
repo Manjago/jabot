@@ -115,11 +115,12 @@ public class DAOImpl implements DAO {
             try (PreparedStatement ps = conn.prepareStatement("SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE")) {
                 ps.setTimestamp(1, new Timestamp(from.getTime()));
                 ps.setTimestamp(2, new Timestamp(to.getTime()));
-                ResultSet rs = ps.executeQuery();
+                try (ResultSet rs = ps.executeQuery()) {
+                    List<LogEntry> result = new ArrayList<>();
+                    extractLogEntryList(rs, result);
+                    return result;
+                }
 
-                List<LogEntry> result = new ArrayList<>();
-                extractLogEntryList(rs, result);
-                return result;
 
             }
         }
