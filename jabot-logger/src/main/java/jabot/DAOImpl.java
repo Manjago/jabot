@@ -46,6 +46,7 @@ public class DAOImpl implements DAO {
                     cs.execute();
                     long id = cs.getLong(1);
                     System.out.println("id=" + id);
+                    cs.close();
                     return id;
 
             }
