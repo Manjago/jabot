@@ -23,8 +23,6 @@ public final class UserFunctions {
         Pattern pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
 
         String text = clob.getSubString(1, (int) clob.length());
-        final int res = pattern.matcher(text).find() ? 1 : 0;
-        System.out.println("for reg " + patternStr + " test " + text + " result " + res);
-        return res;
+        return pattern.matcher(text).find() ? 1 : 0;
     }
 }

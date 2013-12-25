@@ -4,6 +4,7 @@ import jabot.dto.LogEntry;
 import junit.framework.TestCase;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -107,13 +108,15 @@ public class DatabaseTest {
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
 
+            List<LogEntry> dataStore = new ArrayList<>();
+
             LogEntry e = new LogEntry();
             e.setConference("testconf");
             e.setEventDate(new Date(2013, 1, 1, 1, 1, 2));
             e.setFrom("fromm");
             e.setText("texxt");
 
-            dao.store(e);
+            dataStore.add(e);
 
             LogEntry e2 = new LogEntry();
             e2.setConference("testconf");
@@ -121,8 +124,9 @@ public class DatabaseTest {
             e2.setFrom("fromm");
             e2.setText("texxt");
 
-            dao.store(e2);
+            dataStore.add(e2);
 
+            dao.store(dataStore);
 
             List<LogEntry> data = dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2));
             TestCase.assertEquals(2, data.size());
@@ -153,19 +157,21 @@ public class DatabaseTest {
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
 
+            List<LogEntry> dataStore = new ArrayList<>();
             for (int i = 0; i < 50; ++i) {
                 LogEntry e2 = new LogEntry();
                 e2.setConference("testconf");
                 e2.setEventDate(new Date(2013, 1, 1, 1, 5, i));
                 e2.setFrom("fromm" + i);
                 e2.setText("texxt" + i);
-                dao.store(e2);
+                dataStore.add(e2);
             }
+            dao.store(dataStore);
 
             List<LogEntry> data = dao.getByReg("xt1", 10);
-            System.out.println(data.size());
-            System.out.println(data);
-
+            TestCase.assertEquals(10, data.size());
+            TestCase.assertEquals(20, data.get(0).getId());
+            TestCase.assertEquals("texxt19", data.get(0).getText());
 
         }
 

@@ -18,32 +18,37 @@ public class Test {
 
         }
 
-        for (int i = 1; i < 3; ++i) {
-            try (Connection conn = cp.getConnection()){
-                conn.setAutoCommit(false);
+        try (Connection conn = cp.getConnection()) {
+            conn.setAutoCommit(false);
 
 
-                String value = "" + i;
+            try (CallableStatement cs = conn.prepareCall("{ ? = call IDENTITY()}")) {
+                cs.registerOutParameter(1, Types.BIGINT);
 
-                try(PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( NICK )\n" +
-                        "VALUES (?)")){
-                    ps.setString(1, value);
-                    ps.execute();
-                    conn.commit();
-                    System.out.println("commited value = " + value);
+                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( NICK )\n" +
+                        "VALUES (?)")) {
+
+                    for (int i = 1; i < 3; ++i) {
+
+                        String value = "" + i;
+
+
+                        ps.setString(1, value);
+                        ps.execute();
+                        System.out.println("commited value = " + value);
+
+                        cs.execute();
+                        long id = cs.getLong(1);
+                        System.out.println("id=" + id);
+                        conn.commit();
+
+
+                    }
+
+
                 }
-
-                try(CallableStatement cs = conn.prepareCall("{ ? = call IDENTITY()}")){
-                    cs.registerOutParameter(1, Types.BIGINT);
-                    cs.execute();
-                    long id = cs.getLong(1);
-                    System.out.println("id=" + id);
-
-                }
-
             }
         }
-
 
 
     }
