@@ -20,7 +20,7 @@ public class DAOImpl implements DAO {
     }
 
     @Override
-    public long store(LogEntry logEntry) throws SQLException {
+    public void store(LogEntry logEntry) throws SQLException {
 
         if (logEntry == null || !logEntry.isValid()) {
             throw new IllegalArgumentException("logEntry: " + String.valueOf(logEntry));
@@ -28,24 +28,18 @@ public class DAOImpl implements DAO {
 
         try (Connection conn = db.getConnection()) {
 
-            try (CallableStatement cs = conn.prepareCall("{ ? = call IDENTITY()}")) {
-                cs.registerOutParameter(1, Types.BIGINT);
-
-                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT )\n" +
-                        "VALUES (?, ?, ?, ?, ?)")) {
-                    ps.setString(1, logEntry.getConference());
-                    ps.setByte(2, (byte) 0);
-                    ps.setTimestamp(3, new Timestamp(logEntry.getEventDate().getTime()));
-                    ps.setString(4, logEntry.getFrom());
-                    ps.setClob(5, new StringReader(logEntry.getText()));
-                    ps.execute();
-                    conn.commit();
-
-                    cs.execute();
-                    return cs.getLong(1);
-                }
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT )\n" +
+                    "VALUES (?, ?, ?, ?, ?)")) {
+                ps.setString(1, logEntry.getConference());
+                ps.setByte(2, (byte) 0);
+                ps.setTimestamp(3, new Timestamp(logEntry.getEventDate().getTime()));
+                ps.setString(4, logEntry.getFrom());
+                ps.setClob(5, new StringReader(logEntry.getText()));
+                ps.execute();
 
             }
+
+            conn.commit();
 
         }
 

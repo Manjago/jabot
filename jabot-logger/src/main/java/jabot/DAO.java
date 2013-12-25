@@ -10,7 +10,7 @@ import java.util.List;
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public interface DAO {
-    long store(LogEntry logEntry) throws SQLException;
+    void store(LogEntry logEntry) throws SQLException;
     void store(List<LogEntry> logEntries) throws SQLException;
     LogEntry getById(long id) throws SQLException;
     List<LogEntry> getByPeriod(Date from, Date to) throws SQLException;

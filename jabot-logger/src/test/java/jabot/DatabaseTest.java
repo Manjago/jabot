@@ -37,7 +37,11 @@ public class DatabaseTest {
             e.setFrom("fromm");
             e.setText("texxt");
 
-            TestCase.assertEquals(1L, dao.store(e));
+            dao.store(e);
+
+            LogEntry e2 = dao.getById(1L);
+            TestCase.assertNotNull(e2);
+            TestCase.assertEquals(1L, e2.getId());
         }
 
 
@@ -58,7 +62,7 @@ public class DatabaseTest {
             e.setFrom("fromm");
             e.setText("texxt");
 
-            TestCase.assertEquals(1L, dao.store(e));
+            dao.store(e);
 
             LogEntry loaded = dao.getById(1L);
             TestCase.assertNotNull(loaded);
@@ -89,7 +93,11 @@ public class DatabaseTest {
             e.setFrom("fromm");
             e.setText("texxt");
 
-            TestCase.assertEquals(1L, dao.store(e));
+            dao.store(e);
+
+            LogEntry eLoaded = dao.getById(1L);
+            TestCase.assertNotNull(eLoaded);
+            TestCase.assertEquals(1L, eLoaded.getId());
 
             LogEntry loaded = dao.getById(2L);
             TestCase.assertNull(loaded);
