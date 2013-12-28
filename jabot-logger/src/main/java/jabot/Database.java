@@ -9,7 +9,7 @@ import static jabot.Helper.checkNotNull;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class Database implements AutoCloseable {
+public final class Database implements AutoCloseable {
 
     private final JdbcConnectionPool cp;
 
@@ -24,7 +24,7 @@ public class Database implements AutoCloseable {
     }
 
     public Connection getConnection() throws SQLException {
-        final Connection connection = cp.getConnection();
+        Connection connection = cp.getConnection();
         connection.setAutoCommit(false);
         return connection;
     }
@@ -51,10 +51,11 @@ public class Database implements AutoCloseable {
     }
 
     private static boolean isNeedDbCreate(Connection conn) throws SQLException {
-        try(PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?");){
+        try(PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?")){
             checkTable.setString(1, "LOGDATA");
-            ResultSet rs = checkTable.executeQuery();
-            return !rs.first();
+            try(ResultSet rs = checkTable.executeQuery()){
+                return !rs.first();
+            }
         }
     }
 
@@ -65,7 +66,7 @@ public class Database implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (cp != null) {
             cp.dispose();
         }

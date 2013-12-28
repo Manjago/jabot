@@ -25,11 +25,11 @@ public class LogEntry {
     }
 
     public Date getEventDate() {
-        return eventDate;
+        return eventDate != null ? new Date(eventDate.getTime()) : null;
     }
 
     public void setEventDate(Date eventDate) {
-        this.eventDate = eventDate;
+        this.eventDate = eventDate != null ? new Date(eventDate.getTime()) : null;
     }
 
     public String getText() {

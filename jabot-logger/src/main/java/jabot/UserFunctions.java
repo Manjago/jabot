@@ -2,8 +2,6 @@ package jabot;
 
 import java.sql.Clob;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +14,7 @@ public final class UserFunctions {
 
     public static int findByPattern(Clob clob, String patternStr) throws SQLException {
 
-        if (clob == null || patternStr == null){
+        if (clob == null || patternStr == null) {
             return 0;
         }
 
