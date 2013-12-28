@@ -1,4 +1,4 @@
-package jabot;
+package jabot.logger;
 
 import java.sql.Clob;
 import java.sql.SQLException;

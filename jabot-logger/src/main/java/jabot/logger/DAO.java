@@ -1,6 +1,6 @@
-package jabot;
+package jabot.logger;
 
-import jabot.dto.LogEntry;
+import jabot.logger.dto.LogEntry;
 
 import java.sql.SQLException;
 import java.util.Date;

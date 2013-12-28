@@ -22,7 +22,7 @@
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>../jabot-translator/target</directory>
+            <directory>../jabot-logger/target</directory>
             <includes>
                 <include>*.jar</include>
             </includes>

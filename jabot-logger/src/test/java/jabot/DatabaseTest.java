@@ -1,6 +1,8 @@
 package jabot;
 
-import jabot.dto.LogEntry;
+import jabot.logger.DAOImpl;
+import jabot.logger.Database;
+import jabot.logger.dto.LogEntry;
 import junit.framework.TestCase;
 import org.junit.Test;
 

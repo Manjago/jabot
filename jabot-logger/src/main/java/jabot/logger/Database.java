@@ -1,4 +1,4 @@
-package jabot;
+package jabot.logger;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 
@@ -44,7 +44,7 @@ public final class Database implements AutoCloseable {
                         ");\n");
                 execStatement(conn, "ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
                 execStatement(conn, "CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
-                execStatement(conn, "CREATE ALIAS FINDBYREGEXP FOR \"jabot.UserFunctions.findByPattern\";");
+                execStatement(conn, "CREATE ALIAS FINDBYREGEXP FOR \"jabot.logger.UserFunctions.findByPattern\";");
             }
 
         }

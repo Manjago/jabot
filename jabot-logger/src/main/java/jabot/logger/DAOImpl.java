@@ -1,6 +1,6 @@
-package jabot;
+package jabot.logger;
 
-import jabot.dto.LogEntry;
+import jabot.logger.dto.LogEntry;
 
 import java.io.StringReader;
 import java.sql.*;
@@ -107,7 +107,9 @@ public class DAOImpl implements DAO {
                     r.setId(rs.getLong("ID"));
 
                     Clob clob = rs.getClob("TEXT");
-                    r.setText(clob.getSubString(1, (int) clob.length()));
+                    if (clob != null){
+                        r.setText(clob.getSubString(1, (int) clob.length()));
+                    }
 
                     return r;
                 }

@@ -1,4 +1,4 @@
-package jabot.dto;
+package jabot.logger.dto;
 
 import java.util.Date;
 

@@ -1,5 +1,9 @@
-package jabot;
+package jabot.translator;
 
+import jabot.Addr3D;
+import jabot.Helper;
+import jabot.JabotException;
+import jabot.PluginVersion;
 import jabot.chat.*;
 import jabot.room.*;
 import org.slf4j.Logger;
