@@ -46,4 +46,9 @@ public class RoomMessage implements RoomInQueueItem {
     public RoomMessageType getType() {
         return RoomMessageType.MSG;
     }
+
+    @Override
+    public String display(RoomMessageFormatter fmt) {
+        return fmt.message(from, body);
+    }
 }

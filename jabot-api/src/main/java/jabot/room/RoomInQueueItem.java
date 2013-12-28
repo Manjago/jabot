@@ -5,4 +5,5 @@ package jabot.room;
  */
 public interface RoomInQueueItem {
     RoomMessageType getType();
+    String display(RoomMessageFormatter fmt);
 }

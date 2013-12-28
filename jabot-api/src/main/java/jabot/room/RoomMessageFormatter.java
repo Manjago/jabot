@@ -1,6 +1,6 @@
-package jabot;
+package jabot.room;
 
-public interface MessageFormatter {
+public interface RoomMessageFormatter {
     String message(String from, String body);
     String setSubject(String from, String subject);
     String kicked(String participant, String actor, String reason);

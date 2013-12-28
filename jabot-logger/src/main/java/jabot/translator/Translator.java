@@ -2,7 +2,10 @@ package jabot.translator;
 
 import jabot.*;
 import jabot.chat.*;
-import jabot.room.*;
+import jabot.room.RoomInQueueItem;
+import jabot.room.RoomMessageFormatter;
+import jabot.room.RoomOutQueueItem;
+import jabot.room.RoomPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +26,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
     private Executor executor;
-    private final MessageFormatter fmt = new DefaulMessageFormatter();
+    private final RoomMessageFormatter fmt = new DefaulRoomMessageFormatter();
 
     public Translator(String config) {
         Properties props;
@@ -194,105 +197,11 @@ public class Translator implements RoomPlugin, ChatPlugin {
             RoomInQueueItem item = roomInQueue.take();
 
             logger.debug("got room item {}", item);
-
-            if (item instanceof RoomParticipantMessage) {
-
-                processParticipantMessage((RoomParticipantMessage) item);
-
-                continue;
-            }
-
-            switch (item.getType()) {
-                case MSG:
-                    RoomMessage msg = (RoomMessage) item;
-                    chatOut(fmt.message(msg.getFrom(), msg.getBody()));
-                    break;
-                case SUBJECT:
-                    RoomSubjectMessage sm = (RoomSubjectMessage) item;
-                    chatOut(fmt.setSubject(sm.getFrom(), sm.getSubject()));
-                    break;
-                case DELAYED_MSG:
-                    // ignore
-                    break;
-                case KICKED: {
-                    final RoomParticipantBannedMessage roomParticipantBannedMessage = (RoomParticipantBannedMessage) item;
-                    chatOut(fmt.kicked(roomParticipantBannedMessage.getParticipant(), roomParticipantBannedMessage.getActor(), roomParticipantBannedMessage.getReason()));
-                }
-                break;
-                case BANNED: {
-                    final RoomParticipantBannedMessage roomParticipantBannedMessage = (RoomParticipantBannedMessage) item;
-                    chatOut(fmt.banned(roomParticipantBannedMessage.getParticipant(), roomParticipantBannedMessage.getActor(), roomParticipantBannedMessage.getReason()));
-                }
-                break;
-                case NICKNAME_CHANGED:
-                    final RoomNickChangedMessage roomNickChangedMessage = (RoomNickChangedMessage) item;
-                    chatOut(fmt.nickChanged(roomNickChangedMessage.getParticipant(), roomNickChangedMessage.getNewNick()));
-                    break;
-                default:
-                    logger.error("Unknown type {}", item.getType());
-                    break;
-
-            }
-
-
+            chatOut(item.display(fmt));
         }
 
         logger.info("leave thread");
 
-    }
-
-    private void processParticipantMessage(RoomParticipantMessage item) throws InterruptedException {
-        switch (item.getType()) {
-            case JOINED:
-                chatOut(fmt.joined(item.getParticipant()));
-                break;
-            case LEFT:
-                chatOut(fmt.left(item.getParticipant()));
-                break;
-            case VOICE_GRANTED:
-                chatOut(fmt.voiceGranted(item.getParticipant()));
-                break;
-            case VOICE_REVOKED:
-                chatOut(fmt.voiceRevoked(item.getParticipant()));
-                break;
-            default:
-                processRareParticipantMessage(item);
-                break;
-
-        }
-    }
-
-    private void processRareParticipantMessage(RoomParticipantMessage item) throws InterruptedException {
-        switch (item.getType()) {
-            case MEMBERSHIP_GRANTED:
-                chatOut(fmt.memberGranted(item.getParticipant()));
-                break;
-            case MEMBERSHIP_REVOKED:
-                chatOut(fmt.memberRevoked(item.getParticipant()));
-                break;
-            case MODERATOR_GRANTED:
-                chatOut(fmt.moderGranted(item.getParticipant()));
-                break;
-            case MODERATOR_REVOKED:
-                chatOut(fmt.moderRevoked(item.getParticipant()));
-                break;
-            case OWNERSHIP_GRANTED:
-                chatOut(fmt.ownerGranted(item.getParticipant()));
-                break;
-            case OWNERSHIP_REVOKED:
-                chatOut(fmt.ownerRevoked(item.getParticipant()));
-                break;
-            case ADMIN_GRANTED:
-                chatOut(fmt.adminGranted(item.getParticipant()));
-                break;
-            case ADMIN_REVOKED:
-                chatOut(fmt.adminRevoked(item.getParticipant()));
-                break;
-            default:
-                logger.error("Unknown type {}", item.getType());
-                break;
-
-        }
     }
 
     private void chatOut(String s) throws InterruptedException {

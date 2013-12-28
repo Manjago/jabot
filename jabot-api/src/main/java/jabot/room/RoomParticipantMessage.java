@@ -3,7 +3,7 @@ package jabot.room;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class RoomParticipantMessage implements RoomInQueueItem {
+public abstract class RoomParticipantMessage implements RoomInQueueItem {
 
     private final String participant;
     private final RoomMessageType type;

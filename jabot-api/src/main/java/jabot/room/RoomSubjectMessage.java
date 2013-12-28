@@ -33,4 +33,9 @@ public class RoomSubjectMessage implements RoomInQueueItem {
     public RoomMessageType getType() {
         return RoomMessageType.SUBJECT;
     }
+
+    @Override
+    public String display(RoomMessageFormatter fmt) {
+        return fmt.setSubject(from, subject);
+    }
 }

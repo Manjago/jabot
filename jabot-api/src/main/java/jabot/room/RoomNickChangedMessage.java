@@ -27,6 +27,11 @@ public class RoomNickChangedMessage implements RoomInQueueItem {
     }
 
     @Override
+    public String display(RoomMessageFormatter fmt) {
+        return fmt.nickChanged(participant, newNick);
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("RoomNickChangedMessage{");
         sb.append("participant='").append(participant).append('\'');

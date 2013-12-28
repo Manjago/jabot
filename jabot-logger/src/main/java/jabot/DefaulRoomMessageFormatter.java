@@ -1,8 +1,10 @@
 package jabot;
 
+import jabot.room.RoomMessageFormatter;
+
 import java.text.MessageFormat;
 
-public class DefaulMessageFormatter implements MessageFormatter{
+public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
     @Override
     public String message(String from, String body) {
         return MessageFormat.format("{0}: {1}", from, body);

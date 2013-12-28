@@ -137,13 +137,23 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     @Override
-    public void joined(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.JOINED));
+    public void joined(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.JOINED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.joined(participant);
+            }
+        });
     }
 
     @Override
-    public void left(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.LEFT));
+    public void left(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.LEFT){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.left(participant);
+            }
+        });
     }
 
     @Override
@@ -152,13 +162,23 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     @Override
-    public void voiceGranted(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_GRANTED));
+    public void voiceGranted(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_GRANTED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.voiceGranted(participant);
+            }
+        });
     }
 
     @Override
-    public void voiceRevoked(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_REVOKED));
+    public void voiceRevoked(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_REVOKED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.voiceRevoked(participant);
+            }
+        });
     }
 
     @Override
@@ -167,43 +187,83 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     @Override
-    public void membershipGranted(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_GRANTED));
+    public void membershipGranted(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_GRANTED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.memberGranted(participant);
+            }
+        });
     }
 
     @Override
-    public void membershipRevoked(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_REVOKED));
+    public void membershipRevoked(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_REVOKED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.memberRevoked(participant);
+            }
+        });
     }
 
     @Override
-    public void moderatorGranted(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_GRANTED));
+    public void moderatorGranted(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_GRANTED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.moderGranted(participant);
+            }
+        });
     }
 
     @Override
-    public void moderatorRevoked(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_REVOKED));
+    public void moderatorRevoked(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_REVOKED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.moderRevoked(participant);
+            }
+        });
     }
 
     @Override
-    public void ownershipGranted(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_GRANTED));
+    public void ownershipGranted(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_GRANTED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.ownerGranted(participant);
+            }
+        });
     }
 
     @Override
-    public void ownershipRevoked(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_REVOKED));
+    public void ownershipRevoked(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_REVOKED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.ownerRevoked(participant);
+            }
+        });
     }
 
     @Override
-    public void adminGranted(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_GRANTED));
+    public void adminGranted(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_GRANTED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.adminGranted(participant);
+            }
+        });
     }
 
     @Override
-    public void adminRevoked(String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_REVOKED));
+    public void adminRevoked(final String participant) {
+        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_REVOKED){
+            @Override
+            public String display(RoomMessageFormatter fmt) {
+                return fmt.adminRevoked(participant);
+            }
+        });
     }
 
     @Override
