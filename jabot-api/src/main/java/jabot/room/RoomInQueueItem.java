@@ -1,9 +1,11 @@
 package jabot.room;
 
+import jabot.JabotException;
+
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public interface RoomInQueueItem {
     RoomMessageType getType();
-    String display(RoomMessageFormatter fmt);
+    Object display(RoomMessageFormatter fmt) throws JabotException;
 }

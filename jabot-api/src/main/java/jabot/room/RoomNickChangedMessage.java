@@ -27,7 +27,7 @@ public class RoomNickChangedMessage implements RoomInQueueItem {
     }
 
     @Override
-    public String display(RoomMessageFormatter fmt) {
+    public Object display(RoomMessageFormatter fmt) {
         return fmt.nickChanged(participant, newNick);
     }
 

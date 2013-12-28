@@ -2,47 +2,33 @@ package jabot.translator;
 
 import jabot.*;
 import jabot.chat.*;
+import jabot.room.ConfigurableRoomPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
 import jabot.room.RoomOutQueueItem;
-import jabot.room.RoomPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class Translator implements RoomPlugin, ChatPlugin {
+public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private volatile boolean inited;
-    private BlockingQueue<RoomInQueueItem> roomInQueue;
-    private BlockingQueue<RoomOutQueueItem> roomOutQueue;
+    private final RoomMessageFormatter fmt = new DefaulRoomMessageFormatter();
     private BlockingQueue<ChatInQueueItem> chatInQueue;
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
-    private Executor executor;
-    private final RoomMessageFormatter fmt = new DefaulRoomMessageFormatter();
 
-    public Translator(String config) {
-        Properties props;
-        try {
-            props = Helper.getProperties(config);
-        } catch (JabotException e) {
-            logger.error("fail load props file {}", config, e);
-            return;
-        }
-
-        inited = init(props);
+    public Translator(String config) throws JabotException {
+        super(config);
         logger.debug("inited");
-
     }
 
-    private boolean init(Properties props) {
+    protected boolean init(Properties props) {
 
         if (props == null) {
             logger.error("empty properties");
@@ -59,16 +45,6 @@ public class Translator implements RoomPlugin, ChatPlugin {
     }
 
     @Override
-    public void setRoomOutQueue(BlockingQueue<RoomOutQueueItem> queue) {
-        roomOutQueue = queue;
-    }
-
-    @Override
-    public void setRoomInQueue(BlockingQueue<RoomInQueueItem> queue) {
-        roomInQueue = queue;
-    }
-
-    @Override
     public void setChatOutQueue(BlockingQueue<ChatOutQueueItem> queue) {
         chatOutQueue = queue;
     }
@@ -80,13 +56,13 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
     @Override
     public void start() throws InterruptedException {
-        if (!inited || roomOutQueue == null || chatOutQueue == null || executor == null) {
+        if (!isInited() || getRoomOutQueue() == null || chatOutQueue == null || getExecutor() == null) {
             logger.error("not inited!");
             return;
         }
 
         // в отдельной нити - цикл ожидания из чата
-        executor.execute(new Runnable() {
+        getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -102,11 +78,6 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
         logger.debug("inited, before room process loop");
         processRoom();
-    }
-
-    @Override
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
     }
 
     @Override
@@ -158,7 +129,7 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
         if (addrTo.equals(simpleAddr)) {
             final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
-            roomOutQueue.put(outQueueItem);
+            getRoomOutQueue().put(outQueueItem);
             logger.debug("send room item {}", outQueueItem);
         } else {
             logger.debug("skip message from wrong address {}", simpleAddr);
@@ -194,10 +165,14 @@ public class Translator implements RoomPlugin, ChatPlugin {
 
         while (!Thread.interrupted()) {
             logger.debug("waiting room item");
-            RoomInQueueItem item = roomInQueue.take();
+            RoomInQueueItem item = getRoomInQueue().take();
 
             logger.debug("got room item {}", item);
-            chatOut(item.display(fmt));
+            try {
+                chatOut(String.valueOf(item.display(fmt)));
+            } catch (JabotException e) {
+                logger.error("fail diplay item {}, ignored", item, e);
+            }
         }
 
         logger.info("leave thread");

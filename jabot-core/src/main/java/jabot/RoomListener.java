@@ -140,7 +140,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void joined(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.JOINED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.joined(participant);
             }
         });
@@ -150,7 +150,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void left(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.LEFT){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.left(participant);
             }
         });
@@ -165,7 +165,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void voiceGranted(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_GRANTED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.voiceGranted(participant);
             }
         });
@@ -175,7 +175,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void voiceRevoked(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_REVOKED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.voiceRevoked(participant);
             }
         });
@@ -190,7 +190,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void membershipGranted(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_GRANTED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.memberGranted(participant);
             }
         });
@@ -200,7 +200,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void membershipRevoked(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_REVOKED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.memberRevoked(participant);
             }
         });
@@ -210,7 +210,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void moderatorGranted(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_GRANTED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.moderGranted(participant);
             }
         });
@@ -220,7 +220,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void moderatorRevoked(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_REVOKED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.moderRevoked(participant);
             }
         });
@@ -230,7 +230,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void ownershipGranted(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_GRANTED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.ownerGranted(participant);
             }
         });
@@ -240,7 +240,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void ownershipRevoked(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_REVOKED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.ownerRevoked(participant);
             }
         });
@@ -250,7 +250,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void adminGranted(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_GRANTED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.adminGranted(participant);
             }
         });
@@ -260,7 +260,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void adminRevoked(final String participant) {
         send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_REVOKED){
             @Override
-            public String display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) {
                 return fmt.adminRevoked(participant);
             }
         });

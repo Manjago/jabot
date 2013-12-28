@@ -35,7 +35,7 @@ public class RoomSubjectMessage implements RoomInQueueItem {
     }
 
     @Override
-    public String display(RoomMessageFormatter fmt) {
+    public Object display(RoomMessageFormatter fmt) {
         return fmt.setSubject(from, subject);
     }
 }

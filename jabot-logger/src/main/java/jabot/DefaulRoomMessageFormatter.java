@@ -72,12 +72,12 @@ public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
 
     @Override
     public String ownerGranted(String participant) {
-        return MessageFormat.format("{0} стал собственником", participant);
+        return MessageFormat.format("{0} стал владельцем!", participant);
     }
 
     @Override
     public String ownerRevoked(String participant) {
-        return MessageFormat.format("{0} перестал быть собственником", participant);
+        return MessageFormat.format("{0} перестал быть владельцем, бедолага", participant);
     }
 
     @Override

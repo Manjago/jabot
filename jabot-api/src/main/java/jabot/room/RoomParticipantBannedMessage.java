@@ -1,5 +1,7 @@
 package jabot.room;
 
+import jabot.JabotException;
+
 import java.text.MessageFormat;
 
 /**
@@ -37,14 +39,14 @@ public class RoomParticipantBannedMessage implements RoomInQueueItem {
     }
 
     @Override
-    public String display(RoomMessageFormatter fmt) {
+    public Object display(RoomMessageFormatter fmt) throws JabotException {
         switch (type){
             case KICKED:
                 return fmt.kicked(participant, actor, reason);
             case BANNED:
                 return fmt.banned(participant, actor, reason);
             default:
-                return MessageFormat.format("Unkonown message for {0}, {1}, {2}", participant, actor, reason);
+                throw new JabotException(MessageFormat.format("Unkonown message for {0}, {1}, {2}", participant, actor, reason));
         }
     }
 
