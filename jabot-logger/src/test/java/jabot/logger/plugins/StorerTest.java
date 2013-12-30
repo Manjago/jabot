@@ -20,12 +20,7 @@ public class StorerTest {
 
     @Before
     public void setUp() throws Exception {
-        storer = new Storer(new Clockwork() {
-            @Override
-            public Date getCurrent() {
-                return current;
-            }
-        });
+        storer = new Storer(new ClockworkMock(current));
     }
 
     @Test
@@ -89,7 +84,17 @@ public class StorerTest {
 
     @Test
     public void testSetSubject() throws Exception {
-
+        // todo implement
+//        LogEntry e = storer.setSubject("fido828@conference.jabber.ru/Temnenkov", "!");
+//
+//        assertNotNull("все пропало - нулл наша установка субжекта", e);
+//        assertEquals("fido828@conference.jabber.ru", e.getConference());
+//        assertEquals("Temnenkov", e.getFrom());
+//        assertEquals("!", e.getText());
+//        assertEquals(current, e.getEventDate());
+//        assertEquals(0L, e.getId());
+//        assertEquals(true, e.isValid());
+//        assertEquals(EntryType.SUBJECTSET, e.getEntryType());
     }
 
     @Test

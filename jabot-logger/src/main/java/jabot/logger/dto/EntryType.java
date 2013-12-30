@@ -4,17 +4,12 @@ package jabot.logger.dto;
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public enum EntryType {
-    MSG((byte) 0), SUBJECTONSTART((byte)1),
-    DELAYMSG((byte) 2);
-
+    MSG((byte) 0), SUBJECTONSTART((byte) 1),
+    DELAYMSG((byte) 2), SUBJECTSET((byte) 3);
     private final byte msgType;
 
     EntryType(byte msgType) {
         this.msgType = msgType;
-    }
-
-    public byte getMsgType() {
-        return msgType;
     }
 
     public static EntryType fromMsgType(byte v) {
@@ -25,6 +20,10 @@ public enum EntryType {
         }
 
         return null;
+    }
+
+    public byte getMsgType() {
+        return msgType;
     }
 
 

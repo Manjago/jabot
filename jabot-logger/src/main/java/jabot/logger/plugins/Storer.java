@@ -67,7 +67,7 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object setSubject(String from, String subject) {
+    public LogEntry setSubject(String from, String subject) {
         return null;
     }
 
