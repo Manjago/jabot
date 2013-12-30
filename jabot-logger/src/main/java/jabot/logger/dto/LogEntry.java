@@ -11,8 +11,17 @@ public class LogEntry {
     private String text;
     private String conference;
     private String from;
+    private boolean fromMe;
 
-    public boolean isValid(){
+    public boolean isFromMe() {
+        return fromMe;
+    }
+
+    public void setFromMe(boolean fromMe) {
+        this.fromMe = fromMe;
+    }
+
+    public boolean isValid() {
         return eventDate != null && text != null && conference != null && from != null;
     }
 
@@ -58,13 +67,13 @@ public class LogEntry {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LogEntry{");
-        sb.append("id=").append(id);
-        sb.append(", eventDate=").append(eventDate);
-        sb.append(", text='").append(text).append('\'');
-        sb.append(", conference='").append(conference).append('\'');
-        sb.append(", from='").append(from).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "LogEntry{" +
+                "id=" + id +
+                ", eventDate=" + eventDate +
+                ", text='" + text + '\'' +
+                ", conference='" + conference + '\'' +
+                ", from='" + from + '\'' +
+                ", fromMe=" + fromMe +
+                '}';
     }
 }

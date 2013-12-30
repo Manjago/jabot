@@ -3,12 +3,13 @@ package jabot;
 import jabot.logger.DAOImpl;
 import jabot.logger.Database;
 import jabot.logger.dto.LogEntry;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static junit.framework.TestCase.*;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -42,8 +43,8 @@ public class DatabaseTest {
             dao.store(e);
 
             LogEntry e2 = dao.getById(1L);
-            TestCase.assertNotNull(e2);
-            TestCase.assertEquals(1L, e2.getId());
+            assertNotNull(e2);
+            assertEquals(1L, e2.getId());
         }
 
 
@@ -63,18 +64,18 @@ public class DatabaseTest {
             e.setEventDate(new Date(2013, 1, 1));
             e.setFrom("fromm");
             e.setText("texxt");
+            e.setFromMe(true);
 
             dao.store(e);
 
             LogEntry loaded = dao.getById(1L);
-            TestCase.assertNotNull(loaded);
-            TestCase.assertEquals(1L, loaded.getId());
-            TestCase.assertEquals("testconf", loaded.getConference());
-            TestCase.assertEquals(new Date(2013, 1, 1), loaded.getEventDate());
-            TestCase.assertEquals("fromm", loaded.getFrom());
-            TestCase.assertEquals("texxt", loaded.getText());
-
-
+            assertNotNull(loaded);
+            assertEquals(1L, loaded.getId());
+            assertEquals("testconf", loaded.getConference());
+            assertEquals(new Date(2013, 1, 1), loaded.getEventDate());
+            assertEquals("fromm", loaded.getFrom());
+            assertEquals("texxt", loaded.getText());
+            assertEquals(true, loaded.isFromMe());
         }
 
 
@@ -98,11 +99,11 @@ public class DatabaseTest {
             dao.store(e);
 
             LogEntry eLoaded = dao.getById(1L);
-            TestCase.assertNotNull(eLoaded);
-            TestCase.assertEquals(1L, eLoaded.getId());
+            assertNotNull(eLoaded);
+            assertEquals(1L, eLoaded.getId());
 
             LogEntry loaded = dao.getById(2L);
-            TestCase.assertNull(loaded);
+            assertNull(loaded);
 
         }
 
@@ -125,6 +126,7 @@ public class DatabaseTest {
             e.setEventDate(new Date(2013, 1, 1, 1, 1, 2));
             e.setFrom("fromm");
             e.setText("texxt");
+            e.setFromMe(false);
 
             dataStore.add(e);
 
@@ -133,26 +135,28 @@ public class DatabaseTest {
             e2.setEventDate(new Date(2013, 1, 1, 1, 5, 2));
             e2.setFrom("fromm");
             e2.setText("texxt");
+            e2.setFromMe(true);
 
             dataStore.add(e2);
 
             dao.store(dataStore);
 
             List<LogEntry> data = dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2));
-            TestCase.assertEquals(2, data.size());
+            assertEquals(2, data.size());
 
             LogEntry loaded = data.get(1);
-            TestCase.assertNotNull(loaded);
-            TestCase.assertEquals(2L, loaded.getId());
-            TestCase.assertEquals("testconf", loaded.getConference());
-            TestCase.assertEquals(new Date(2013, 1, 1, 1, 5, 2), loaded.getEventDate());
-            TestCase.assertEquals("fromm", loaded.getFrom());
-            TestCase.assertEquals("texxt", loaded.getText());
+            assertNotNull(loaded);
+            assertEquals(2L, loaded.getId());
+            assertEquals("testconf", loaded.getConference());
+            assertEquals(new Date(2013, 1, 1, 1, 5, 2), loaded.getEventDate());
+            assertEquals("fromm", loaded.getFrom());
+            assertEquals("texxt", loaded.getText());
+            assertEquals(true, loaded.isFromMe());
 
-            TestCase.assertEquals(0, dao.getByPeriod(new Date(2016, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2)).size());
+            assertEquals(0, dao.getByPeriod(new Date(2016, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2)).size());
 
-            TestCase.assertEquals(2, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 2)).size());
-            TestCase.assertEquals(1, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 1)).size());
+            assertEquals(2, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 2)).size());
+            assertEquals(1, dao.getByPeriod(new Date(2011, 1, 1, 1, 1, 2), new Date(2013, 1, 1, 1, 5, 1)).size());
 
         }
 
@@ -179,9 +183,9 @@ public class DatabaseTest {
             dao.store(dataStore);
 
             List<LogEntry> data = dao.getByReg("xt1", 10);
-            TestCase.assertEquals(10, data.size());
-            TestCase.assertEquals(20, data.get(0).getId());
-            TestCase.assertEquals("texxt19", data.get(0).getText());
+            assertEquals(10, data.size());
+            assertEquals(20, data.get(0).getId());
+            assertEquals("texxt19", data.get(0).getText());
 
         }
 

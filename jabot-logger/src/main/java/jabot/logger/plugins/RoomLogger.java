@@ -29,17 +29,6 @@ public class RoomLogger extends ConfigurableRoomPlugin {
     }
 
     @Override
-    protected void finalize() throws Throwable {
-        try {
-            if (db != null) {
-                db.close();
-            }
-        } finally {
-            super.finalize();
-        }
-    }
-
-    @Override
     public void start() throws InterruptedException {
         if (!isInited() || getRoomOutQueue() == null || getExecutor() == null) {
             logger.error("not inited!");
@@ -78,4 +67,17 @@ public class RoomLogger extends ConfigurableRoomPlugin {
             }
         };
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            if (db != null) {
+                db.close();
+            }
+        } finally {
+            super.finalize();
+        }
+    }
+
+
 }

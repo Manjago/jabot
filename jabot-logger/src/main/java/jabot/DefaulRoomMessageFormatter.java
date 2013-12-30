@@ -12,12 +12,12 @@ public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
     }
 
     @Override
-    public Object subjectMessage(String from, String body, boolean fromMe) {
+    public String subjectMessage(String from, String body, boolean fromMe) {
         return body;
     }
 
     @Override
-    public Object delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
+    public String delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
         return "";
     }
 

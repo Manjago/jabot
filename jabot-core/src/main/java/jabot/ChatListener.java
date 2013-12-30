@@ -80,7 +80,7 @@ public class ChatListener implements PacketListener {
 
         } else if (packet instanceof Presence) {
             Presence p = (Presence) packet;
-            logger.debug("presence {} {}", p.getType(), p.getFrom());
+            logger.trace("presence {} {}", p.getType(), p.getFrom());
 
             if (pluginInQueues != null) {
                 final ChatPresence chatPresence = new ChatPresence(p.getType().name(), p.getFrom());
