@@ -3,7 +3,9 @@ package jabot;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -57,6 +59,14 @@ public final class Helper {
             throw new IllegalArgumentException();
         }
         return reference;
+    }
+
+    public static Date safeDate(Date value){
+        return value != null ? new Date(value.getTime()) : null;
+    }
+
+    public static Timestamp safeTimestamp(Date value){
+        return value != null ? new Timestamp(value.getTime()) : null;
     }
 
 }

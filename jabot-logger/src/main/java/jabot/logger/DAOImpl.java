@@ -1,5 +1,6 @@
 package jabot.logger;
 
+import jabot.Helper;
 import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 
@@ -14,11 +15,11 @@ import java.util.List;
  */
 public class DAOImpl implements DAO {
 
-    private static final String INSERT_LOG_ENTRY = "INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT, FROMME, MSGTYPE )\n" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_BY_ID = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE FROM LOGDATA WHERE ID = ?";
-    private static final String SELECT_BY_PERIOD = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? ORDER BY EVENTDATE";
-    private static final String SELECT_BY_REGEXP = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 AND MSGTYPE = 0 ORDER BY EVENTDATE DESC LIMIT ?";
+    private static final String INSERT_LOG_ENTRY = "INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT, FROMME, MSGTYPE, DELAY)\n" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_BY_ID = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE, DELAY FROM LOGDATA WHERE ID = ?";
+    private static final String SELECT_BY_PERIOD = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE, DELAY FROM LOGDATA WHERE EVENTDATE BETWEEN ? AND ? AND MSGTYPE <> 2 ORDER BY EVENTDATE";
+    private static final String SELECT_BY_REGEXP = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE, DELAY FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 AND MSGTYPE = 0 ORDER BY EVENTDATE DESC LIMIT ?";
     private Database db;
 
     private static void storeLogEntry(PreparedStatement ps, LogEntry logEntry) throws SQLException {
@@ -29,14 +30,16 @@ public class DAOImpl implements DAO {
         final int textIndex = 5;
         final int fromeIndex = 6;
         final int msgtypeIndex = 7;
+        final int delayIndex = 8;
 
         ps.setString(conferenceIndex, logEntry.getConference());
         ps.setByte(entryTypeIndex, (byte) 0);
-        ps.setTimestamp(eventDateIndex, new Timestamp(logEntry.getEventDate().getTime()));
+        ps.setTimestamp(eventDateIndex, Helper.safeTimestamp(logEntry.getEventDate()));
         ps.setString(nickIndex, logEntry.getFrom());
         ps.setClob(textIndex, new StringReader(logEntry.getText()));
         ps.setBoolean(fromeIndex, logEntry.isFromMe());
         ps.setByte(msgtypeIndex, logEntry.getEntryType().getMsgType());
+        ps.setTimestamp(delayIndex, Helper.safeTimestamp(logEntry.getDelayDate()));
         ps.execute();
     }
 
@@ -48,6 +51,7 @@ public class DAOImpl implements DAO {
         r.setId(rs.getLong("ID"));
         r.setFromMe(rs.getBoolean("FROMME"));
         r.setEntryType(EntryType.fromMsgType(rs.getByte("MSGTYPE")));
+        r.setDelayDate(rs.getTimestamp("DELAY"));
 
         Clob clob = rs.getClob("TEXT");
         if (clob != null) {
@@ -130,8 +134,8 @@ public class DAOImpl implements DAO {
 
         try (Connection conn = db.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(SELECT_BY_PERIOD)) {
-                ps.setTimestamp(1, new Timestamp(from.getTime()));
-                ps.setTimestamp(2, new Timestamp(to.getTime()));
+                ps.setTimestamp(1, Helper.safeTimestamp(from));
+                ps.setTimestamp(2, Helper.safeTimestamp(to));
                 try (ResultSet rs = ps.executeQuery()) {
                     List<LogEntry> result = new ArrayList<>();
                     extractLogEntryList(rs, result);

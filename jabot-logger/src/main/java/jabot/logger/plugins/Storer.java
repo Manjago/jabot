@@ -1,6 +1,7 @@
 package jabot.logger.plugins;
 
 import jabot.Addr3D;
+import jabot.Helper;
 import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 import jabot.room.RoomMessageFormatter;
@@ -25,7 +26,7 @@ public class Storer implements RoomMessageFormatter {
         Addr3D addr = Addr3D.fromRaw(from);
 
         e.setConference(addr.getNameServer());
-        e.setEventDate(clockwork.getCurrent());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
         e.setFrom(addr.getResource());
         e.setText(body);
         e.setFromMe(fromMe);
@@ -40,7 +41,7 @@ public class Storer implements RoomMessageFormatter {
 
         Addr3D addr = Addr3D.fromRaw(from);
         e.setConference(addr.getNameServer());
-        e.setEventDate(clockwork.getCurrent());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
         e.setFrom("");
         e.setText(body);
         e.setEntryType(EntryType.SUBJECTONSTART);
@@ -49,8 +50,20 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
-        return null;
+    public LogEntry delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(from);
+
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
+        e.setText(body);
+        e.setFromMe(fromMe);
+        e.setDelayDate(Helper.safeDate(timestamp));
+        e.setEntryType(EntryType.DELAYMSG);
+
+        return e;
     }
 
     @Override

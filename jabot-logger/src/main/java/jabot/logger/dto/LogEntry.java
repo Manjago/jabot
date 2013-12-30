@@ -1,5 +1,7 @@
 package jabot.logger.dto;
 
+import jabot.Helper;
+
 import java.util.Date;
 
 /**
@@ -13,6 +15,15 @@ public class LogEntry {
     private String from;
     private boolean fromMe;
     private EntryType entryType;
+    private Date delayDate;
+
+    public Date getDelayDate() {
+        return Helper.safeDate(delayDate);
+    }
+
+    public void setDelayDate(Date delayDate) {
+        this.delayDate = Helper.safeDate(delayDate);
+    }
 
     public EntryType getEntryType() {
         return entryType;
@@ -36,11 +47,26 @@ public class LogEntry {
             return false;
         }
 
-        if ( conference == null || from == null || entryType == null){
+        if (conference == null || from == null || entryType == null) {
+            return false;
+        }
+
+        if (failCheckDelayedPart()) {
             return false;
         }
 
         return true;
+    }
+
+    private boolean failCheckDelayedPart() {
+        if (EntryType.DELAYMSG.equals(entryType) && delayDate == null) {
+            return true;
+        }
+
+        if (!EntryType.DELAYMSG.equals(entryType) && delayDate != null) {
+            return true;
+        }
+        return false;
     }
 
     public long getId() {
@@ -52,11 +78,11 @@ public class LogEntry {
     }
 
     public Date getEventDate() {
-        return eventDate != null ? new Date(eventDate.getTime()) : null;
+        return Helper.safeDate(eventDate);
     }
 
     public void setEventDate(Date eventDate) {
-        this.eventDate = eventDate != null ? new Date(eventDate.getTime()) : null;
+        this.eventDate = Helper.safeDate(eventDate);
     }
 
     public String getText() {
@@ -93,6 +119,7 @@ public class LogEntry {
                 ", from='" + from + '\'' +
                 ", fromMe=" + fromMe +
                 ", entryType=" + entryType +
+                ", delayDate=" + delayDate +
                 '}';
     }
 }

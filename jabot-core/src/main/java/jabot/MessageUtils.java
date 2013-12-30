@@ -19,7 +19,7 @@ public final class MessageUtils {
     public static Date getDelayStamp(Message msg){
         if (msg != null && (msg.getExtension("delay", "urn:xmpp:delay") instanceof DelayInfo)){
             DelayInfo delayInfo = (DelayInfo) msg.getExtension("delay", "urn:xmpp:delay");
-            return delayInfo.getStamp() == null ? null : new Date(delayInfo.getStamp().getTime());
+            return Helper.safeDate(delayInfo.getStamp());
         }
 
         return null;

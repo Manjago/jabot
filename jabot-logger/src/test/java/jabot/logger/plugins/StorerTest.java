@@ -73,7 +73,18 @@ public class StorerTest {
 
     @Test
     public void testDelayedMessage() throws Exception {
+        LogEntry e = storer.delayedMessage("fido828@conference.jabber.ru/tihobot", "тестовое сообщение", true, new Date(2022, 6, 7, 8, 9, 10));
 
+        assertNotNull("все пропало - нулл наше старое сообщение", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("tihobot", e.getFrom());
+        assertEquals("тестовое сообщение", e.getText());
+        assertEquals(current, e.getEventDate());
+        assertEquals(0L, e.getId());
+        assertEquals(true, e.isValid());
+        assertEquals(true, e.isFromMe());
+        assertEquals(new Date(2022, 6, 7, 8, 9, 10), e.getDelayDate());
+        assertEquals(EntryType.DELAYMSG, e.getEntryType());
     }
 
     @Test
