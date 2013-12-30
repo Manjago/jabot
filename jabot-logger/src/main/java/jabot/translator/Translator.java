@@ -30,14 +30,16 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
 
     protected boolean init(Properties props) {
 
+        final Logger logg = LoggerFactory.getLogger(getClass());
+
         if (props == null) {
-            logger.error("empty properties");
+            logg.error("empty properties");
             return false;
         }
 
         addrTo = props.getProperty("addrTo");
         if (Helper.isEmptyStr(addrTo)) {
-            logger.error("no address to");
+            logg.error("no address to");
             return false;
         }
 
@@ -180,6 +182,9 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     }
 
     private void chatOut(String s) throws InterruptedException {
+        if (Helper.isEmptyStr(s)){
+            return;
+        }
         final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, s);
         chatOutQueue.put(chatOutQueueItem);
         logger.debug("send to chat {}", chatOutQueueItem);

@@ -1,7 +1,11 @@
 package jabot.room;
 
+import java.util.Date;
+
 public interface RoomMessageFormatter {
-    Object message(String from, String body);
+    Object message(String from, String body, boolean fromMe);
+    Object subjectMessage(String from, String body, boolean fromMe);
+    Object delayedMessage(String from, String body, boolean fromMe, Date timestamp);
     Object setSubject(String from, String subject);
     Object kicked(String participant, String actor, String reason);
     Object banned(String participant, String actor, String reason);

@@ -1,7 +1,10 @@
 package jabot;
 
 import jabot.chat.ChatPlugin;
-import jabot.room.*;
+import jabot.room.RoomInQueueItem;
+import jabot.room.RoomMessageFormatter;
+import jabot.room.RoomOutQueueItem;
+import jabot.room.RoomPlugin;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -80,7 +83,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     @Override
     public void processPacket(Packet packet) {
         if (packet instanceof Message) {
-            Message msg = (Message) packet;
+            final Message msg = (Message) packet;
             logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
 
             if (
@@ -93,14 +96,29 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
             RoomInQueueItem item;
 
             if (MessageUtils.isSubjectMessage(msg)) {
-                item = new RoomMessage(msg.getFrom(),
-                        msg.getBody(), meAddress.equals(msg.getFrom()));
+                item = new RoomInQueueItem() {
+                    @Override
+                    public Object display(RoomMessageFormatter fmt) throws JabotException {
+                        return fmt.subjectMessage(msg.getFrom(),
+                                msg.getBody(), meAddress.equals(msg.getFrom()));
+                    }
+                };
             } else if (MessageUtils.isDelayedMessage(msg)) {
-                item = new RoomDelayedMessage(msg.getFrom(),
-                        msg.getBody(), meAddress.equals(msg.getFrom()), MessageUtils.getDelayStamp(msg));
+                item = new RoomInQueueItem() {
+                    @Override
+                    public Object display(RoomMessageFormatter fmt) throws JabotException {
+                        return fmt.delayedMessage(msg.getFrom(),
+                                msg.getBody(), meAddress.equals(msg.getFrom()), MessageUtils.getDelayStamp(msg));
+                    }
+                };
             } else {
-                item = new RoomMessage(msg.getFrom(),
-                        msg.getBody(), meAddress.equals(msg.getFrom()));
+                item = new RoomInQueueItem() {
+                    @Override
+                    public Object display(RoomMessageFormatter fmt) throws JabotException {
+                        return fmt.message(msg.getFrom(),
+                                msg.getBody(), meAddress.equals(msg.getFrom()));
+                    }
+                };
             }
             send(item);
 
@@ -111,11 +129,16 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     @Override
-    public void subjectUpdated(String subject, String from) {
+    public void subjectUpdated(final String subject, final String from) {
         logger.debug(MessageFormat.format("message: {0} set subject {1}", from, subject));
 
         if (from != null && from.contains("/")) {
-            send(new RoomSubjectMessage(subject, from));
+            send(new RoomInQueueItem() {
+                @Override
+                public Object display(RoomMessageFormatter fmt) throws JabotException {
+                    return fmt.setSubject(from, subject);
+                }
+            });
         }
 
     }
@@ -138,7 +161,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void joined(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.JOINED){
+        send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) {
                 return fmt.joined(participant);
@@ -148,7 +171,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void left(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.LEFT){
+        send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) {
                 return fmt.left(participant);
@@ -157,15 +180,20 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     }
 
     @Override
-    public void kicked(String participant, String actor, String reason) {
-        send(new RoomParticipantBannedMessage(participant, actor, reason, RoomMessageType.KICKED));
+    public void kicked(final String participant, final String actor, final String reason) {
+        send(new RoomInQueueItem() {
+            @Override
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
+                return fmt.kicked(participant, actor, reason);
+            }
+        });
     }
 
     @Override
     public void voiceGranted(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_GRANTED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.voiceGranted(participant);
             }
         });
@@ -173,24 +201,29 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void voiceRevoked(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.VOICE_REVOKED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.voiceRevoked(participant);
             }
         });
     }
 
     @Override
-    public void banned(String participant, String actor, String reason) {
-        send(new RoomParticipantBannedMessage(participant, actor, reason, RoomMessageType.BANNED));
+    public void banned(final String participant, final String actor, final String reason) {
+        send(new RoomInQueueItem() {
+            @Override
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
+                return fmt.banned(participant, actor, reason);
+            }
+        });
     }
 
     @Override
     public void membershipGranted(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_GRANTED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.memberGranted(participant);
             }
         });
@@ -198,9 +231,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void membershipRevoked(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MEMBERSHIP_REVOKED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.memberRevoked(participant);
             }
         });
@@ -208,9 +241,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void moderatorGranted(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_GRANTED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.moderGranted(participant);
             }
         });
@@ -218,9 +251,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void moderatorRevoked(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.MODERATOR_REVOKED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.moderRevoked(participant);
             }
         });
@@ -228,9 +261,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void ownershipGranted(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_GRANTED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.ownerGranted(participant);
             }
         });
@@ -238,9 +271,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void ownershipRevoked(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.OWNERSHIP_REVOKED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.ownerRevoked(participant);
             }
         });
@@ -248,9 +281,9 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void adminGranted(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_GRANTED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.adminGranted(participant);
             }
         });
@@ -258,16 +291,21 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void adminRevoked(final String participant) {
-        send(new RoomParticipantMessage(participant, RoomMessageType.ADMIN_REVOKED){
+        send(new RoomInQueueItem() {
             @Override
-            public Object display(RoomMessageFormatter fmt) {
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
                 return fmt.adminRevoked(participant);
             }
         });
     }
 
     @Override
-    public void nicknameChanged(String participant, String newNickname) {
-        send(new RoomNickChangedMessage(participant, newNickname));
+    public void nicknameChanged(final String participant, final String newNickname) {
+        send(new RoomInQueueItem() {
+            @Override
+            public Object display(RoomMessageFormatter fmt) throws JabotException {
+                return fmt.nickChanged(participant, newNickname);
+            }
+        });
     }
 }

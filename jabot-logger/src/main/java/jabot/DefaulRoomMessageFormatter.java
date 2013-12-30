@@ -3,11 +3,22 @@ package jabot;
 import jabot.room.RoomMessageFormatter;
 
 import java.text.MessageFormat;
+import java.util.Date;
 
 public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
     @Override
-    public String message(String from, String body) {
+    public String message(String from, String body, boolean fromMe) {
         return MessageFormat.format("{0}: {1}", from, body);
+    }
+
+    @Override
+    public Object subjectMessage(String from, String body, boolean fromMe) {
+        return body;
+    }
+
+    @Override
+    public Object delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
+        return "";
     }
 
     @Override

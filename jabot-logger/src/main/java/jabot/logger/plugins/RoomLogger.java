@@ -30,10 +30,12 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
-        if (db != null){
-            db.close();
-            db = null;
+        try {
+            if (db != null) {
+                db.close();
+            }
+        } finally {
+            super.finalize();
         }
     }
 
@@ -59,7 +61,7 @@ public class RoomLogger extends ConfigurableRoomPlugin {
     }
 
     private void loggi(RoomInQueueItem item) {
-
+        logger.debug("store to db {}", item);
     }
 
     @Override
