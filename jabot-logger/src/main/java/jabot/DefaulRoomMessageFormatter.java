@@ -12,7 +12,7 @@ public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
     }
 
     @Override
-    public String subjectMessage(String from, String body, boolean fromMe) {
+    public String subjectMessageOnStart(String from, String body) {
         return body;
     }
 
@@ -23,7 +23,7 @@ public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
 
     @Override
     public String setSubject(String from, String subject) {
-        return MessageFormat.format("{0} установил субжект \"{1}\"", from, subject);
+        return MessageFormat.format("{0} установил(а) тему: \"{1}\"", from, subject);
     }
 
     @Override

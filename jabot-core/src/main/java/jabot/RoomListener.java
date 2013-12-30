@@ -99,8 +99,8 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                 item = new RoomInQueueItem() {
                     @Override
                     public Object display(RoomMessageFormatter fmt) throws JabotException {
-                        return fmt.subjectMessage(msg.getFrom(),
-                                msg.getBody(), meAddress.equals(msg.getFrom()));
+                        return fmt.subjectMessageOnStart(msg.getFrom(),
+                                msg.getBody());
                     }
                 };
             } else if (MessageUtils.isDelayedMessage(msg)) {

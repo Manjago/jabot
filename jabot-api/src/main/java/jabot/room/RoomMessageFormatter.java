@@ -4,7 +4,7 @@ import java.util.Date;
 
 public interface RoomMessageFormatter {
     Object message(String from, String body, boolean fromMe);
-    Object subjectMessage(String from, String body, boolean fromMe);
+    Object subjectMessageOnStart(String from, String body);
     Object delayedMessage(String from, String body, boolean fromMe, Date timestamp);
     Object setSubject(String from, String subject);
     Object kicked(String participant, String actor, String reason);

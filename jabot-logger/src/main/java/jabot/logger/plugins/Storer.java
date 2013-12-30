@@ -35,8 +35,17 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object subjectMessage(String from, String body, boolean fromMe) {
-        return null;
+    public LogEntry subjectMessageOnStart(String from, String body) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(from);
+        e.setConference(addr.getNameServer());
+        e.setEventDate(clockwork.getCurrent());
+        e.setFrom("");
+        e.setText(body);
+        e.setEntryType(EntryType.SUBJECTONSTART);
+
+        return e;
     }
 
     @Override

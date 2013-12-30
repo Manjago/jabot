@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
@@ -59,8 +59,16 @@ public class StorerTest {
     }
 
     @Test
-    public void testSubjectMessage() throws Exception {
+    public void testSubjectMessageOnStart() throws Exception {
+        LogEntry e = storer.subjectMessageOnStart("fido828@conference.jabber.ru", "сообщение на старте");
 
+        assertNotNull("все пропало - нулл наше сообщение на старте", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("сообщение на старте", e.getText());
+        assertEquals(current, e.getEventDate());
+        assertEquals(0L, e.getId());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.SUBJECTONSTART, e.getEntryType());
     }
 
     @Test
