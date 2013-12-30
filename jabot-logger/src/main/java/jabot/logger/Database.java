@@ -41,7 +41,8 @@ public final class Database implements AutoCloseable {
                         "    CONFERENCE VARCHAR(200) NOT NULL,\n" +
                         "    NICK VARCHAR(200) NOT NULL,\n" +
                         "    ENTRYTYPE TINYINT NOT NULL, \n" +
-                        "    FROMME BOOLEAN NOT NULL\n" +
+                        "    FROMME BOOLEAN NOT NULL,\n" +
+                        "    MSGTYPE TINYINT NOT NULL\n" +
                         ");\n");
                 execStatement(conn, "ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
                 execStatement(conn, "CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");

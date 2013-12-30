@@ -1,5 +1,6 @@
 package jabot.logger.plugins;
 
+import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class StorerTest {
         assertEquals(0L, e.getId());
         assertEquals(true, e.isValid());
         assertEquals(false, e.isFromMe());
+        assertEquals(EntryType.MSG, e.getEntryType());
     }
 
     @Test
@@ -53,6 +55,7 @@ public class StorerTest {
         assertEquals(0L, e.getId());
         assertEquals(true, e.isValid());
         assertEquals(true, e.isFromMe());
+        assertEquals(EntryType.MSG, e.getEntryType());
     }
 
     @Test

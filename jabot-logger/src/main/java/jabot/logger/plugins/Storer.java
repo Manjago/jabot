@@ -1,6 +1,7 @@
 package jabot.logger.plugins;
 
 import jabot.Addr3D;
+import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 import jabot.room.RoomMessageFormatter;
 
@@ -28,8 +29,7 @@ public class Storer implements RoomMessageFormatter {
         e.setFrom(addr.getResource());
         e.setText(body);
         e.setFromMe(fromMe);
-
-        //todo тип собщения надо отразить
+        e.setEntryType(EntryType.MSG);
 
         return e;
     }

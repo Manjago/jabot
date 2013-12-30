@@ -2,6 +2,7 @@ package jabot;
 
 import jabot.logger.DAOImpl;
 import jabot.logger.Database;
+import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 import org.junit.Test;
 
@@ -39,6 +40,7 @@ public class DatabaseTest {
             e.setEventDate(new Date());
             e.setFrom("fromm");
             e.setText("texxt");
+            e.setEntryType(EntryType.MSG);
 
             dao.store(e);
 
@@ -65,6 +67,7 @@ public class DatabaseTest {
             e.setFrom("fromm");
             e.setText("texxt");
             e.setFromMe(true);
+            e.setEntryType(EntryType.MSG);
 
             dao.store(e);
 
@@ -76,6 +79,7 @@ public class DatabaseTest {
             assertEquals("fromm", loaded.getFrom());
             assertEquals("texxt", loaded.getText());
             assertEquals(true, loaded.isFromMe());
+            assertEquals(EntryType.MSG, loaded.getEntryType());
         }
 
 
@@ -95,6 +99,7 @@ public class DatabaseTest {
             e.setEventDate(new Date(2013, 1, 1));
             e.setFrom("fromm");
             e.setText("texxt");
+            e.setEntryType(EntryType.MSG);
 
             dao.store(e);
 
@@ -127,6 +132,7 @@ public class DatabaseTest {
             e.setFrom("fromm");
             e.setText("texxt");
             e.setFromMe(false);
+            e.setEntryType(EntryType.MSG);
 
             dataStore.add(e);
 
@@ -136,6 +142,7 @@ public class DatabaseTest {
             e2.setFrom("fromm");
             e2.setText("texxt");
             e2.setFromMe(true);
+            e2.setEntryType(EntryType.MSG);
 
             dataStore.add(e2);
 
@@ -152,6 +159,7 @@ public class DatabaseTest {
             assertEquals("fromm", loaded.getFrom());
             assertEquals("texxt", loaded.getText());
             assertEquals(true, loaded.isFromMe());
+            assertEquals(EntryType.MSG, loaded.getEntryType());
 
             assertEquals(0, dao.getByPeriod(new Date(2016, 1, 1, 1, 1, 2), new Date(2016, 1, 1, 1, 1, 2)).size());
 
@@ -178,6 +186,7 @@ public class DatabaseTest {
                 e2.setEventDate(new Date(2013, 1, 1, 1, 5, i));
                 e2.setFrom("fromm" + i);
                 e2.setText("texxt" + i);
+                e2.setEntryType(EntryType.MSG);
                 dataStore.add(e2);
             }
             dao.store(dataStore);
@@ -186,7 +195,7 @@ public class DatabaseTest {
             assertEquals(10, data.size());
             assertEquals(20, data.get(0).getId());
             assertEquals("texxt19", data.get(0).getText());
-
+            assertEquals(EntryType.MSG, data.get(0).getEntryType());
         }
 
     }

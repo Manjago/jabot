@@ -12,6 +12,15 @@ public class LogEntry {
     private String conference;
     private String from;
     private boolean fromMe;
+    private EntryType entryType;
+
+    public EntryType getEntryType() {
+        return entryType;
+    }
+
+    public void setEntryType(EntryType entryType) {
+        this.entryType = entryType;
+    }
 
     public boolean isFromMe() {
         return fromMe;
@@ -22,7 +31,16 @@ public class LogEntry {
     }
 
     public boolean isValid() {
-        return eventDate != null && text != null && conference != null && from != null;
+
+        if (eventDate == null || text == null) {
+            return false;
+        }
+
+        if ( conference == null || from == null || entryType == null){
+            return false;
+        }
+
+        return true;
     }
 
     public long getId() {
@@ -74,6 +92,7 @@ public class LogEntry {
                 ", conference='" + conference + '\'' +
                 ", from='" + from + '\'' +
                 ", fromMe=" + fromMe +
+                ", entryType=" + entryType +
                 '}';
     }
 }
