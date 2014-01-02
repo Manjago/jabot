@@ -21,6 +21,14 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry message(String from, String body, boolean fromMe) {
+        LogEntry e = createLogEntryWithText(from, body);
+        e.setFromMe(fromMe);
+        e.setEntryType(EntryType.MSG);
+
+        return e;
+    }
+
+    private LogEntry createLogEntry(String from) {
         LogEntry e = new LogEntry();
 
         Addr3D addr = Addr3D.fromRaw(from);
@@ -28,10 +36,6 @@ public class Storer implements RoomMessageFormatter {
         e.setConference(addr.getNameServer());
         e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
         e.setFrom(addr.getResource());
-        e.setText(body);
-        e.setFromMe(fromMe);
-        e.setEntryType(EntryType.MSG);
-
         return e;
     }
 
@@ -51,14 +55,7 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(from);
-
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText(body);
+        LogEntry e = createLogEntryWithText(from, body);
         e.setFromMe(fromMe);
         e.setDelayDate(Helper.safeDate(timestamp));
         e.setEntryType(EntryType.DELAYMSG);
@@ -68,27 +65,21 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry setSubject(String from, String subject) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(from);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText(subject);
+        LogEntry e = createLogEntryWithText(from, subject);
         e.setEntryType(EntryType.SUBJECTSET);
 
         return e;
     }
 
+    private LogEntry createLogEntryWithText(String from, String subject) {
+        LogEntry e = createLogEntry(from);
+        e.setText(subject);
+        return e;
+    }
+
     @Override
     public LogEntry kicked(String participant, String actor, String reason) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(participant);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText(reason);
+        LogEntry e = createLogEntryWithText(participant, reason);
         e.setEntryType(EntryType.KICKED);
 
         return e;
@@ -96,13 +87,7 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry banned(String participant, String actor, String reason) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(participant);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText(reason);
+        LogEntry e = createLogEntryWithText(participant, reason);
         e.setEntryType(EntryType.BANNED);
 
         return e;
@@ -110,26 +95,14 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry nickChanged(String oldNick, String newNick) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(oldNick);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText(newNick);
+        LogEntry e = createLogEntryWithText(oldNick, newNick);
         e.setEntryType(EntryType.NICKCHANGED);
 
         return e;
     }
 
     private LogEntry participant(String participant, EntryType entryType) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(participant);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText("");
+        LogEntry e = createLogEntryWithText(participant, "");
         e.setEntryType(entryType);
 
         return e;
