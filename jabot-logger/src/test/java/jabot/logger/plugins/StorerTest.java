@@ -216,11 +216,16 @@ public class StorerTest {
 
     @Test
     public void testVoiceGranted() throws Exception {
+        LogEntry e = storer.voiceGranted("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "voiceGranted", EntryType.VOICE_GRANTED);
     }
 
     @Test
     public void testVoiceRevoked() throws Exception {
+        LogEntry e = storer.voiceRevoked("fido828@conference.jabber.ru/nick1");
+
+        testParticipant(e, "voiceRevoked", EntryType.VOICE_REVOKED);
 
     }
 

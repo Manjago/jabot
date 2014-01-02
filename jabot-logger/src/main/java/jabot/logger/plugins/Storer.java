@@ -122,8 +122,7 @@ public class Storer implements RoomMessageFormatter {
         return e;
     }
 
-    @Override
-    public LogEntry joined(String participant) {
+    private LogEntry participant(String participant, EntryType entryType) {
         LogEntry e = new LogEntry();
 
         Addr3D addr = Addr3D.fromRaw(participant);
@@ -131,33 +130,29 @@ public class Storer implements RoomMessageFormatter {
         e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
         e.setFrom(addr.getResource());
         e.setText("");
-        e.setEntryType(EntryType.JOINED);
+        e.setEntryType(entryType);
 
         return e;
+    }
+
+    @Override
+    public LogEntry joined(String participant) {
+        return participant(participant, EntryType.JOINED);
     }
 
     @Override
     public LogEntry left(String participant) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(participant);
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        e.setText("");
-        e.setEntryType(EntryType.LEFT);
-
-        return e;
+        return participant(participant, EntryType.LEFT);
     }
 
     @Override
     public LogEntry voiceGranted(String participant) {
-        return null;
+        return participant(participant, EntryType.VOICE_GRANTED);
     }
 
     @Override
     public LogEntry voiceRevoked(String participant) {
-        return null;
+        return participant(participant, EntryType.VOICE_REVOKED);
     }
 
     @Override
