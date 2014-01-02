@@ -95,8 +95,17 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object banned(String participant, String actor, String reason) {
-        return null;
+    public LogEntry banned(String participant, String actor, String reason) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(participant);
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
+        e.setText(reason);
+        e.setEntryType(EntryType.BANNED);
+
+        return e;
     }
 
     @Override

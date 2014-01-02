@@ -152,7 +152,20 @@ public class StorerTest {
 
     @Test
     public void testBanned() throws Exception {
+        LogEntry e = storer.banned("fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
 
+        checkBanned(e);
+        checkBanned(storeAndLoad(e));
+    }
+
+    private void checkBanned(LogEntry e) {
+        assertNotNull("все пропало - нулл наша инфа по баннеду", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("tihobot", e.getFrom());
+        assertEquals("Temnenkov2: 345", e.getText());
+        assertEquals(current, e.getEventDate());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.BANNED, e.getEntryType());
     }
 
     @Test

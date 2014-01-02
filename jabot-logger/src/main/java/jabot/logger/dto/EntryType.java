@@ -5,7 +5,8 @@ package jabot.logger.dto;
  */
 public enum EntryType {
     MSG((byte) 0), SUBJECTONSTART((byte) 1),
-    DELAYMSG((byte) 2), SUBJECTSET((byte) 3), KICKED((byte) 4);
+    DELAYMSG((byte) 2), SUBJECTSET((byte) 3), KICKED((byte) 4),
+    BANNED((byte) 5);
     private final byte msgType;
 
     EntryType(byte msgType) {
