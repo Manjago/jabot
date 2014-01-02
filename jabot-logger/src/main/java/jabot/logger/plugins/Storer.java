@@ -28,17 +28,6 @@ public class Storer implements RoomMessageFormatter {
         return e;
     }
 
-    private LogEntry createLogEntry(String from) {
-        LogEntry e = new LogEntry();
-
-        Addr3D addr = Addr3D.fromRaw(from);
-
-        e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
-        e.setFrom(addr.getResource());
-        return e;
-    }
-
     @Override
     public LogEntry subjectMessageOnStart(String from, String body) {
         LogEntry e = new LogEntry();
@@ -72,7 +61,13 @@ public class Storer implements RoomMessageFormatter {
     }
 
     private LogEntry createLogEntryWithText(String from, String subject) {
-        LogEntry e = createLogEntry(from);
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(from);
+
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
         e.setText(subject);
         return e;
     }
