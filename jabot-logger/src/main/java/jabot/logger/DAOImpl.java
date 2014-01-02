@@ -22,6 +22,13 @@ public class DAOImpl implements DAO {
     private static final String SELECT_BY_REGEXP = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE, DELAY FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 AND MSGTYPE = 0 ORDER BY EVENTDATE DESC LIMIT ?";
     private Database db;
 
+    public DAOImpl() {
+    }
+
+    public DAOImpl(Database db) {
+        this.db = db;
+    }
+
     private static void storeLogEntry(PreparedStatement ps, LogEntry logEntry) throws SQLException {
         final int conferenceIndex = 1;
         final int entryTypeIndex = 2;
