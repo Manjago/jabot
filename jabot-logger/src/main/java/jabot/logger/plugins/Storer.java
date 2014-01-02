@@ -109,8 +109,17 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object nickChanged(String oldNick, String newNick) {
-        return null;
+    public LogEntry nickChanged(String oldNick, String newNick) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(oldNick);
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
+        e.setText(newNick);
+        e.setEntryType(EntryType.NICKCHANGED);
+
+        return e;
     }
 
     @Override

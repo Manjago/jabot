@@ -170,7 +170,21 @@ public class StorerTest {
 
     @Test
     public void testNickChanged() throws Exception {
+        LogEntry e = storer.nickChanged("fido828@conference.jabber.ru/nick1", "nick2");
 
+        checkNickChanged(e);
+        checkNickChanged(storeAndLoad(e));
+
+    }
+
+    private void checkNickChanged(LogEntry e) {
+        assertNotNull("все пропало - нулл наша инфа смене ника", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("nick1", e.getFrom());
+        assertEquals("nick2", e.getText());
+        assertEquals(current, e.getEventDate());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.NICKCHANGED, e.getEntryType());
     }
 
     @Test
