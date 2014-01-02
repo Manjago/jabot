@@ -157,41 +157,41 @@ public class Storer implements RoomMessageFormatter {
 
     @Override
     public LogEntry memberGranted(String participant) {
-        return null;
+        return participant(participant, EntryType.MEMBER_GRANTED);
     }
 
     @Override
     public LogEntry memberRevoked(String participant) {
-        return null;
+        return participant(participant, EntryType.MEMBER_REVOKED);
     }
 
     @Override
     public LogEntry moderGranted(String participant) {
-        return null;
+        return participant(participant, EntryType.MODER_GRANTED);
     }
 
     @Override
     public LogEntry moderRevoked(String participant) {
-        return null;
+        return participant(participant, EntryType.MODER_REVOKED);
     }
 
     @Override
     public LogEntry ownerGranted(String participant) {
-        return null;
+        return participant(participant, EntryType.OWNER_GRANTED);
     }
 
     @Override
     public LogEntry ownerRevoked(String participant) {
-        return null;
+        return participant(participant, EntryType.OWNER_REVOKED);
     }
 
     @Override
     public LogEntry adminGranted(String participant) {
-        return null;
+        return participant(participant, EntryType.ADMIN_GRANTED);
     }
 
     @Override
     public LogEntry adminRevoked(String participant) {
-        return null;
+        return participant(participant, EntryType.ADMIN_REVOKED);
     }
 }

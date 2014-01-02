@@ -231,41 +231,57 @@ public class StorerTest {
 
     @Test
     public void testMemberGranted() throws Exception {
+        LogEntry e = storer.memberGranted("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "memberGranted", EntryType.MEMBER_GRANTED);
     }
 
     @Test
     public void testMemberRevoked() throws Exception {
+        LogEntry e = storer.memberRevoked("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "memberRevoked", EntryType.MEMBER_REVOKED);
     }
 
     @Test
     public void testModerGranted() throws Exception {
+        LogEntry e = storer.moderGranted("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "moderGranted", EntryType.MODER_GRANTED);
     }
 
     @Test
     public void testModerRevoked() throws Exception {
+        LogEntry e = storer.moderRevoked("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "moderRevoked", EntryType.MODER_REVOKED);
     }
 
     @Test
     public void testOwnerGranted() throws Exception {
+        LogEntry e = storer.ownerGranted("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "ownerGranted", EntryType.OWNER_GRANTED);
     }
 
     @Test
     public void testOwnerRevoked() throws Exception {
+        LogEntry e = storer.ownerRevoked("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "ownerRevoked", EntryType.OWNER_REVOKED);
     }
 
     @Test
     public void testAdminGranted() throws Exception {
+        LogEntry e = storer.adminGranted("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "adminGranted", EntryType.ADMIN_GRANTED);
     }
 
     @Test
     public void testAdminRevoked() throws Exception {
+        LogEntry e = storer.adminRevoked("fido828@conference.jabber.ru/nick1");
 
+        testParticipant(e, "adminRevoked", EntryType.ADMIN_REVOKED);
     }
 }
