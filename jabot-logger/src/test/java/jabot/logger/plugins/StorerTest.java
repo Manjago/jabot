@@ -174,7 +174,6 @@ public class StorerTest {
 
         checkNickChanged(e);
         checkNickChanged(storeAndLoad(e));
-
     }
 
     private void checkNickChanged(LogEntry e) {
@@ -189,12 +188,36 @@ public class StorerTest {
 
     @Test
     public void testJoined() throws Exception {
+        LogEntry e = storer.joined("fido828@conference.jabber.ru/nick1");
 
+        checkJoined(e);
+        checkJoined(storeAndLoad(e));
+    }
+
+    private void checkJoined(LogEntry e) {
+        assertNotNull("все пропало - нулл наша инфа про join", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("nick1", e.getFrom());
+        assertEquals(current, e.getEventDate());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.JOINED, e.getEntryType());
     }
 
     @Test
     public void testLeft() throws Exception {
+        LogEntry e = storer.left("fido828@conference.jabber.ru/nick1");
 
+        checkLeft(e);
+        checkLeft(storeAndLoad(e));
+    }
+
+    private void checkLeft(LogEntry e) {
+        assertNotNull("все пропало - нулл наша инфа про left", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("nick1", e.getFrom());
+        assertEquals(current, e.getEventDate());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.LEFT, e.getEntryType());
     }
 
     @Test

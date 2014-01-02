@@ -123,13 +123,31 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public Object joined(String participant) {
-        return null;
+    public LogEntry joined(String participant) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(participant);
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
+        e.setText("");
+        e.setEntryType(EntryType.JOINED);
+
+        return e;
     }
 
     @Override
-    public Object left(String participant) {
-        return null;
+    public LogEntry left(String participant) {
+        LogEntry e = new LogEntry();
+
+        Addr3D addr = Addr3D.fromRaw(participant);
+        e.setConference(addr.getNameServer());
+        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setFrom(addr.getResource());
+        e.setText("");
+        e.setEntryType(EntryType.LEFT);
+
+        return e;
     }
 
     @Override
