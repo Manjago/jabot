@@ -134,7 +134,20 @@ public class StorerTest {
 
     @Test
     public void testKicked() throws Exception {
+        LogEntry e = storer.kicked("fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
 
+        checkKicked(e);
+        checkKicked(storeAndLoad(e));
+    }
+
+    private void checkKicked(LogEntry e) {
+        assertNotNull("все пропало - нулл наша инфа по кикеду", e);
+        assertEquals("fido828@conference.jabber.ru", e.getConference());
+        assertEquals("tihobot", e.getFrom());
+        assertEquals("Temnenkov2: 345", e.getText());
+        assertEquals(current, e.getEventDate());
+        assertEquals(true, e.isValid());
+        assertEquals(EntryType.KICKED, e.getEntryType());
     }
 
     @Test
