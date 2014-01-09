@@ -6,6 +6,12 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
+
+    @Override
+    public Date getDate() {
+        return null;
+    }
+
     @Override
     public String message(String from, String body, boolean fromMe) {
         return MessageFormat.format("{0}: {1}", from, body);

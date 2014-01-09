@@ -3,6 +3,7 @@ package jabot.room;
 import java.util.Date;
 
 public interface RoomMessageFormatter {
+    Date getDate();
     Object message(String from, String body, boolean fromMe);
     Object subjectMessageOnStart(String from, String body);
     Object delayedMessage(String from, String body, boolean fromMe, Date timestamp);

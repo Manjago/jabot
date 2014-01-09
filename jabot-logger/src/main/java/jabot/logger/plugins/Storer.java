@@ -13,10 +13,15 @@ import java.util.Date;
  */
 public class Storer implements RoomMessageFormatter {
 
-    private final Clockwork clockwork;
+    private final Date rcvDate;
 
-    public Storer(Clockwork clockwork) {
-        this.clockwork = clockwork;
+    public Storer(Date date) {
+        this.rcvDate = Helper.safeDate(date);
+    }
+
+    @Override
+    public Date getDate() {
+        return Helper.safeDate(rcvDate);
     }
 
     @Override
@@ -34,7 +39,7 @@ public class Storer implements RoomMessageFormatter {
 
         Addr3D addr = Addr3D.fromRaw(from);
         e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setEventDate(Helper.safeDate(rcvDate));
         e.setFrom("");
         e.setText(body);
         e.setEntryType(EntryType.SUBJECTONSTART);
@@ -66,7 +71,7 @@ public class Storer implements RoomMessageFormatter {
         Addr3D addr = Addr3D.fromRaw(from);
 
         e.setConference(addr.getNameServer());
-        e.setEventDate(Helper.safeDate(clockwork.getCurrent()));
+        e.setEventDate(Helper.safeDate(rcvDate));
         e.setFrom(addr.getResource());
         e.setText(subject);
         return e;

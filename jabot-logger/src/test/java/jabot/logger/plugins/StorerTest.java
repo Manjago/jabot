@@ -24,7 +24,7 @@ public class StorerTest {
 
     @Before
     public void setUp() throws Exception {
-        storer = new Storer(new ClockworkMock(current));
+        storer = new Storer(current);
     }
 
     private LogEntry storeAndLoad(LogEntry logEntry) throws SQLException {
