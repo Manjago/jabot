@@ -18,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final RoomMessageFormatter fmt = new DefaulRoomMessageFormatter();
+    private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter();
     private BlockingQueue<ChatInQueueItem> chatInQueue;
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
@@ -182,7 +182,7 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     }
 
     private void chatOut(String s) throws InterruptedException {
-        if (Helper.isEmptyStr(s)){
+        if (Helper.isEmptyStr(s)) {
             return;
         }
         final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, s);

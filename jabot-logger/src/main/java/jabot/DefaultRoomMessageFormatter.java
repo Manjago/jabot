@@ -5,7 +5,7 @@ import jabot.room.RoomMessageFormatter;
 import java.text.MessageFormat;
 import java.util.Date;
 
-public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
+public class DefaultRoomMessageFormatter implements RoomMessageFormatter {
 
     @Override
     public String message(Date rcvDate, String from, String body, boolean fromMe) {
@@ -29,12 +29,12 @@ public class DefaulRoomMessageFormatter implements RoomMessageFormatter {
 
     @Override
     public String kicked(Date rcvDate, String participant, String actor, String reason) {
-        return MessageFormat.format("{0} был выкинут товарищем {1}. Причина: {2}", participant, actor, reason);
+        return MessageFormat.format("{0} был выкинут. Причина: {1}", participant, reason);
     }
 
     @Override
     public String banned(Date rcvDate, String participant, String actor, String reason) {
-        return MessageFormat.format("{0} был забанен товарищем {1}. Причина: {2}", participant, actor, reason);
+        return MessageFormat.format("{0} был забанен. Причина: {1}", participant, reason);
     }
 
     @Override

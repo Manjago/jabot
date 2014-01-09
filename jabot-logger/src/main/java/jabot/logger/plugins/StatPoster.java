@@ -1,5 +1,6 @@
 package jabot.logger.plugins;
 
+import jabot.Helper;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
 import jabot.logger.Database;
@@ -28,15 +29,19 @@ public class StatPoster {
         List<LogEntry> logEntries = dao.getByPeriod(from, to);
 
         StringBuilder sb = new StringBuilder();
-        for(LogEntry entry : logEntries){
-            sb.append(display(entry));
+        for (LogEntry entry : logEntries) {
+            final String str = display(entry);
+            if (Helper.isEmptyStr(str)) {
+                continue;
+            }
+            sb.append(str);
             sb.append('\n');
         }
 
         return sb.toString();
     }
 
-    private String display(LogEntry logEntry){
+    private String display(LogEntry logEntry) {
         return displayLogEntry.display(logEntry);
     }
 }
