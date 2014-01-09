@@ -148,8 +148,6 @@ public class DAOImpl implements DAO {
                     extractLogEntryList(rs, result);
                     return result;
                 }
-
-
             }
         }
     }
