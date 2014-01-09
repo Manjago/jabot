@@ -65,9 +65,10 @@ public class RoomLogger extends ConfigurableRoomPlugin {
     }
 
     private void loggi(RoomInQueueItem item) {
-        logger.debug("store to db {}", item);
         try {
-            dao.store((LogEntry) item.display(storer));
+            final LogEntry logEntry = (LogEntry) item.display(storer);
+            logger.debug("store to db {}", logEntry);
+            dao.store(logEntry);
         } catch (SQLException | JabotException e) {
             logger.error("fail store message {}", item, e);
         }
