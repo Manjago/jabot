@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -94,12 +95,13 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
 
             RoomInQueueItem item;
+            final Date current = new Date();
 
             if (MessageUtils.isSubjectMessage(msg)) {
                 item = new RoomInQueueItem() {
                     @Override
                     public Object display(RoomMessageFormatter fmt) throws JabotException {
-                        return fmt.subjectMessageOnStart(msg.getFrom(),
+                        return fmt.subjectMessageOnStart(current, msg.getFrom(),
                                 msg.getBody());
                     }
                 };
@@ -107,7 +109,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                 item = new RoomInQueueItem() {
                     @Override
                     public Object display(RoomMessageFormatter fmt) throws JabotException {
-                        return fmt.delayedMessage(msg.getFrom(),
+                        return fmt.delayedMessage(current, msg.getFrom(),
                                 msg.getBody(), meAddress.equals(msg.getFrom()), MessageUtils.getDelayStamp(msg));
                     }
                 };
@@ -115,8 +117,8 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                 item = new RoomInQueueItem() {
                     @Override
                     public Object display(RoomMessageFormatter fmt) throws JabotException {
-                        return fmt.message(msg.getFrom(),
-                                msg.getBody(), meAddress.equals(msg.getFrom()));
+                        return fmt.message(current,
+                                msg.getFrom(), msg.getBody(), meAddress.equals(msg.getFrom()));
                     }
                 };
             }
@@ -132,11 +134,13 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
     public void subjectUpdated(final String subject, final String from) {
         logger.debug(MessageFormat.format("message: {0} set subject {1}", from, subject));
 
+        final Date current = new Date();
+
         if (from != null && from.contains("/")) {
             send(new RoomInQueueItem() {
                 @Override
                 public Object display(RoomMessageFormatter fmt) throws JabotException {
-                    return fmt.setSubject(from, subject);
+                    return fmt.setSubject(current, from, subject);
                 }
             });
         }
@@ -161,150 +165,165 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
     @Override
     public void joined(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) {
-                return fmt.joined(participant);
+                return fmt.joined(current, participant);
             }
         });
     }
 
     @Override
     public void left(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) {
-                return fmt.left(participant);
+                return fmt.left(current,participant);
             }
         });
     }
 
     @Override
     public void kicked(final String participant, final String actor, final String reason) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.kicked(participant, actor, reason);
+                return fmt.kicked(current, participant, actor, reason);
             }
         });
     }
 
     @Override
     public void voiceGranted(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.voiceGranted(participant);
+                return fmt.voiceGranted(current, participant);
             }
         });
     }
 
     @Override
     public void voiceRevoked(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.voiceRevoked(participant);
+                return fmt.voiceRevoked(current, participant);
             }
         });
     }
 
     @Override
     public void banned(final String participant, final String actor, final String reason) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.banned(participant, actor, reason);
+                return fmt.banned(current, participant, actor, reason);
             }
         });
     }
 
     @Override
     public void membershipGranted(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.memberGranted(participant);
+                return fmt.memberGranted(current, participant);
             }
         });
     }
 
     @Override
     public void membershipRevoked(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.memberRevoked(participant);
+                return fmt.memberRevoked(current,participant);
             }
         });
     }
 
     @Override
     public void moderatorGranted(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.moderGranted(participant);
+                return fmt.moderGranted(current, participant);
             }
         });
     }
 
     @Override
     public void moderatorRevoked(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.moderRevoked(participant);
+                return fmt.moderRevoked(current, participant);
             }
         });
     }
 
     @Override
     public void ownershipGranted(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.ownerGranted(participant);
+                return fmt.ownerGranted(current, participant);
             }
         });
     }
 
     @Override
     public void ownershipRevoked(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.ownerRevoked(participant);
+                return fmt.ownerRevoked(current, participant);
             }
         });
     }
 
     @Override
     public void adminGranted(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.adminGranted(participant);
+                return fmt.adminGranted(current, participant);
             }
         });
     }
 
     @Override
     public void adminRevoked(final String participant) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.adminRevoked(participant);
+                return fmt.adminRevoked(current,participant);
             }
         });
     }
 
     @Override
     public void nicknameChanged(final String participant, final String newNickname) {
+        final Date current = new Date();
         send(new RoomInQueueItem() {
             @Override
             public Object display(RoomMessageFormatter fmt) throws JabotException {
-                return fmt.nickChanged(participant, newNickname);
+                return fmt.nickChanged(current, participant, newNickname);
             }
         });
     }

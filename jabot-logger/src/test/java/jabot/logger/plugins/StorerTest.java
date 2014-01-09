@@ -24,7 +24,7 @@ public class StorerTest {
 
     @Before
     public void setUp() throws Exception {
-        storer = new Storer(current);
+        storer = new Storer();
     }
 
     private LogEntry storeAndLoad(LogEntry logEntry) throws SQLException {
@@ -40,7 +40,7 @@ public class StorerTest {
 
     @Test
     public void testMessageNotFromMe() throws Exception {
-        LogEntry e = storer.message("fido828@conference.jabber.ru/tihobot", "тестовое сообщение", false);
+        LogEntry e = storer.message(current, "fido828@conference.jabber.ru/tihobot", "тестовое сообщение", false);
 
         checkMessageNotFromMe(e);
 
@@ -60,7 +60,7 @@ public class StorerTest {
 
     @Test
     public void testMessageFromMe() throws Exception {
-        LogEntry e = storer.message("fido828@conference.jabber.ru/tihobot", "тестовое сообщение", true);
+        LogEntry e = storer.message(current, "fido828@conference.jabber.ru/tihobot", "тестовое сообщение", true);
 
         checkMessageFromMe(e);
         checkMessageFromMe(storeAndLoad(e));
@@ -79,7 +79,7 @@ public class StorerTest {
 
     @Test
     public void testSubjectMessageOnStart() throws Exception {
-        LogEntry e = storer.subjectMessageOnStart("fido828@conference.jabber.ru", "сообщение на старте");
+        LogEntry e = storer.subjectMessageOnStart(current, "fido828@conference.jabber.ru", "сообщение на старте");
 
         checkSubjectMessageOnStart(e);
         checkSubjectMessageOnStart(storeAndLoad(e));
@@ -96,7 +96,7 @@ public class StorerTest {
 
     @Test
     public void testDelayedMessage() throws Exception {
-        LogEntry e = storer.delayedMessage("fido828@conference.jabber.ru/tihobot", "тестовое сообщение", true, new Date(2022, 6, 7, 8, 9, 10));
+        LogEntry e = storer.delayedMessage(current, "fido828@conference.jabber.ru/tihobot", "тестовое сообщение", true, new Date(2022, 6, 7, 8, 9, 10));
 
         checkDelayedMessage(e);
         checkDelayedMessage(storeAndLoad(e));
@@ -116,7 +116,7 @@ public class StorerTest {
 
     @Test
     public void testSetSubject() throws Exception {
-        LogEntry e = storer.setSubject("fido828@conference.jabber.ru/Temnenkov", "!");
+        LogEntry e = storer.setSubject(current, "fido828@conference.jabber.ru/Temnenkov", "!");
 
         checkSetSubject(e);
         checkSetSubject(storeAndLoad(e));
@@ -134,7 +134,7 @@ public class StorerTest {
 
     @Test
     public void testKicked() throws Exception {
-        LogEntry e = storer.kicked("fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
+        LogEntry e = storer.kicked(current, "fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
 
         checkKicked(e);
         checkKicked(storeAndLoad(e));
@@ -152,7 +152,7 @@ public class StorerTest {
 
     @Test
     public void testBanned() throws Exception {
-        LogEntry e = storer.banned("fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
+        LogEntry e = storer.banned(current, "fido828@conference.jabber.ru/tihobot", "actorr", "Temnenkov2: 345");
 
         checkBanned(e);
         checkBanned(storeAndLoad(e));
@@ -170,7 +170,7 @@ public class StorerTest {
 
     @Test
     public void testNickChanged() throws Exception {
-        LogEntry e = storer.nickChanged("fido828@conference.jabber.ru/nick1", "nick2");
+        LogEntry e = storer.nickChanged(current,"fido828@conference.jabber.ru/nick1", "nick2");
 
         checkNickChanged(e);
         checkNickChanged(storeAndLoad(e));
@@ -188,14 +188,14 @@ public class StorerTest {
 
     @Test
     public void testJoined() throws Exception {
-        LogEntry e = storer.joined("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.joined(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "joined", EntryType.JOINED);
     }
 
     @Test
     public void testLeft() throws Exception {
-        LogEntry e = storer.left("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.left(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "left", EntryType.LEFT);
     }
@@ -216,14 +216,14 @@ public class StorerTest {
 
     @Test
     public void testVoiceGranted() throws Exception {
-        LogEntry e = storer.voiceGranted("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.voiceGranted(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "voiceGranted", EntryType.VOICE_GRANTED);
     }
 
     @Test
     public void testVoiceRevoked() throws Exception {
-        LogEntry e = storer.voiceRevoked("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.voiceRevoked(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "voiceRevoked", EntryType.VOICE_REVOKED);
 
@@ -231,56 +231,56 @@ public class StorerTest {
 
     @Test
     public void testMemberGranted() throws Exception {
-        LogEntry e = storer.memberGranted("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.memberGranted(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "memberGranted", EntryType.MEMBER_GRANTED);
     }
 
     @Test
     public void testMemberRevoked() throws Exception {
-        LogEntry e = storer.memberRevoked("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.memberRevoked(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "memberRevoked", EntryType.MEMBER_REVOKED);
     }
 
     @Test
     public void testModerGranted() throws Exception {
-        LogEntry e = storer.moderGranted("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.moderGranted(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "moderGranted", EntryType.MODER_GRANTED);
     }
 
     @Test
     public void testModerRevoked() throws Exception {
-        LogEntry e = storer.moderRevoked("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.moderRevoked(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "moderRevoked", EntryType.MODER_REVOKED);
     }
 
     @Test
     public void testOwnerGranted() throws Exception {
-        LogEntry e = storer.ownerGranted("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.ownerGranted(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "ownerGranted", EntryType.OWNER_GRANTED);
     }
 
     @Test
     public void testOwnerRevoked() throws Exception {
-        LogEntry e = storer.ownerRevoked("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.ownerRevoked(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "ownerRevoked", EntryType.OWNER_REVOKED);
     }
 
     @Test
     public void testAdminGranted() throws Exception {
-        LogEntry e = storer.adminGranted("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.adminGranted(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "adminGranted", EntryType.ADMIN_GRANTED);
     }
 
     @Test
     public void testAdminRevoked() throws Exception {
-        LogEntry e = storer.adminRevoked("fido828@conference.jabber.ru/nick1");
+        LogEntry e = storer.adminRevoked(current,"fido828@conference.jabber.ru/nick1");
 
         testParticipant(e, "adminRevoked", EntryType.ADMIN_REVOKED);
     }

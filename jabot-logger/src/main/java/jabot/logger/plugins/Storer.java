@@ -13,20 +13,9 @@ import java.util.Date;
  */
 public class Storer implements RoomMessageFormatter {
 
-    private final Date rcvDate;
-
-    public Storer(Date date) {
-        this.rcvDate = Helper.safeDate(date);
-    }
-
     @Override
-    public Date getDate() {
-        return Helper.safeDate(rcvDate);
-    }
-
-    @Override
-    public LogEntry message(String from, String body, boolean fromMe) {
-        LogEntry e = createLogEntryWithText(from, body);
+    public LogEntry message(Date rcvDate, String from, String body, boolean fromMe) {
+        LogEntry e = createLogEntryWithText(rcvDate, from, body);
         e.setFromMe(fromMe);
         e.setEntryType(EntryType.MSG);
 
@@ -34,7 +23,7 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public LogEntry subjectMessageOnStart(String from, String body) {
+    public LogEntry subjectMessageOnStart(Date rcvDate, String from, String body) {
         LogEntry e = new LogEntry();
 
         Addr3D addr = Addr3D.fromRaw(from);
@@ -48,8 +37,8 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public LogEntry delayedMessage(String from, String body, boolean fromMe, Date timestamp) {
-        LogEntry e = createLogEntryWithText(from, body);
+    public LogEntry delayedMessage(Date rcvDate, String from, String body, boolean fromMe, Date timestamp) {
+        LogEntry e = createLogEntryWithText(rcvDate, from, body);
         e.setFromMe(fromMe);
         e.setDelayDate(Helper.safeDate(timestamp));
         e.setEntryType(EntryType.DELAYMSG);
@@ -58,14 +47,14 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public LogEntry setSubject(String from, String subject) {
-        LogEntry e = createLogEntryWithText(from, subject);
+    public LogEntry setSubject(Date rcvDate, String from, String subject) {
+        LogEntry e = createLogEntryWithText(rcvDate, from, subject);
         e.setEntryType(EntryType.SUBJECTSET);
 
         return e;
     }
 
-    private LogEntry createLogEntryWithText(String from, String subject) {
+    private LogEntry createLogEntryWithText(Date rcvDate, String from, String subject) {
         LogEntry e = new LogEntry();
 
         Addr3D addr = Addr3D.fromRaw(from);
@@ -78,93 +67,93 @@ public class Storer implements RoomMessageFormatter {
     }
 
     @Override
-    public LogEntry kicked(String participant, String actor, String reason) {
-        LogEntry e = createLogEntryWithText(participant, reason);
+    public LogEntry kicked(Date rcvDate, String participant, String actor, String reason) {
+        LogEntry e = createLogEntryWithText(rcvDate, participant, reason);
         e.setEntryType(EntryType.KICKED);
 
         return e;
     }
 
     @Override
-    public LogEntry banned(String participant, String actor, String reason) {
-        LogEntry e = createLogEntryWithText(participant, reason);
+    public LogEntry banned(Date rcvDate, String participant, String actor, String reason) {
+        LogEntry e = createLogEntryWithText(rcvDate, participant, reason);
         e.setEntryType(EntryType.BANNED);
 
         return e;
     }
 
     @Override
-    public LogEntry nickChanged(String oldNick, String newNick) {
-        LogEntry e = createLogEntryWithText(oldNick, newNick);
+    public LogEntry nickChanged(Date rcvDate, String oldNick, String newNick) {
+        LogEntry e = createLogEntryWithText(rcvDate, oldNick, newNick);
         e.setEntryType(EntryType.NICKCHANGED);
 
         return e;
     }
 
-    private LogEntry participant(String participant, EntryType entryType) {
-        LogEntry e = createLogEntryWithText(participant, "");
+    private LogEntry participant(Date rcvDate, String participant, EntryType entryType) {
+        LogEntry e = createLogEntryWithText(rcvDate, participant, "");
         e.setEntryType(entryType);
 
         return e;
     }
 
     @Override
-    public LogEntry joined(String participant) {
-        return participant(participant, EntryType.JOINED);
+    public LogEntry joined(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.JOINED);
     }
 
     @Override
-    public LogEntry left(String participant) {
-        return participant(participant, EntryType.LEFT);
+    public LogEntry left(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.LEFT);
     }
 
     @Override
-    public LogEntry voiceGranted(String participant) {
-        return participant(participant, EntryType.VOICE_GRANTED);
+    public LogEntry voiceGranted(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.VOICE_GRANTED);
     }
 
     @Override
-    public LogEntry voiceRevoked(String participant) {
-        return participant(participant, EntryType.VOICE_REVOKED);
+    public LogEntry voiceRevoked(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.VOICE_REVOKED);
     }
 
     @Override
-    public LogEntry memberGranted(String participant) {
-        return participant(participant, EntryType.MEMBER_GRANTED);
+    public LogEntry memberGranted(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.MEMBER_GRANTED);
     }
 
     @Override
-    public LogEntry memberRevoked(String participant) {
-        return participant(participant, EntryType.MEMBER_REVOKED);
+    public LogEntry memberRevoked(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.MEMBER_REVOKED);
     }
 
     @Override
-    public LogEntry moderGranted(String participant) {
-        return participant(participant, EntryType.MODER_GRANTED);
+    public LogEntry moderGranted(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.MODER_GRANTED);
     }
 
     @Override
-    public LogEntry moderRevoked(String participant) {
-        return participant(participant, EntryType.MODER_REVOKED);
+    public LogEntry moderRevoked(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.MODER_REVOKED);
     }
 
     @Override
-    public LogEntry ownerGranted(String participant) {
-        return participant(participant, EntryType.OWNER_GRANTED);
+    public LogEntry ownerGranted(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.OWNER_GRANTED);
     }
 
     @Override
-    public LogEntry ownerRevoked(String participant) {
-        return participant(participant, EntryType.OWNER_REVOKED);
+    public LogEntry ownerRevoked(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.OWNER_REVOKED);
     }
 
     @Override
-    public LogEntry adminGranted(String participant) {
-        return participant(participant, EntryType.ADMIN_GRANTED);
+    public LogEntry adminGranted(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.ADMIN_GRANTED);
     }
 
     @Override
-    public LogEntry adminRevoked(String participant) {
-        return participant(participant, EntryType.ADMIN_REVOKED);
+    public LogEntry adminRevoked(Date rcvDate, String participant) {
+        return participant(rcvDate, participant, EntryType.ADMIN_REVOKED);
     }
 }

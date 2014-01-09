@@ -2,12 +2,16 @@ package jabot.logger.plugins;
 
 import jabot.JabotException;
 import jabot.PluginVersion;
+import jabot.logger.DAO;
+import jabot.logger.DAOImpl;
 import jabot.logger.Database;
+import jabot.logger.dto.LogEntry;
 import jabot.room.ConfigurableRoomPlugin;
 import jabot.room.RoomInQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -17,14 +21,25 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private Database db;
+    private final Storer storer;
+    private DAO dao;
 
     public RoomLogger(String config) throws JabotException {
         super(config);
+        storer = new Storer();
         logger.debug("inited");
     }
 
     protected boolean init(Properties props) {
         db = Database.init(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
+        try {
+            db.check();
+            dao = new DAOImpl(db);
+        } catch (SQLException e) {
+            final Logger logg = LoggerFactory.getLogger(getClass());
+            logg.error("fail check database", e);
+            return false;
+        }
         return true;
     }
 
@@ -51,6 +66,11 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
     private void loggi(RoomInQueueItem item) {
         logger.debug("store to db {}", item);
+        try {
+            dao.store((LogEntry) item.display(storer));
+        } catch (SQLException | JabotException e) {
+            logger.error("fail store message {}", item, e);
+        }
     }
 
     @Override
