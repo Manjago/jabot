@@ -2,14 +2,19 @@ package jabot;
 
 import jabot.room.RoomMessageFormatter;
 
-import java.text.MessageFormat;
 import java.util.Date;
 
 public class DefaultRoomMessageFormatter implements RoomMessageFormatter {
 
+    private final Messages messages;
+
+    public DefaultRoomMessageFormatter(Messages messages) {
+        this.messages = messages;
+    }
+
     @Override
     public String message(Date rcvDate, String from, String body, boolean fromMe) {
-        return MessageFormat.format("{0}: {1}", from, body);
+        return messages.format("msg", from, body);
     }
 
     @Override
@@ -24,81 +29,81 @@ public class DefaultRoomMessageFormatter implements RoomMessageFormatter {
 
     @Override
     public String setSubject(Date rcvDate, String from, String subject) {
-        return MessageFormat.format("{0} установил(а) тему: \"{1}\"", from, subject);
+        return messages.format(Messages.SET_SUBJECT, from, subject);
     }
 
     @Override
     public String kicked(Date rcvDate, String participant, String actor, String reason) {
-        return MessageFormat.format("{0} был выкинут. Причина: {1}", participant, reason);
+        return messages.format(Messages.KICKED, participant, reason);
     }
 
     @Override
     public String banned(Date rcvDate, String participant, String actor, String reason) {
-        return MessageFormat.format("{0} был забанен. Причина: {1}", participant, reason);
+        return messages.format(Messages.BANNED, participant, reason);
     }
 
     @Override
     public String nickChanged(Date rcvDate, String oldNick, String newNick) {
-        return MessageFormat.format("{0} теперь известен как {1}", oldNick, newNick);
+        return messages.format(Messages.NICK_CHANGED, oldNick, newNick);
     }
 
     @Override
     public String joined(Date rcvDate, String participant) {
-        return MessageFormat.format("К нам явился дорогой {0}", participant);
+        return messages.format(Messages.JOINED, participant);
     }
 
     @Override
     public String left(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} ушел в жестокий внешний мир", participant);
+        return messages.format(Messages.LEFT, participant);
     }
 
     @Override
     public String voiceGranted(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} получил право голоса", participant);
+        return messages.format(Messages.VOICE_GRANTED, participant);
     }
 
     @Override
     public String voiceRevoked(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} лишился права голоса", participant);
+        return messages.format(Messages.VOICE_REVOKED, participant);
     }
 
     @Override
     public String memberGranted(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} стал полноправным членом", participant);
+        return messages.format(Messages.MEMBER_GRANTED, participant);
     }
 
     @Override
     public String memberRevoked(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} перестал быть полноправным членом, очень прискорбно", participant);
+        return messages.format(Messages.MEMBER_REVOKED, participant);
     }
 
     @Override
     public String moderGranted(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} стал мурдератором", participant);
+        return messages.format(Messages.MODER_GRANTED, participant);
     }
 
     @Override
     public String moderRevoked(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} перестал быть мурдератором", participant);
+        return messages.format(Messages.MODER_REVOKED, participant);
     }
 
     @Override
     public String ownerGranted(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} стал владельцем!", participant);
+        return messages.format(Messages.OWNER_GRANTED, participant);
     }
 
     @Override
     public String ownerRevoked(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} перестал быть владельцем, бедолага", participant);
+        return messages.format(Messages.OWNER_REVOKED, participant);
     }
 
     @Override
     public String adminGranted(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} стал админом", participant);
+        return messages.format(Messages.ADMIN_GRANTED, participant);
     }
 
     @Override
     public String adminRevoked(Date rcvDate, String participant) {
-        return MessageFormat.format("{0} перестал быть админом", participant);
+        return messages.format(Messages.ADMIN_REVOKED, participant);
     }
 }

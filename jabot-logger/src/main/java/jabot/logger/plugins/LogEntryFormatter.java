@@ -1,8 +1,8 @@
 package jabot.logger.plugins;
 
-import jabot.DefaultRoomMessageFormatter;
 import jabot.logger.LameFunction;
 import jabot.logger.dto.LogEntry;
+import jabot.room.RoomMessageFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,106 +10,89 @@ import java.util.Date;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public abstract class LogEntryFormatter extends DefaultRoomMessageFormatter implements LameFunction<LogEntry, String> {
+public abstract class LogEntryFormatter implements LameFunction<LogEntry, String> {
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("[dd.MM.yyyy hh:mm:ss]");
+    private final SimpleDateFormat dateFormat;
+    private final RoomMessageFormatter frm;
 
-    @Override
+    protected LogEntryFormatter(SimpleDateFormat dateFormat, RoomMessageFormatter frm) {
+        this.dateFormat = dateFormat;
+        this.frm = frm;
+    }
+
     public String message(Date rcvDate, String from, String body, boolean fromMe) {
-        return dateFormat.format(rcvDate) + " " + super.message(rcvDate, from, body, fromMe);
+        return dateFormat.format(rcvDate) + " " + frm.message(rcvDate, from, body, fromMe);
     }
 
-    @Override
-    public String delayedMessage(Date rcvDate, String from, String body, boolean fromMe, Date timestamp) {
-        return super.delayedMessage(rcvDate, from, body, fromMe, timestamp);
-    }
-
-    @Override
     public String subjectMessageOnStart(Date rcvDate, String from, String body) {
-        return sysEvent(rcvDate, super.subjectMessageOnStart(rcvDate, from, body));
+        return sysEvent(rcvDate, frm.subjectMessageOnStart(rcvDate, from, body));
     }
 
-    @Override
     public String setSubject(Date rcvDate, String from, String subject) {
-        return sysEvent(rcvDate, super.setSubject(rcvDate, from, subject));
+        return sysEvent(rcvDate, frm.setSubject(rcvDate, from, subject));
     }
 
-    private String sysEvent(Date dte, String text) {
+    private String sysEvent(Date dte, Object text) {
         return dateFormat.format(dte) + " *" + text + "*";
     }
 
-    @Override
     public String kicked(Date rcvDate, String participant, String actor, String reason) {
-        return sysEvent(rcvDate, super.kicked(rcvDate, participant, actor, reason));
+        return sysEvent(rcvDate, frm.kicked(rcvDate, participant, actor, reason));
     }
 
-    @Override
     public String banned(Date rcvDate, String participant, String actor, String reason) {
-        return sysEvent(rcvDate, super.banned(rcvDate, participant, actor, reason));
+        return sysEvent(rcvDate, frm.banned(rcvDate, participant, actor, reason));
     }
 
-    @Override
     public String nickChanged(Date rcvDate, String oldNick, String newNick) {
-        return sysEvent(rcvDate, super.nickChanged(rcvDate, oldNick, newNick));
+        return sysEvent(rcvDate, frm.nickChanged(rcvDate, oldNick, newNick));
     }
 
-    @Override
     public String joined(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.joined(rcvDate, participant));
+        return sysEvent(rcvDate, frm.joined(rcvDate, participant));
     }
 
-    @Override
     public String left(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.left(rcvDate, participant));
+        return sysEvent(rcvDate, frm.left(rcvDate, participant));
     }
 
-    @Override
     public String voiceGranted(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.voiceGranted(rcvDate, participant));
+        return sysEvent(rcvDate, frm.voiceGranted(rcvDate, participant));
     }
 
-    @Override
     public String voiceRevoked(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.voiceRevoked(rcvDate, participant));
+        return sysEvent(rcvDate, frm.voiceRevoked(rcvDate, participant));
     }
 
-    @Override
     public String memberGranted(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.memberGranted(rcvDate, participant));
+        return sysEvent(rcvDate, frm.memberGranted(rcvDate, participant));
     }
 
-    @Override
     public String memberRevoked(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.memberRevoked(rcvDate, participant));
+        return sysEvent(rcvDate, frm.memberRevoked(rcvDate, participant));
     }
 
-    @Override
     public String ownerGranted(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.ownerGranted(rcvDate, participant));
+        return sysEvent(rcvDate, frm.ownerGranted(rcvDate, participant));
     }
 
-    @Override
     public String ownerRevoked(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.ownerRevoked(rcvDate, participant));
+        return sysEvent(rcvDate, frm.ownerRevoked(rcvDate, participant));
     }
 
-    @Override
     public String adminGranted(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.adminGranted(rcvDate, participant));
+        return sysEvent(rcvDate, frm.adminGranted(rcvDate, participant));
     }
 
-    @Override
     public String adminRevoked(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.adminRevoked(rcvDate, participant));
+        return sysEvent(rcvDate, frm.adminRevoked(rcvDate, participant));
     }
 
-    @Override
     public String moderGranted(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.moderGranted(rcvDate, participant));
+        return sysEvent(rcvDate, frm.moderGranted(rcvDate, participant));
     }
 
-    @Override
     public String moderRevoked(Date rcvDate, String participant) {
-        return sysEvent(rcvDate, super.moderRevoked(rcvDate, participant));
+        return sysEvent(rcvDate, frm.moderRevoked(rcvDate, participant));
     }
 }

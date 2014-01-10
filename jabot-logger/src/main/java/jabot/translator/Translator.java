@@ -18,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter();
+    private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private BlockingQueue<ChatInQueueItem> chatInQueue;
     private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
