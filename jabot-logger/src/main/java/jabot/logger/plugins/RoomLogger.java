@@ -1,7 +1,9 @@
 package jabot.logger.plugins;
 
+import jabot.Helper;
 import jabot.JabotException;
 import jabot.PluginVersion;
+import jabot.impl.EchomailToolsProxy;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
 import jabot.logger.Database;
@@ -12,17 +14,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class RoomLogger extends ConfigurableRoomPlugin {
 
+    private static final long MILLISEC_IN_HOUR = 3600000L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private Database db;
     private final Storer storer;
+    private Database db;
     private DAO dao;
+    private EchomailToolsProxy echomailToolsProxy;
 
     public RoomLogger(String config) throws JabotException {
         super(config);
@@ -30,11 +39,21 @@ public class RoomLogger extends ConfigurableRoomPlugin {
         logger.debug("inited");
     }
 
+    private static Date getNextLaunchDate() {
+        Calendar calendar = Calendar.getInstance(Locale.US);
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+        calendar.set(Calendar.SECOND, 0);
+        return new Date(calendar.getTime().getTime() + MILLISEC_IN_HOUR * 24L);
+    }
+
     protected boolean init(Properties props) {
         db = Database.init(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
             db.check();
             dao = new DAOImpl(db);
+            echomailToolsProxy = new EchomailToolsProxy(props);
         } catch (SQLException e) {
             final Logger logg = LoggerFactory.getLogger(getClass());
             logg.error("fail check database", e);
@@ -43,12 +62,50 @@ public class RoomLogger extends ConfigurableRoomPlugin {
         return true;
     }
 
+    private void scheduleStatPsto() {
+        Date showDate = getNextLaunchDate();
+        Date now = new Date();
+        long initialDelay = showDate.getTime() - now.getTime();
+        if (initialDelay < 0) {
+            initialDelay = 0;
+        }
+
+        logger.info("First stat psto will run at " + showDate
+                + " and every 1 day after");
+        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    StatPoster poster = new StatPoster(db);
+                    String psto = poster.report(new Date(new Date().getTime() - 86400000), new Date(new Date().getTime() + 86400000));
+
+                    if (Helper.isNonEmptyStr(psto)) {
+                        echomailToolsProxy.writeEchomail("828.jabber", "Мегастатистика", psto);
+                        logger.debug("posted");
+                    } else {
+                        logger.debug("empty");
+                    }
+
+
+                } catch (SQLException e) {
+                    logger.error("fail post", e);
+                }
+
+            }
+        },
+                initialDelay, MILLISEC_IN_HOUR * 24L, TimeUnit.MILLISECONDS);
+
+    }
+
     @Override
     public void start() throws InterruptedException {
         if (!isInited() || getRoomOutQueue() == null || getExecutor() == null) {
             logger.error("not inited!");
             return;
         }
+
+
+        scheduleStatPsto();
 
         logger.debug("inited, before room process loop");
 
