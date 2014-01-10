@@ -10,15 +10,15 @@ import java.util.Date;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class DisplayLogEntryTest {
+public class LogEntryDisplayerTest {
 
     private final Date current = new Date(2013 - 1900, 12 - 1, 9, 8, 6, 5);
     private Storer storer = new Storer();
-    private DisplayLogEntry d;
+    private LogEntryDisplayer d;
 
     @Before
     public void setUp() throws Exception {
-        d = new DisplayLogEntry();
+        d = new LogEntryDisplayer();
     }
 
     @Test

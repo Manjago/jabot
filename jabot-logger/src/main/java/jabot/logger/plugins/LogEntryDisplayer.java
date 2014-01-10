@@ -10,13 +10,19 @@ import java.util.Map;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class DisplayLogEntry {
+public class LogEntryDisplayer {
 
     private final Map<EntryType, LameFunction<LogEntry, String>> s;
 
-    public DisplayLogEntry() {
-        s = new HashMap<>();
+    public LogEntryDisplayer() {
 
+        s = new HashMap<>();
+        init1();
+        init2();
+        init3();
+    }
+
+    private void init1() {
         s.put(EntryType.MSG, new LogEntryFormatter() {
             @Override
             public String execute(LogEntry arg) {
@@ -71,6 +77,10 @@ public class DisplayLogEntry {
                 return left(arg.getEventDate(), arg.getFrom());
             }
         });
+
+    }
+
+    private void init2() {
         s.put(EntryType.VOICE_GRANTED, new LogEntryFormatter() {
             @Override
             public String execute(LogEntry arg) {
@@ -119,6 +129,9 @@ public class DisplayLogEntry {
                 return adminRevoked(arg.getEventDate(), arg.getFrom());
             }
         });
+    }
+
+    private void init3() {
         s.put(EntryType.MODER_GRANTED, new LogEntryFormatter() {
             @Override
             public String execute(LogEntry arg) {
@@ -131,6 +144,7 @@ public class DisplayLogEntry {
                 return moderRevoked(arg.getEventDate(), arg.getFrom());
             }
         });
+
 
     }
 

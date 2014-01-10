@@ -15,11 +15,11 @@ import java.util.List;
  */
 public class StatPoster {
     private final Database initedDb;
-    private final DisplayLogEntry displayLogEntry;
+    private final LogEntryDisplayer logEntryDisplayer;
 
     public StatPoster(Database initedDb) {
         this.initedDb = initedDb;
-        displayLogEntry = new DisplayLogEntry();
+        logEntryDisplayer = new LogEntryDisplayer();
     }
 
     public String report(Date from, Date to) throws SQLException {
@@ -42,6 +42,6 @@ public class StatPoster {
     }
 
     private String display(LogEntry logEntry) {
-        return displayLogEntry.display(logEntry);
+        return logEntryDisplayer.display(logEntry);
     }
 }
