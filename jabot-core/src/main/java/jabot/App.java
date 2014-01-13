@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public final class App {
@@ -59,12 +57,12 @@ public final class App {
     private static void runBot(Properties props) throws InterruptedException {
         final BotConfig botConfig = getBotConfig(props);
 
-        final ExecutorService executor = Executors.newCachedThreadPool();
+        final ExecutorProvider executorProvider = new ExecutorProvider();
 
         final BlockingQueue<Object> ctrlQueue = new LinkedBlockingQueue<>(BOUND);
-        final Bot bot = new Bot(botConfig, executor, ctrlQueue);
+        final Bot bot = new Bot(botConfig, executorProvider, ctrlQueue);
 
-        executor.execute(new Runnable() {
+        executorProvider.getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -79,7 +77,7 @@ public final class App {
         ctrlQueue.take();
         LOGGER.info("restart");
         bot.stop();
-        executor.shutdownNow();
+        executorProvider.shutdownNow();
         Thread.sleep(SLEEP);
     }
 

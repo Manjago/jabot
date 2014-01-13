@@ -1,5 +1,6 @@
 package jabot.logger.plugins;
 
+import jabot.ExecutorProvider;
 import jabot.Helper;
 import jabot.JabotException;
 import jabot.PluginVersion;
@@ -32,11 +33,19 @@ public class RoomLogger extends ConfigurableRoomPlugin {
     private Database db;
     private DAO dao;
     private EchomailToolsProxy echomailToolsProxy;
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
     public RoomLogger(String config) throws JabotException {
         super(config);
+        scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
         storer = new Storer();
         logger.debug("inited");
+    }
+
+    @Override
+    public void setExecutorProvider(ExecutorProvider executorProvider) {
+        super.setExecutorProvider(executorProvider);
+        executorProvider.registerSched(scheduledThreadPoolExecutor);
     }
 
     private static Date getNextLaunchDate() {
@@ -72,7 +81,7 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
         logger.info("First stat psto will run at " + showDate
                 + " and every 1 day after");
-        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(new Runnable() {
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {

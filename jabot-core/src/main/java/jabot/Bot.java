@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -28,16 +27,16 @@ public class Bot {
     private static final long CHECK_INTERVAL = 5000L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotConfig botConfig;
-    private final Executor executor;
+    private final ExecutorProvider executorProvider;
     private final BlockingQueue<Object> ctrlQueue;
     private XMPPConnection connection;
 
-    public Bot(BotConfig botConfig, Executor executor, BlockingQueue<Object> ctrlQueue) {
+    public Bot(BotConfig botConfig, ExecutorProvider executorProvider, BlockingQueue<Object> ctrlQueue) {
         this.ctrlQueue = ctrlQueue;
         if (botConfig == null) {
             throw new IllegalArgumentException("bot parameters is null");
         }
-        this.executor = executor;
+        this.executorProvider = executorProvider;
         this.botConfig = new BotConfig(botConfig);
     }
 
@@ -92,7 +91,7 @@ public class Bot {
     private void initChat(String pluginStr, List<ChatPlugin> chatPlugins) {
         final BlockingQueue<ChatOutQueueItem> queue = new LinkedBlockingQueue<>(BOUND);
         final ChatListener chatListener = new ChatListener();
-        chatListener.start(executor, pluginStr, queue, chatPlugins);
+        chatListener.start(executorProvider, pluginStr, queue, chatPlugins);
         connection.addPacketListener(chatListener, new PacketFilter() {
             @Override
             public boolean accept(Packet packet) {
@@ -131,12 +130,12 @@ public class Bot {
         final BlockingQueue<RoomOutQueueItem> queue = new LinkedBlockingQueue<>(BOUND);
 
         final RoomListener roomListener = new RoomListener(meAddr);
-        roomListener.start(executor, pluginStr, queue, chatPlugins);
+        roomListener.start(executorProvider, pluginStr, queue, chatPlugins);
         muc.addMessageListener(roomListener);
         muc.addSubjectUpdatedListener(roomListener);
         muc.addParticipantStatusListener(roomListener);
 
-        executor.execute(new Runnable() {
+        executorProvider.getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -156,7 +155,7 @@ public class Bot {
             }
         });
 
-        executor.execute(new Runnable() {
+        executorProvider.getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 try {

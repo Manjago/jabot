@@ -12,7 +12,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -24,7 +23,7 @@ public class ChatListener implements PacketListener {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private List<BlockingQueue<ChatInQueueItem>> pluginInQueues;
 
-    public void start(Executor executor, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(ExecutorProvider executorProvider, String pluginStr, BlockingQueue<ChatOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         List<ChatPlugin> plugins = new Loader<ChatPlugin>().loadPlugins(pluginStr);
         pluginInQueues = new CopyOnWriteArrayList<>();
@@ -42,8 +41,8 @@ public class ChatListener implements PacketListener {
 
         for (final ChatPlugin p : plugins) {
             p.setChatOutQueue(queue);
-            p.setExecutor(executor);
-            executor.execute(new Runnable() {
+            p.setExecutorProvider(executorProvider);
+            executorProvider.getExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
                     try {

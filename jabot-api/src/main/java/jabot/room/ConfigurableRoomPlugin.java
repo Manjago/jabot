@@ -1,5 +1,6 @@
 package jabot.room;
 
+import jabot.ExecutorProvider;
 import jabot.Helper;
 import jabot.JabotException;
 
@@ -14,7 +15,7 @@ public abstract class ConfigurableRoomPlugin implements RoomPlugin {
     private volatile boolean inited;
     private BlockingQueue<RoomInQueueItem> roomInQueue;
     private BlockingQueue<RoomOutQueueItem> roomOutQueue;
-    private Executor executor;
+    private ExecutorProvider executorProvider;
 
     public ConfigurableRoomPlugin(String config) throws JabotException {
         Properties props;
@@ -42,12 +43,12 @@ public abstract class ConfigurableRoomPlugin implements RoomPlugin {
     }
 
     protected Executor getExecutor() {
-        return executor;
+        return executorProvider != null ? executorProvider.getExecutor() : null;
     }
 
     @Override
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
+    public void setExecutorProvider(ExecutorProvider executorProvider) {
+        this.executorProvider = executorProvider;
     }
 
     protected boolean isInited() {

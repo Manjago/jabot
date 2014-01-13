@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -38,7 +37,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
         this.meAddress = meAddress;
     }
 
-    public void start(Executor executor, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
+    public void start(ExecutorProvider executorProvider, String pluginStr, BlockingQueue<RoomOutQueueItem> queue, List<ChatPlugin> chatPlugins) {
 
         pluginsInQueue = new CopyOnWriteArrayList<>();
 
@@ -64,8 +63,8 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
                     logger.debug("plugin {} deffered as chatPlugin", Helper.displayPlugin(b));
                 }
             } else {
-                b.setExecutor(executor);
-                executor.execute(new Runnable() {
+                b.setExecutorProvider(executorProvider);
+                executorProvider.getExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
