@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 public class RoomLogger extends ConfigurableRoomPlugin {
 
     private static final long MILLISEC_IN_HOUR = 3600000L;
+    private static final int INT = 86400000;
+    private static final long HOURS_IN_DAY = 24L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Storer storer;
     private Database db;
@@ -54,7 +56,7 @@ public class RoomLogger extends ConfigurableRoomPlugin {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 1);
         calendar.set(Calendar.SECOND, 0);
-        return new Date(calendar.getTime().getTime() + MILLISEC_IN_HOUR * 24L);
+        return new Date(calendar.getTime().getTime() + MILLISEC_IN_HOUR * HOURS_IN_DAY);
     }
 
     protected boolean init(Properties props) {
@@ -86,8 +88,7 @@ public class RoomLogger extends ConfigurableRoomPlugin {
             public void run() {
                 try {
                     StatPoster poster = new StatPoster(db);
-                    String psto = poster.report(new Date(new Date().getTime() - 86400000), new Date(new Date().getTime() + 86400000));
-
+                    String psto = poster.report(new Date(new Date().getTime() - INT), new Date(new Date().getTime() + INT));
                     if (Helper.isNonEmptyStr(psto)) {
                         echomailToolsProxy.writeEchomail("828.jabber", "Мегастатистика", psto);
                         logger.debug("posted");
@@ -95,14 +96,13 @@ public class RoomLogger extends ConfigurableRoomPlugin {
                         logger.debug("empty");
                     }
 
-
                 } catch (SQLException e) {
                     logger.error("fail post", e);
                 }
 
             }
         },
-                initialDelay, MILLISEC_IN_HOUR * 24L, TimeUnit.MILLISECONDS);
+                initialDelay, MILLISEC_IN_HOUR * HOURS_IN_DAY, TimeUnit.MILLISECONDS);
 
     }
 

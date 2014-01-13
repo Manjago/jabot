@@ -11,7 +11,14 @@ import java.util.Properties;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class ClientProxy {
+public final class ClientProxy {
+
+    private static final int INTMILLISEC_IN_SEC = 1000;
+    private static final int HALF_MINUTE = 30;
+
+    private ClientProxy() {
+    }
+
     static XmlRpcClient getXmlRpcClient(Properties properties) throws MalformedURLException {
 
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
@@ -20,8 +27,8 @@ public class ClientProxy {
         config.setBasicPassword(properties.getProperty("xmlrpc.password", "password"));
         config.setEnabledForExtensions(false);
         config.setContentLengthOptional(false);
-        config.setConnectionTimeout(30 * 1000);
-        config.setReplyTimeout(30 * 1000);
+        config.setConnectionTimeout(HALF_MINUTE * INTMILLISEC_IN_SEC);
+        config.setReplyTimeout(HALF_MINUTE * INTMILLISEC_IN_SEC);
 
         XmlRpcClient client = new XmlRpcClient();
         client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));
