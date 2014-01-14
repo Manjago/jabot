@@ -1,8 +1,11 @@
 package jabot.translator;
 
 import jabot.*;
-import jabot.chat.*;
-import jabot.room.ConfigurableRoomPlugin;
+import jabot.chat.ChatInQueueItem;
+import jabot.chat.ChatMessage;
+import jabot.chat.ChatOutQueueItem;
+import jabot.chat.ChatPresence;
+import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
 import jabot.room.RoomOutQueueItem;
@@ -11,16 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
+public class Translator extends ConfigurableRoomChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
-    private BlockingQueue<ChatInQueueItem> chatInQueue;
-    private BlockingQueue<ChatOutQueueItem> chatOutQueue;
     private volatile String addrTo;
 
     public Translator(String config) throws JabotException {
@@ -47,18 +47,8 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
     }
 
     @Override
-    public void setChatOutQueue(BlockingQueue<ChatOutQueueItem> queue) {
-        chatOutQueue = queue;
-    }
-
-    @Override
-    public void setChatInQueue(BlockingQueue<ChatInQueueItem> queue) {
-        chatInQueue = queue;
-    }
-
-    @Override
     public void start() throws InterruptedException {
-        if (!isInited() || getRoomOutQueue() == null || chatOutQueue == null || getExecutor() == null) {
+        if (!isInited() || getRoomOutQueue() == null || getChatOutQueue() == null || getExecutor() == null) {
             logger.error("not inited!");
             return;
         }
@@ -99,7 +89,7 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
 
     private void processChat() throws InterruptedException {
         while (!Thread.interrupted()) {
-            ChatInQueueItem item = chatInQueue.take();
+            ChatInQueueItem item = getChatInQueue().take();
 
 
             switch (item.getType()) {
@@ -155,7 +145,7 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
 
         if (addrTo.equals(simpleAddr)) {
             final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, MessageFormat.format("Привет, дружище {0}!", addrTo));
-            chatOutQueue.put(chatOutQueueItem);
+            getChatOutQueue().put(chatOutQueueItem);
 
             logger.debug("send to chat {}", chatOutQueueItem);
         } else {
@@ -186,7 +176,7 @@ public class Translator extends ConfigurableRoomPlugin implements ChatPlugin {
             return;
         }
         final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, s);
-        chatOutQueue.put(chatOutQueueItem);
+        getChatOutQueue().put(chatOutQueueItem);
         logger.debug("send to chat {}", chatOutQueueItem);
     }
 

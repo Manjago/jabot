@@ -4,12 +4,14 @@ import jabot.ExecutorProvider;
 import jabot.Helper;
 import jabot.JabotException;
 import jabot.PluginVersion;
+import jabot.chat.ChatInQueueItem;
+import jabot.chat.ChatMessageType;
 import jabot.impl.EchomailToolsProxy;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
 import jabot.logger.Database;
 import jabot.logger.dto.LogEntry;
-import jabot.room.ConfigurableRoomPlugin;
+import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,29 +27,23 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class RoomLogger extends ConfigurableRoomPlugin {
+public class RoomLogger extends ConfigurableRoomChatPlugin {
 
     private static final long MILLISEC_IN_HOUR = 3600000L;
     private static final int INT = 86400000;
     private static final long HOURS_IN_DAY = 24L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Storer storer;
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private Database db;
     private DAO dao;
     private EchomailToolsProxy echomailToolsProxy;
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
     public RoomLogger(String config) throws JabotException {
         super(config);
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
         storer = new Storer();
         logger.debug("inited");
-    }
-
-    @Override
-    public void setExecutorProvider(ExecutorProvider executorProvider) {
-        super.setExecutorProvider(executorProvider);
-        executorProvider.registerSched(scheduledThreadPoolExecutor);
     }
 
     private static Date getNextLaunchDate() {
@@ -59,14 +55,22 @@ public class RoomLogger extends ConfigurableRoomPlugin {
         return new Date(calendar.getTime().getTime() + MILLISEC_IN_HOUR * HOURS_IN_DAY);
     }
 
+    @Override
+    public void setExecutorProvider(ExecutorProvider executorProvider) {
+        super.setExecutorProvider(executorProvider);
+        executorProvider.registerSched(scheduledThreadPoolExecutor);
+    }
+
     protected boolean init(Properties props) {
+
+        final Logger logg = LoggerFactory.getLogger(getClass());
+
         db = Database.init(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
             db.check();
             dao = new DAOImpl(db);
             echomailToolsProxy = new EchomailToolsProxy(props);
         } catch (SQLException e) {
-            final Logger logg = LoggerFactory.getLogger(getClass());
             logg.error("fail check database", e);
             return false;
         }
@@ -116,6 +120,19 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
         scheduleStatPsto();
 
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    processCommands();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    logger.error("Chat thread error", e);
+                }
+            }
+        });
+
         logger.debug("inited, before room process loop");
 
         while (!Thread.interrupted()) {
@@ -128,6 +145,19 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
         logger.info("leave thread");
 
+    }
+
+    private void processCommands() throws InterruptedException {
+        while (!Thread.interrupted()) {
+            ChatInQueueItem item = getChatInQueue().take();
+
+            if (ChatMessageType.MSG.equals(item.getType())) {
+                // todo implement
+                logger.debug("got message item {}", item);
+            }
+
+
+        }
     }
 
     private void loggi(RoomInQueueItem item) {
@@ -150,7 +180,7 @@ public class RoomLogger extends ConfigurableRoomPlugin {
 
             @Override
             public int getMinor() {
-                return 0;
+                return 1;
             }
         };
     }
