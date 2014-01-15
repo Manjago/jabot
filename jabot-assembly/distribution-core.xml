@@ -35,5 +35,19 @@
             </includes>
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../jabot-logger/target/lib</directory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../jabot-logger/lib</directory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>

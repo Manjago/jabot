@@ -1,11 +1,10 @@
 package jabot.logger.plugins;
 
-import jabot.ExecutorProvider;
-import jabot.Helper;
-import jabot.JabotException;
-import jabot.PluginVersion;
+import jabot.*;
 import jabot.chat.ChatInQueueItem;
+import jabot.chat.ChatMessage;
 import jabot.chat.ChatMessageType;
+import jabot.chat.ChatOutQueueItem;
 import jabot.impl.EchomailToolsProxy;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class RoomLogger extends ConfigurableRoomChatPlugin {
 
     private static final long MILLISEC_IN_HOUR = 3600000L;
-    private static final int INT = 86400000;
+    private static final long MILLISEC_IN_DAY = 86400000L;
     private static final long HOURS_IN_DAY = 24L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Storer storer;
@@ -38,6 +38,8 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
     private Database db;
     private DAO dao;
     private EchomailToolsProxy echomailToolsProxy;
+    private volatile String operator;
+    private volatile String area;
 
     public RoomLogger(String config) throws JabotException {
         super(config);
@@ -65,6 +67,18 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
 
         final Logger logg = LoggerFactory.getLogger(getClass());
 
+        operator = props.getProperty("operator");
+        if (operator == null) {
+            logg.error("operator not found");
+            return false;
+        }
+
+        area = props.getProperty("area");
+        if (area == null) {
+            logg.error("area not found");
+            return false;
+        }
+
         db = Database.init(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
             db.check();
@@ -91,10 +105,9 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
             @Override
             public void run() {
                 try {
-                    StatPoster poster = new StatPoster(db);
-                    String psto = poster.report(new Date(new Date().getTime() - INT), new Date(new Date().getTime() + INT));
+                    String psto = getPsto();
                     if (Helper.isNonEmptyStr(psto)) {
-                        echomailToolsProxy.writeEchomail("828.jabber", "Мегастатистика", psto);
+                        echomailToolsProxy.writeEchomail(area, "Мегастатистика", psto, "Jabber bot", "All");
                         logger.debug("posted");
                     } else {
                         logger.debug("empty");
@@ -108,6 +121,12 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
         },
                 initialDelay, MILLISEC_IN_HOUR * HOURS_IN_DAY, TimeUnit.MILLISECONDS);
 
+    }
+
+    private String getPsto() throws SQLException {
+        StatPoster poster = new StatPoster(db);
+        final long nowTime = new Date().getTime();
+        return poster.report(new Date(nowTime - RoomLogger.MILLISEC_IN_DAY), new Date(nowTime + RoomLogger.MILLISEC_IN_DAY));
     }
 
     @Override
@@ -149,15 +168,75 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
 
     private void processCommands() throws InterruptedException {
         while (!Thread.interrupted()) {
+            logger.debug("wait chat command");
             ChatInQueueItem item = getChatInQueue().take();
 
             if (ChatMessageType.MSG.equals(item.getType())) {
-                // todo implement
                 logger.debug("got message item {}", item);
+
+                ChatMessage chatMessage = (ChatMessage) item;
+
+                String simpleAddr;
+                try {
+                    simpleAddr = Addr3D.fromRaw(chatMessage.getFrom()).getNameServer();
+                } catch (IllegalArgumentException e) {
+                    logger.error("fail process message {}", chatMessage, e);
+                    return;
+                }
+
+                if (operator.equals(simpleAddr)) {
+                    processOperatorCommand(chatMessage.getBody());
+                } else {
+                    logger.debug("skip message from wrong address {}", simpleAddr);
+                }
+
+
             }
 
 
         }
+    }
+
+    private void chatOut(String s) throws InterruptedException {
+        if (Helper.isEmptyStr(s)) {
+            return;
+        }
+        final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(operator, s);
+        getChatOutQueue().put(chatOutQueueItem);
+        logger.debug("send to chat {}", chatOutQueueItem);
+    }
+
+    private void processOperatorCommand(String cmd) throws InterruptedException {
+        if (cmd == null) {
+            return;
+        }
+        chatOut(MessageFormat.format("got cmd {0}", cmd));
+
+        try {
+            switch (cmd) {
+                case "POSTME": {
+                    String psto = getPsto();
+                    chatOut(psto);
+                    chatOut(MessageFormat.format("process cmd {0}", cmd));
+                }
+                break;
+                case "POST": {
+                    String psto = getPsto();
+                    echomailToolsProxy.writeEchomail(area, "Мегастатистика", psto, "Jabber bot", "All");
+                    logger.debug("posted by request");
+                    chatOut(MessageFormat.format("process cmd {0}", cmd));
+                }
+                break;
+                default:
+                    chatOut(MessageFormat.format("unknown command cmd {0}", cmd));
+                    break;
+
+            }
+        } catch (SQLException e) {
+            logger.debug("fail process cmd {}", cmd, e);
+            chatOut(MessageFormat.format("fail cmd {0}", cmd));
+        }
+
     }
 
     private void loggi(RoomInQueueItem item) {

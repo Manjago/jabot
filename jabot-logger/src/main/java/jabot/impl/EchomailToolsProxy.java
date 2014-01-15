@@ -34,4 +34,16 @@ public final class EchomailToolsProxy {
 
     }
 
+    public String writeEchomail(String areaname, String subject, String body, String fromName, String toName) {
+
+        try {
+            ClientFactory factory = new ClientFactory(ClientProxy.getXmlRpcClient(props));
+            jnode.EchomailTools echomailTools = (EchomailTools) factory.newInstance(EchomailTools.class);
+            return echomailTools.writeEchomail(areaname, subject, body, fromName, toName);
+        } catch (MalformedURLException | XmlRpcException e) {
+            logger.error("fail write echomail", e);
+            return e.getMessage();
+        }
+
+    }
 }
