@@ -17,7 +17,7 @@ import java.util.Map;
 public class LogEntryDisplayer {
 
     private final Map<EntryType, LameFunction<LogEntry, String>> s;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("[dd.MM.yyyy hh:mm:ss]");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("[dd.MM.yyyy HH:mm:ss]");
     private final RoomMessageFormatter frm = new DefaultRoomMessageFormatter(new Messages());
 
     public LogEntryDisplayer() {

@@ -31,6 +31,15 @@ public class LogEntryDisplayerTest {
     }
 
     @Test
+    public void testMSG2() throws Exception {
+        LogEntry e = storer.message(new Date(current.getTime() + 86400 / 2 * 1000), "fido828@conference.jabber.ru/tihobot", "тестовое сообщение", false);
+
+        String res = d.display(e);
+        TestCase.assertNotNull("null наше сообщение", res);
+        TestCase.assertEquals("выдаем фигню", "[09.12.2013 20:06:05] tihobot: тестовое сообщение", res);
+    }
+
+    @Test
     public void testDELAYMSG() throws Exception {
         LogEntry e = storer.delayedMessage(current, "fido828@conference.jabber.ru/tihobot", "тестовое сообщение", false, null);
 
