@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -107,7 +108,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
                 try {
                     String psto = getPsto();
                     if (Helper.isNonEmptyStr(psto)) {
-                        echomailToolsProxy.writeEchomail(area, "Мегастатистика", psto, "Jabber bot", "All");
+                        sendStat(area, psto);
                         logger.debug("posted");
                     } else {
                         logger.debug("empty");
@@ -222,7 +223,14 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
                 break;
                 case "POST": {
                     String psto = getPsto();
-                    echomailToolsProxy.writeEchomail(area, "Мегастатистика", psto, "Jabber bot", "All");
+                    sendStat("828.test", psto);
+                    logger.debug("posted by test request");
+                    chatOut(MessageFormat.format("process cmd {0}", cmd));
+                }
+                break;
+                case "REPOST": {
+                    String psto = getPsto();
+                    sendStat(area, psto);
                     logger.debug("posted by request");
                     chatOut(MessageFormat.format("process cmd {0}", cmd));
                 }
@@ -237,6 +245,11 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
             chatOut(MessageFormat.format("fail cmd {0}", cmd));
         }
 
+    }
+
+    private void sendStat(String area, String psto) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        echomailToolsProxy.writeEchomail(area, MessageFormat.format("Лог за {0}", dateFormat.format(new Date(new Date().getTime() - MILLISEC_IN_DAY))), psto, "Jabber bot", "All");
     }
 
     private void loggi(RoomInQueueItem item) {
