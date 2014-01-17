@@ -21,6 +21,7 @@
         <java.compiler.version>1.7</java.compiler.version>
         <logback.version>1.0.6</logback.version>
         <smack.version>3.2.1</smack.version>
+        <github.global.server>github</github.global.server>
     </properties>
     <build>
         <plugins>
@@ -72,5 +73,13 @@
         <module>jabot-logger</module>
         <module>jabot-assembly</module>
     </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 
 </project>
