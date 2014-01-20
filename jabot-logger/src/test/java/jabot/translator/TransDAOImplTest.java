@@ -44,12 +44,25 @@ public class TransDAOImplTest {
     }
 
     @Test
-    public void testGet() throws Exception {
-
-    }
-
-    @Test
     public void testUpdate() throws Exception {
+        TransUser user = new TransUser();
+        user.setEnabled(true);
+        user.setJid("kkk");
+
+        try (Database db = dbF.create()) {
+            TransDAO dao = new TransDAOImpl(db);
+
+            dao.store(user);
+
+            TransUser stored = dao.get("kkk");
+
+            stored.setEnabled(false);
+            stored.setJid("ttt");
+
+            // TODO implement
+
+
+        }
 
     }
 
