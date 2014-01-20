@@ -1,6 +1,7 @@
 package jabot.logger;
 
 import jabot.Helper;
+import jabot.db.Database;
 import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
 

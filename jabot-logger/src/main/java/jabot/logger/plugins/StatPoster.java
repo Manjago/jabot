@@ -1,9 +1,9 @@
 package jabot.logger.plugins;
 
 import jabot.Helper;
+import jabot.db.Database;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
-import jabot.logger.Database;
 import jabot.logger.dto.LogEntry;
 
 import java.sql.SQLException;

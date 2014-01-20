@@ -1,5 +1,6 @@
 package jabot.logger;
 
+import jabot.db.Database;
 import org.h2.jdbcx.JdbcConnectionPool;
 
 import java.sql.*;
@@ -9,27 +10,31 @@ import static jabot.Helper.checkNotNull;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public final class Database implements AutoCloseable {
+public class LoggerDatabaseImpl implements Database {
 
-    private final JdbcConnectionPool cp;
+    private JdbcConnectionPool cp;
 
-    private Database(JdbcConnectionPool cp) {
-        this.cp = cp;
+    private static boolean isNeedDbCreate(Connection conn) throws SQLException {
+        try (PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?")) {
+            checkTable.setString(1, "LOGDATA");
+            try (ResultSet rs = checkTable.executeQuery()) {
+                return !rs.first();
+            }
+        }
     }
 
-    public static Database init(String connection, String user, String pwd) {
-        JdbcConnectionPool cp = JdbcConnectionPool.create(
+    private static void execStatement(Connection conn, String sql) throws SQLException {
+        try (Statement statement = checkNotNull(conn).createStatement()) {
+            statement.execute(checkNotNull(sql));
+        }
+    }
+
+    void init(String connection, String user, String pwd) {
+        cp = JdbcConnectionPool.create(
                 connection, user, pwd);
-        return new Database(cp);
     }
 
-    public Connection getConnection() throws SQLException {
-        Connection connection = cp.getConnection();
-        connection.setAutoCommit(false);
-        return connection;
-    }
-
-    public void check() throws SQLException {
+    void check() throws SQLException {
         try (Connection conn = getConnection()) {
 
             if (isNeedDbCreate(conn)) {
@@ -51,21 +56,17 @@ public final class Database implements AutoCloseable {
             }
 
         }
+
     }
 
-    private static boolean isNeedDbCreate(Connection conn) throws SQLException {
-        try(PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?")){
-            checkTable.setString(1, "LOGDATA");
-            try(ResultSet rs = checkTable.executeQuery()){
-                return !rs.first();
-            }
+    @Override
+    public Connection getConnection() throws SQLException {
+        if (cp == null) {
+            throw new IllegalStateException();
         }
-    }
-
-    private static void execStatement(Connection conn, String sql) throws SQLException {
-        try(Statement statement = checkNotNull(conn).createStatement()){
-            statement.execute(checkNotNull(sql));
-        }
+        Connection connection = cp.getConnection();
+        connection.setAutoCommit(false);
+        return connection;
     }
 
     @Override

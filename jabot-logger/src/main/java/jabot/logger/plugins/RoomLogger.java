@@ -5,10 +5,12 @@ import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatMessage;
 import jabot.chat.ChatMessageType;
 import jabot.chat.ChatOutQueueItem;
+import jabot.db.Database;
+import jabot.db.DatabaseFactory;
 import jabot.impl.EchomailToolsProxy;
 import jabot.logger.DAO;
 import jabot.logger.DAOImpl;
-import jabot.logger.Database;
+import jabot.logger.LoggerDatabaseFactoryImpl;
 import jabot.logger.dto.LogEntry;
 import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
@@ -80,9 +82,9 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
             return false;
         }
 
-        db = Database.init(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
+        DatabaseFactory dbF = new LoggerDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
-            db.check();
+            db = dbF.create();
             dao = new DAOImpl(db);
             echomailToolsProxy = new EchomailToolsProxy(props);
         } catch (SQLException e) {

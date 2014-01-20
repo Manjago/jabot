@@ -1,9 +1,10 @@
-package jabot;
+package jabot.logger;
 
-import jabot.logger.DAOImpl;
-import jabot.logger.Database;
+import jabot.db.Database;
+import jabot.db.DatabaseFactory;
 import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -16,21 +17,28 @@ import static junit.framework.TestCase.*;
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class DatabaseTest {
+
+    private DatabaseFactory dbF;
+
+    @Before
+    public void setUp() throws Exception {
+        dbF = new LoggerDatabaseFactoryImpl("jdbc:h2:mem:test", "sa", "sa");
+    }
+
     @Test
     public void testInit() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
-            d.check();
+        try (LoggerDatabaseImpl db = new LoggerDatabaseImpl()) {
+            db.init("jdbc:h2:mem:test", "sa", "sa");
+            db.check();
+            db.check();
         }
-
     }
 
     @Test
     public void testStore() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -55,8 +63,7 @@ public class DatabaseTest {
     @Test
     public void testLoad() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -88,8 +95,7 @@ public class DatabaseTest {
     @Test
     public void testLoadDelay() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -123,8 +129,7 @@ public class DatabaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void testStoreBadDelay() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -143,8 +148,7 @@ public class DatabaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void testStoreBadMsg() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -164,8 +168,7 @@ public class DatabaseTest {
     @Test
     public void testLoad2() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -194,8 +197,7 @@ public class DatabaseTest {
     @Test
     public void testGetByPeriod() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -249,8 +251,7 @@ public class DatabaseTest {
     @Test
     public void testGetByPeriodDelay() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -280,8 +281,7 @@ public class DatabaseTest {
     @Test
     public void testRegExp() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
@@ -310,8 +310,7 @@ public class DatabaseTest {
     @Test
     public void testRegExpDelay() throws Exception {
 
-        try (Database d = Database.init("jdbc:h2:mem:test", "sa", "sa")) {
-            d.check();
+        try (Database d = dbF.create()) {
 
             DAOImpl dao = new DAOImpl();
             dao.setDb(d);
