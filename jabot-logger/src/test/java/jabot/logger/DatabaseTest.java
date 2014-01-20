@@ -40,7 +40,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -65,7 +65,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -97,7 +97,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -131,7 +131,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -150,7 +150,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -170,7 +170,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             LogEntry e = new LogEntry();
@@ -199,7 +199,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             List<LogEntry> dataStore = new ArrayList<>();
@@ -253,7 +253,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             List<LogEntry> dataStore = new ArrayList<>();
@@ -283,7 +283,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             List<LogEntry> dataStore = new ArrayList<>();
@@ -312,7 +312,7 @@ public class DatabaseTest {
 
         try (Database d = dbF.create()) {
 
-            DAOImpl dao = new DAOImpl();
+            LoggerDAOImpl dao = new LoggerDAOImpl();
             dao.setDb(d);
 
             List<LogEntry> dataStore = new ArrayList<>();

@@ -2,8 +2,8 @@ package jabot.logger.plugins;
 
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
-import jabot.logger.DAO;
-import jabot.logger.DAOImpl;
+import jabot.logger.LoggerDAO;
+import jabot.logger.LoggerDAOImpl;
 import jabot.logger.LoggerDatabaseFactoryImpl;
 import jabot.logger.dto.EntryType;
 import jabot.logger.dto.LogEntry;
@@ -33,10 +33,10 @@ public class StorerTest {
     private LogEntry storeAndLoad(LogEntry logEntry) throws Exception {
         try (Database db = dbF.create()) {
 
-            DAO dao = new DAOImpl(db);
+            LoggerDAO loggerDao = new LoggerDAOImpl(db);
 
-            dao.store(logEntry);
-            return dao.getById(1L);
+            loggerDao.store(logEntry);
+            return loggerDao.getById(1L);
         }
     }
 

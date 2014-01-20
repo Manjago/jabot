@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class DAOImpl implements DAO {
+public class LoggerDAOImpl implements LoggerDAO {
 
     private static final String INSERT_LOG_ENTRY = "INSERT INTO LOGDATA ( CONFERENCE , ENTRYTYPE , EVENTDATE , NICK , TEXT, FROMME, MSGTYPE, DELAY)\n" +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -23,10 +23,10 @@ public class DAOImpl implements DAO {
     private static final String SELECT_BY_REGEXP = "SELECT ID, EVENTDATE, TEXT, CONFERENCE, NICK, FROMME, MSGTYPE, DELAY FROM LOGDATA WHERE FINDBYREGEXP(TEXT, ?) <> 0 AND MSGTYPE = 0 ORDER BY EVENTDATE DESC LIMIT ?";
     private Database db;
 
-    public DAOImpl() {
+    public LoggerDAOImpl() {
     }
 
-    public DAOImpl(Database db) {
+    public LoggerDAOImpl(Database db) {
         this.db = db;
     }
 

@@ -1,4 +1,4 @@
-package jabot.logger;
+package jabot.translator;
 
 import jabot.db.DatabaseAbstract;
 import jabot.db.DatabaseFactoryAbstract;
@@ -6,15 +6,15 @@ import jabot.db.DatabaseFactoryAbstract;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class LoggerDatabaseFactoryImpl extends DatabaseFactoryAbstract {
+public class TranslatorDatabaseFactoryImpl extends DatabaseFactoryAbstract {
 
-    public LoggerDatabaseFactoryImpl(String connection, String user, String pwd) {
+    public TranslatorDatabaseFactoryImpl(String connection, String user, String pwd) {
         super(connection, user, pwd);
     }
 
     @Override
     protected DatabaseAbstract internalCreate() {
-        return new LoggerDatabaseImpl();
+        return new TranslatorDatabaseImpl();
     }
 
 }

@@ -2,8 +2,8 @@ package jabot.logger.plugins;
 
 import jabot.Helper;
 import jabot.db.Database;
-import jabot.logger.DAO;
-import jabot.logger.DAOImpl;
+import jabot.logger.LoggerDAO;
+import jabot.logger.LoggerDAOImpl;
 import jabot.logger.dto.LogEntry;
 
 import java.sql.SQLException;
@@ -24,9 +24,9 @@ public class StatPoster {
 
     public String report(Date from, Date to) throws SQLException {
 
-        DAO dao = new DAOImpl(initedDb);
+        LoggerDAO loggerDao = new LoggerDAOImpl(initedDb);
 
-        List<LogEntry> logEntries = dao.getByPeriod(from, to);
+        List<LogEntry> logEntries = loggerDao.getByPeriod(from, to);
 
         StringBuilder sb = new StringBuilder();
         for (LogEntry entry : logEntries) {

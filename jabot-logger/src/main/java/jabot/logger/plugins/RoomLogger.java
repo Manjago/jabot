@@ -8,8 +8,8 @@ import jabot.chat.ChatOutQueueItem;
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
 import jabot.impl.EchomailToolsProxy;
-import jabot.logger.DAO;
-import jabot.logger.DAOImpl;
+import jabot.logger.LoggerDAO;
+import jabot.logger.LoggerDAOImpl;
 import jabot.logger.LoggerDatabaseFactoryImpl;
 import jabot.logger.dto.LogEntry;
 import jabot.room.ConfigurableRoomChatPlugin;
@@ -39,7 +39,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
     private final Storer storer;
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private Database db;
-    private DAO dao;
+    private LoggerDAO loggerDao;
     private EchomailToolsProxy echomailToolsProxy;
     private volatile String operator;
     private volatile String area;
@@ -85,7 +85,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
         DatabaseFactory dbF = new LoggerDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
             db = dbF.create();
-            dao = new DAOImpl(db);
+            loggerDao = new LoggerDAOImpl(db);
             echomailToolsProxy = new EchomailToolsProxy(props);
         } catch (SQLException e) {
             logg.error("fail check database", e);
@@ -258,7 +258,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
         try {
             final LogEntry logEntry = (LogEntry) item.display(storer);
             logger.debug("store to db {}", logEntry);
-            dao.store(logEntry);
+            loggerDao.store(logEntry);
         } catch (SQLException | JabotException e) {
             logger.error("fail store message {}", item, e);
         }

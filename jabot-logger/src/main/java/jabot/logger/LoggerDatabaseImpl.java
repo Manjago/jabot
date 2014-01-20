@@ -1,43 +1,19 @@
 package jabot.logger;
 
-import jabot.db.Database;
-import org.h2.jdbcx.JdbcConnectionPool;
+import jabot.db.DatabaseAbstract;
 
-import java.sql.*;
-
-import static jabot.Helper.checkNotNull;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class LoggerDatabaseImpl implements Database {
+public class LoggerDatabaseImpl extends DatabaseAbstract {
 
-    private JdbcConnectionPool cp;
-
-    private static boolean isNeedDbCreate(Connection conn) throws SQLException {
-        try (PreparedStatement checkTable = conn.prepareStatement("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?")) {
-            checkTable.setString(1, "LOGDATA");
-            try (ResultSet rs = checkTable.executeQuery()) {
-                return !rs.first();
-            }
-        }
-    }
-
-    private static void execStatement(Connection conn, String sql) throws SQLException {
-        try (Statement statement = checkNotNull(conn).createStatement()) {
-            statement.execute(checkNotNull(sql));
-        }
-    }
-
-    void init(String connection, String user, String pwd) {
-        cp = JdbcConnectionPool.create(
-                connection, user, pwd);
-    }
-
-    void check() throws SQLException {
+    protected void check() throws SQLException {
         try (Connection conn = getConnection()) {
 
-            if (isNeedDbCreate(conn)) {
+            if (isNeedDbCreate(conn, "LOGDATA")) {
                 execStatement(conn, "CREATE TABLE LOGDATA\n" +
                         "(\n" +
                         "    ID IDENTITY PRIMARY KEY NOT NULL,\n" +
@@ -50,8 +26,8 @@ public class LoggerDatabaseImpl implements Database {
                         "    MSGTYPE TINYINT NOT NULL,\n" +
                         "    DELAY TIMESTAMP\n" +
                         ");\n");
-                execStatement(conn, "ALTER TABLE PUBLIC.LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
-                execStatement(conn, "CREATE INDEX EVENTDATE_index ON PUBLIC.LOGDATA ( EVENTDATE );");
+                execStatement(conn, "ALTER TABLE LOGDATA ADD CONSTRAINT unique_ID UNIQUE (ID);");
+                execStatement(conn, "CREATE INDEX EVENTDATE_index ON LOGDATA ( EVENTDATE );");
                 execStatement(conn, "CREATE ALIAS FINDBYREGEXP FOR \"jabot.logger.UserFunctions.findByPattern\";");
             }
 
@@ -59,20 +35,4 @@ public class LoggerDatabaseImpl implements Database {
 
     }
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        if (cp == null) {
-            throw new IllegalStateException();
-        }
-        Connection connection = cp.getConnection();
-        connection.setAutoCommit(false);
-        return connection;
-    }
-
-    @Override
-    public void close() {
-        if (cp != null) {
-            cp.dispose();
-        }
-    }
 }
