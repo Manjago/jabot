@@ -12,6 +12,8 @@ public interface TransDAO {
 
     TransUser get(String jid) throws SQLException;
 
+    TransUser get(long id) throws SQLException;
+
     void update(TransUser user) throws SQLException;
 
     void delete(String jid) throws SQLException;

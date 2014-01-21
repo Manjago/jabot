@@ -6,8 +6,7 @@ import jabot.translator.dto.TransUser;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 
 
 /**
@@ -59,15 +58,35 @@ public class TransDAOImplTest {
             stored.setEnabled(false);
             stored.setJid("ttt");
 
-            // TODO implement
+            dao.update(stored);
 
+            TransUser loaded = dao.get(stored.getId());
 
+            assertNotNull(loaded);
+            assertEquals(stored, loaded);
         }
 
     }
 
     @Test
     public void testDelete() throws Exception {
+        TransUser user = new TransUser();
+        user.setEnabled(true);
+        user.setJid("kkk");
+
+        try (Database db = dbF.create()) {
+            TransDAO dao = new TransDAOImpl(db);
+
+            dao.store(user);
+
+            TransUser stored = dao.get("kkk");
+
+            dao.delete(stored.getJid());
+
+            TransUser loaded = dao.get(stored.getId());
+
+            assertTrue(loaded == null);
+        }
 
     }
 }

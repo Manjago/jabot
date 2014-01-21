@@ -33,6 +33,43 @@ public class TransUser {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return equalsConcrete((TransUser) o);
+    }
+
+    private boolean equalsConcrete(TransUser user) {
+
+        if (enabled != user.enabled) {
+            return false;
+        }
+        if (id != user.id) {
+            return false;
+        }
+        if (jid != null ? !jid.equals(user.jid) : user.jid != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int shift = 32;
+        int result = (int) (id ^ (id >>> shift));
+        final int prime = 31;
+        result = prime * result + (jid != null ? jid.hashCode() : 0);
+        result = prime * result + (enabled ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TransUser{");
         sb.append("id=").append(id);
