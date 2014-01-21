@@ -7,13 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public class TransDAOImpl implements TransDAO {
-
-    private Database db;
 
     private static final String INSERT = "INSERT INTO TRANSUSERS ( JID , ENABLED )\n" +
             "VALUES (?, ?)";
@@ -22,6 +22,8 @@ public class TransDAOImpl implements TransDAO {
     private static final String UPDATE = "UPDATE TRANSUSERS SET JID =?, ENABLED =? \n" +
             "WHERE ID = ?";
     private static final String DELETE = "DELETE TRANSUSERS WHERE JID = ?";
+    private static final String SELECT = "SELECT ID, JID, ENABLED FROM TRANSUSERS";
+    private Database db;
 
     public TransDAOImpl(Database db) {
         this.db = db;
@@ -121,6 +123,26 @@ public class TransDAOImpl implements TransDAO {
             conn.commit();
         }
 
+    }
+
+    @Override
+    public List<TransUser> getAll() throws SQLException {
+        try (Connection conn = db.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(SELECT)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    List<TransUser> result = new ArrayList<>();
+                    extractTransUserList(rs, result);
+                    return result;
+                }
+            }
+        }
+    }
+
+    private void extractTransUserList(ResultSet rs, List<TransUser> result) throws SQLException {
+        while (rs.next()) {
+            TransUser r = loadTransUser(rs);
+            result.add(r);
+        }
     }
 
     private void deleteTransUser(PreparedStatement ps, String jid) throws SQLException {

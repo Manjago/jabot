@@ -5,6 +5,9 @@ import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatMessage;
 import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPresence;
+import jabot.db.Database;
+import jabot.db.DatabaseFactory;
+import jabot.logger.LoggerDatabaseFactoryImpl;
 import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
@@ -12,6 +15,7 @@ import jabot.room.RoomOutQueueItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Properties;
 
@@ -22,6 +26,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private volatile String addrTo;
+    private Database db;
+    private TransDAO dao;
 
     public Translator(String config) throws JabotException {
         super(config);
@@ -40,6 +46,17 @@ public class Translator extends ConfigurableRoomChatPlugin {
         addrTo = props.getProperty("addrTo");
         if (Helper.isEmptyStr(addrTo)) {
             logg.error("no address to");
+            return false;
+        }
+
+        DatabaseFactory dbF = new LoggerDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
+        try {
+            db = dbF.create();
+            dao = new TransDAOImpl(db);
+
+
+        } catch (SQLException e) {
+            logg.error("fail check database", e);
             return false;
         }
 
