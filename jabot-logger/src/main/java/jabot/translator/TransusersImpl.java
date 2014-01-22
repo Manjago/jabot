@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +43,19 @@ public class TransusersImpl implements Transusers {
 
     @Override
     public List<String> getOperators() {
-        return null;
+        List<String> result = new ArrayList<>();
+        try {
+            List<TransUser> users = dao.getAll();
+            for (TransUser user : users) {
+                if (user.isEnabled()) {
+                    result.add(user.getJid());
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.error("fail getOperators", e);
+        }
+        return result;
     }
 
     @Override

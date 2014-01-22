@@ -2,12 +2,14 @@ package jabot.translator;
 
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
+import jabot.translator.dto.TransUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import java.util.List;
+
+import static junit.framework.Assert.*;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -54,13 +56,35 @@ public class TransusersImplTest {
 
     @Test
     public void testGetOperators() throws Exception {
+        ts.createIfAbsent("1", false);
+        ts.createIfAbsent("2", true);
+        ts.createIfAbsent("3", true);
+        ts.createIfAbsent("4", false);
+        List<String> ops = ts.getOperators();
+        assertNotNull(ops);
+        assertEquals(2, ops.size());
+        assertEquals("2", ops.get(0));
+        assertEquals("3", ops.get(1));
+    }
 
+    @Test
+    public void testGetEmptyOperators() throws Exception {
+        List<String> ops = ts.getOperators();
+        assertNotNull(ops);
+        assertEquals(0, ops.size());
     }
 
     @Test
     public void testCreateIfAbsent() throws Exception {
+        assertFalse(ts.isOperator("1"));
+        TransUser stored = ts.createIfAbsent("1", true);
+        assertNotNull(stored);
+        assertEquals("1", stored.getJid());
+        assertEquals(1L, stored.getId());
+        assertEquals(true, stored.isEnabled());
 
-
+        TransUser stored2 = ts.createIfAbsent("1", false);
+        assertEquals(stored, stored2);
     }
 
     @Test
