@@ -81,6 +81,11 @@ public class TransusersImpl implements Transusers {
 
     @Override
     public void deleteIfExists(String jid) {
+        try {
+            dao.delete(jid);
+        } catch (SQLException e) {
+            logger.error("fail deleteIfExists {}", jid, e);
+        }
 
     }
 

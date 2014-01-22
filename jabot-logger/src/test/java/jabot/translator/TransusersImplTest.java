@@ -89,13 +89,38 @@ public class TransusersImplTest {
 
     @Test
     public void testDeleteIfExists() throws Exception {
+        ts.createIfAbsent("1", true);
+        ts.deleteIfExists("1");
+        assertFalse(ts.isOperator("1"));
+    }
 
-
+    @Test
+    public void testDeleteIfExistsNone() throws Exception {
+        ts.deleteIfExists("1");
+        assertFalse(ts.isOperator("1"));
     }
 
     @Test
     public void testUpdateIfExists() throws Exception {
+        assertFalse(ts.isOperator("1"));
+        TransUser stored = ts.createIfAbsent("1", true);
+        assertNotNull(stored);
+        assertEquals("1", stored.getJid());
+        assertEquals(1L, stored.getId());
+        assertEquals(true, stored.isEnabled());
 
+        ts.updateIfExists("1", false);
+        stored = ts.createIfAbsent("1", true);
+        assertNotNull(stored);
+        assertEquals("1", stored.getJid());
+        assertEquals(1L, stored.getId());
+        assertEquals(false, stored.isEnabled());
 
+        ts.updateIfExists("2", true);
+        stored = ts.createIfAbsent("1", true);
+        assertNotNull(stored);
+        assertEquals("1", stored.getJid());
+        assertEquals(1L, stored.getId());
+        assertEquals(false, stored.isEnabled());
     }
 }
