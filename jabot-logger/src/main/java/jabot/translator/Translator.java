@@ -26,8 +26,10 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private volatile String addrTo;
+    //private Transusers transusers;
     private Database db;
     private TransDAO dao;
+
 
     public Translator(String config) throws JabotException {
         super(config);
