@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static junit.framework.TestCase.*;
 
 
 /**
@@ -21,6 +21,14 @@ public class TransDAOImplTest {
     @Before
     public void setUp() throws Exception {
         dbF = new TranslatorDatabaseFactoryImpl("jdbc:h2:mem:test", "sa", "sa");
+    }
+
+    @Test
+    public void testNotFound() throws Exception {
+        try (Database db = dbF.create()) {
+            TransDAO dao = new TransDAOImpl(db);
+            assertNull(dao.get("ff"));
+        }
     }
 
     @Test

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -25,11 +26,8 @@ import java.util.Properties;
 public class Translator extends ConfigurableRoomChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
-    private volatile String addrTo;
-    //private Transusers transusers;
-    private Database db;
-    private TransDAO dao;
-
+    private String admin;
+    private Transusers transusers;
 
     public Translator(String config) throws JabotException {
         super(config);
@@ -45,17 +43,17 @@ public class Translator extends ConfigurableRoomChatPlugin {
             return false;
         }
 
-        addrTo = props.getProperty("addrTo");
-        if (Helper.isEmptyStr(addrTo)) {
-            logg.error("no address to");
+        admin = props.getProperty("admin");
+        if (Helper.isEmptyStr(admin)) {
+            logg.error("no admin");
             return false;
         }
 
         DatabaseFactory dbF = new LoggerDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
-            db = dbF.create();
-            dao = new TransDAOImpl(db);
+            Database db = dbF.create();
 
+            transusers = new TransusersImpl(db);
 
         } catch (SQLException e) {
             logg.error("fail check database", e);
@@ -138,7 +136,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
             return;
         }
 
-        if (addrTo.equals(simpleAddr)) {
+
+        if (transusers.isOperator(simpleAddr)) {
             final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
             getRoomOutQueue().put(outQueueItem);
             logger.debug("send room item {}", outQueueItem);
@@ -162,8 +161,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
             return;
         }
 
-        if (addrTo.equals(simpleAddr)) {
-            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, MessageFormat.format("Привет, дружище {0}!", addrTo));
+        if (transusers.isOperator(simpleAddr)) {
+            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(simpleAddr, MessageFormat.format("Привет, дружище {0}!", simpleAddr));
             getChatOutQueue().put(chatOutQueueItem);
 
             logger.debug("send to chat {}", chatOutQueueItem);
@@ -194,9 +193,12 @@ public class Translator extends ConfigurableRoomChatPlugin {
         if (Helper.isEmptyStr(s)) {
             return;
         }
-        final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(addrTo, s);
-        getChatOutQueue().put(chatOutQueueItem);
-        logger.debug("send to chat {}", chatOutQueueItem);
+        List<String> jids = transusers.getOperators();
+        for (String jid : jids) {
+            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(jid, s);
+            getChatOutQueue().put(chatOutQueueItem);
+            logger.debug("send to chat {}", chatOutQueueItem);
+        }
     }
 
 }
