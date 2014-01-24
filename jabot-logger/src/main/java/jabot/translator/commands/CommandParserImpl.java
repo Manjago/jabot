@@ -41,7 +41,7 @@ public class CommandParserImpl implements CommandParser {
 
     private class CreatePatternParser extends PatternParser {
         public CreatePatternParser() {
-            super("^%CREATE (\\S+)$");
+            super("^!CREATE (\\S+)$");
         }
 
         @Override
@@ -65,7 +65,7 @@ public class CommandParserImpl implements CommandParser {
     private class DeletePatternParser extends PatternParser {
 
         public DeletePatternParser() {
-            super("^%DELETE (\\S+)$");
+            super("^!DELETE (\\S+)$");
         }
 
         @Override
@@ -85,7 +85,7 @@ public class CommandParserImpl implements CommandParser {
     private class UpdatePatternParser extends PatternParser {
 
         public UpdatePatternParser() {
-            super("^%UPDATE (\\S+) (\\d{1})$");
+            super("^!UPDATE (\\S+) (\\d{1})$");
         }
 
         @Override
@@ -108,7 +108,7 @@ public class CommandParserImpl implements CommandParser {
 
     private class ListPatternParser extends PatternParser {
         public ListPatternParser() {
-            super("^%LIST$");
+            super("^!LIST$");
         }
 
         @Override

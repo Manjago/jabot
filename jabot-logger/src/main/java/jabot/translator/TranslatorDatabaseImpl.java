@@ -20,7 +20,6 @@ public class TranslatorDatabaseImpl extends DatabaseAbstract {
                         "    JID VARCHAR(200) NOT NULL,\n" +
                         "    ENABLED BOOLEAN DEFAULT FALSE\n" +
                         ");");
-                execStatement(conn, "ALTER TABLE TRANSUSERS ADD CONSTRAINT unique_ID UNIQUE (ID);");
                 execStatement(conn, "CREATE UNIQUE INDEX UNIQUE_JID_INDEX_B ON TRANSUSERS ( JID );");
             }
 

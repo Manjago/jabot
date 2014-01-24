@@ -7,7 +7,6 @@ import jabot.chat.ChatOutQueueItem;
 import jabot.chat.ChatPresence;
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
-import jabot.logger.LoggerDatabaseFactoryImpl;
 import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
@@ -55,7 +54,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
             return false;
         }
 
-        DatabaseFactory dbF = new LoggerDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
+        DatabaseFactory dbF = new TranslatorDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
         try {
             Database db = dbF.create();
 
@@ -192,7 +191,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
 
         if (transusers.isOperator(simpleAddr)) {
-            chatOut(MessageFormat.format("Привет, дружище {0}!", simpleAddr), simpleAddr);
+            chatOut(simpleAddr, MessageFormat.format("Привет, дружище {0}!", simpleAddr));
         } else {
             logger.trace("skip message from not our address {}", simpleAddr);
         }
@@ -222,11 +221,11 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
         List<String> jids = transusers.getOperators();
         for (String jid : jids) {
-            chatOut(s, jid);
+            chatOut(jid, s);
         }
     }
 
-    private void chatOut(String message, String jid) throws InterruptedException {
+    private void chatOut(String jid, String message) throws InterruptedException {
         final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(jid, message);
         getChatOutQueue().put(chatOutQueueItem);
         logger.debug("send to chat {}", chatOutQueueItem);
