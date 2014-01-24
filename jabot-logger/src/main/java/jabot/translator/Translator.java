@@ -33,7 +33,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private String admin;
     private Transusers transusers;
-    private final CommandParser commandParser = new CommandParserImpl();
+    private CommandParser commandParser;
 
     public Translator(String config) throws JabotException {
         super(config);
@@ -60,7 +60,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
             Database db = dbF.create();
 
             transusers = new TransusersImpl(db);
-            ((CommandParserImpl) commandParser).setTransusers(transusers);
+            commandParser = new CommandParserImpl(transusers);
 
         } catch (SQLException e) {
             logg.error("fail check database", e);

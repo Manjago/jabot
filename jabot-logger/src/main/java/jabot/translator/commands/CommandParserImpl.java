@@ -13,19 +13,16 @@ import java.util.List;
 public class CommandParserImpl implements CommandParser {
 
     private final List<PatternParser> parsers;
-    private Transusers transusers;
+    private final Transusers transusers;
 
-    public CommandParserImpl() {
+    public CommandParserImpl(Transusers transusers) {
+        this.transusers = transusers;
         parsers = Arrays.asList(
                 new CreatePatternParser(),
                 new DeletePatternParser(),
                 new UpdatePatternParser(),
                 new ListPatternParser()
         );
-    }
-
-    public void setTransusers(Transusers transusers) {
-        this.transusers = transusers;
     }
 
     @Override
