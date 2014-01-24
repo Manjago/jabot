@@ -2,6 +2,8 @@ package jabot.translator;
 
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
+import jabot.translator.dao.TransDAO;
+import jabot.translator.dao.TransDAOImpl;
 import jabot.translator.dto.TransUser;
 import org.junit.Before;
 import org.junit.Test;

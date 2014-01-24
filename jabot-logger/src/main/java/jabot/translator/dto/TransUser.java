@@ -1,5 +1,7 @@
 package jabot.translator.dto;
 
+import java.text.MessageFormat;
+
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
@@ -67,6 +69,10 @@ public class TransUser {
         result = prime * result + (jid != null ? jid.hashCode() : 0);
         result = prime * result + (enabled ? 1 : 0);
         return result;
+    }
+
+    public String displayString() {
+        return MessageFormat.format("{0}:{1}", jid, enabled);
     }
 
     @Override

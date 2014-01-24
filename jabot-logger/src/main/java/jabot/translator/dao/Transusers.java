@@ -1,4 +1,4 @@
-package jabot.translator;
+package jabot.translator.dao;
 
 import jabot.translator.dto.TransUser;
 
@@ -11,6 +11,8 @@ public interface Transusers extends AutoCloseable {
     boolean isOperator(String jid);
 
     List<String> getOperators();
+
+    List<String> getAll();
 
     TransUser createIfAbsent(String jid, boolean enabled);
 

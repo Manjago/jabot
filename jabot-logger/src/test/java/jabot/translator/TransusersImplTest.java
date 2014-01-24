@@ -2,6 +2,8 @@ package jabot.translator;
 
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
+import jabot.translator.dao.Transusers;
+import jabot.translator.dao.TransusersImpl;
 import jabot.translator.dto.TransUser;
 import org.junit.After;
 import org.junit.Before;
@@ -9,7 +11,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static junit.framework.TestCase.*;
 
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
@@ -65,6 +67,21 @@ public class TransusersImplTest {
         assertEquals(2, ops.size());
         assertEquals("2", ops.get(0));
         assertEquals("3", ops.get(1));
+    }
+
+    @Test
+    public void testGetAll() throws Exception {
+        ts.createIfAbsent("1", false);
+        ts.createIfAbsent("2", true);
+        ts.createIfAbsent("3", true);
+        ts.createIfAbsent("4", false);
+        List<String> users = ts.getAll();
+        assertNotNull(users);
+        assertEquals(4, users.size());
+        assertEquals("1:false", users.get(0));
+        assertEquals("2:true", users.get(1));
+        assertEquals("3:true", users.get(2));
+        assertEquals("4:false", users.get(3));
     }
 
     @Test

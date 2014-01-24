@@ -1,4 +1,4 @@
-package jabot.translator;
+package jabot.translator.dao;
 
 import jabot.db.Database;
 import jabot.translator.dto.TransUser;

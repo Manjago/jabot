@@ -1,4 +1,4 @@
-package jabot.translator;
+package jabot.translator.dao;
 
 import jabot.db.Database;
 import jabot.translator.dto.TransUser;
@@ -54,6 +54,21 @@ public class TransusersImpl implements Transusers {
                 if (user.isEnabled()) {
                     result.add(user.getJid());
                 }
+            }
+
+        } catch (SQLException e) {
+            logger.error("fail getOperators", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> getAll() {
+        List<String> result = new ArrayList<>();
+        try {
+            List<TransUser> users = dao.getAll();
+            for (TransUser user : users) {
+                result.add(MessageFormat.format("{0}:{1}", user.getJid(), user.isEnabled()));
             }
 
         } catch (SQLException e) {

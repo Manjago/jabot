@@ -12,6 +12,11 @@ import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
 import jabot.room.RoomOutQueueItem;
+import jabot.translator.commands.CommandParser;
+import jabot.translator.commands.CommandParserImpl;
+import jabot.translator.commands.OperatorCmd;
+import jabot.translator.dao.Transusers;
+import jabot.translator.dao.TransusersImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +33,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private String admin;
     private Transusers transusers;
+    private final CommandParser commandParser = new CommandParserImpl();
 
     public Translator(String config) throws JabotException {
         super(config);
@@ -54,6 +60,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
             Database db = dbF.create();
 
             transusers = new TransusersImpl(db);
+            ((CommandParserImpl) commandParser).setTransusers(transusers);
 
         } catch (SQLException e) {
             logg.error("fail check database", e);
@@ -127,7 +134,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
     }
 
-    private void processChatMessage(ChatMessage chatMessage) throws InterruptedException {
+    private void processChatMessage(final ChatMessage chatMessage) throws InterruptedException {
         String simpleAddr;
         try {
             simpleAddr = Addr3D.fromRaw(chatMessage.getFrom()).getNameServer();
@@ -137,12 +144,35 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
 
 
+        if (admin.equals(simpleAddr)) {
+            getExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        processAdminCommand(chatMessage.getBody());
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            });
+        }
+
         if (transusers.isOperator(simpleAddr)) {
             final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
             getRoomOutQueue().put(outQueueItem);
             logger.debug("send room item {}", outQueueItem);
         } else {
             logger.debug("skip message from wrong address {}", simpleAddr);
+        }
+    }
+
+    private void processAdminCommand(String body) throws InterruptedException {
+        OperatorCmd cmd = commandParser.parse(body);
+        if (cmd != null) {
+            String userMessage = cmd.execute();
+            if (Helper.isNonEmptyStr(userMessage)) {
+                chatOut(admin, userMessage);
+            }
         }
     }
 
@@ -162,10 +192,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
 
         if (transusers.isOperator(simpleAddr)) {
-            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(simpleAddr, MessageFormat.format("Привет, дружище {0}!", simpleAddr));
-            getChatOutQueue().put(chatOutQueueItem);
-
-            logger.debug("send to chat {}", chatOutQueueItem);
+            chatOut(MessageFormat.format("Привет, дружище {0}!", simpleAddr), simpleAddr);
         } else {
             logger.trace("skip message from not our address {}", simpleAddr);
         }
@@ -195,10 +222,14 @@ public class Translator extends ConfigurableRoomChatPlugin {
         }
         List<String> jids = transusers.getOperators();
         for (String jid : jids) {
-            final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(jid, s);
-            getChatOutQueue().put(chatOutQueueItem);
-            logger.debug("send to chat {}", chatOutQueueItem);
+            chatOut(s, jid);
         }
+    }
+
+    private void chatOut(String message, String jid) throws InterruptedException {
+        final ChatOutQueueItem chatOutQueueItem = new ChatOutQueueItem(jid, message);
+        getChatOutQueue().put(chatOutQueueItem);
+        logger.debug("send to chat {}", chatOutQueueItem);
     }
 
 }
