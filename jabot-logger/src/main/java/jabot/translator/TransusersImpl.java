@@ -25,8 +25,12 @@ public class TransusersImpl implements Transusers {
     }
 
     @Override
-    public void close() throws Exception {
-        db.close();
+    public void close() {
+        try {
+            db.close();
+        } catch (Exception e) {
+            logger.error("fail close database", db);
+        }
     }
 
     @Override
