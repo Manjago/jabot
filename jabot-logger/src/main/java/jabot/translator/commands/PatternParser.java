@@ -20,8 +20,8 @@ abstract class PatternParser {
         Matcher m = pattern.matcher(text);
         if (m.matches()) {
             String[] args = new String[m.groupCount()];
-            for (int i = 1; i < m.groupCount(); ++i) {
-                args[i] = m.group(i);
+            for (int i = 0; i < m.groupCount(); ++i) {
+                args[i] = m.group(i + 1);
             }
             return execute(args);
         }
