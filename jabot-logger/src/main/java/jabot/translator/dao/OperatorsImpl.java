@@ -13,13 +13,13 @@ import java.util.List;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class TransusersImpl implements Transusers {
+public class OperatorsImpl implements Operators {
 
     private final Database db;
     private final TransDAO dao;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public TransusersImpl(Database db) {
+    public OperatorsImpl(Database db) {
         this.db = db;
         this.dao = new TransDAOImpl(db);
     }

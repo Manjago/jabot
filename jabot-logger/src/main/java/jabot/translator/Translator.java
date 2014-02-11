@@ -14,8 +14,8 @@ import jabot.room.RoomOutQueueItem;
 import jabot.translator.commands.CommandParser;
 import jabot.translator.commands.CommandParserImpl;
 import jabot.translator.commands.OperatorCmd;
-import jabot.translator.dao.Transusers;
-import jabot.translator.dao.TransusersImpl;
+import jabot.translator.dao.Operators;
+import jabot.translator.dao.OperatorsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private String admin;
-    private Transusers transusers;
+    private Operators transusers;
     private CommandParser commandParser;
 
     public Translator(String config) throws JabotException {
@@ -58,7 +58,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
         try {
             Database db = dbF.create();
 
-            transusers = new TransusersImpl(db);
+            transusers = new OperatorsImpl(db);
             commandParser = new CommandParserImpl(transusers);
 
         } catch (SQLException e) {
