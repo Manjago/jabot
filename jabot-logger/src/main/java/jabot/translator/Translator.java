@@ -52,6 +52,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
         if (Helper.isEmptyStr(admin)) {
             logg.error("no admin");
             return false;
+        } else {
+            logg.debug("admin is {}", admin);
         }
 
         DatabaseFactory dbF = new TranslatorDatabaseFactoryImpl(props.getProperty("connection"), props.getProperty("user"), props.getProperty("pwd"));
@@ -144,6 +146,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
 
 
         if (admin.equals(simpleAddr)) {
+            logger.debug("got message {} from admin", chatMessage.getBody());
             getExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -154,6 +157,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
                     }
                 }
             });
+        } else {
+            logger.debug("got message {} from nonadmin", chatMessage.getBody());
         }
 
         if (transusers.isOperator(simpleAddr)) {

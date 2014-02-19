@@ -171,7 +171,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
 
     private void processCommands() throws InterruptedException {
         while (!Thread.interrupted()) {
-            logger.debug("wait chat command");
+            logger.trace("wait chat command");
             ChatInQueueItem item = getChatInQueue().take();
 
             if (ChatMessageType.MSG.equals(item.getType())) {

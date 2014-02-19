@@ -68,7 +68,13 @@ public class ChatListener implements PacketListener {
 
         if (packet instanceof Message) {
             Message msg = (Message) packet;
-            logger.debug(MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody()));
+            String debugMsg = MessageFormat.format("message from {0} to {1} body {2}", msg.getFrom(), msg.getTo(), msg.getBody());
+            if (msg.getBody() == null) {
+                logger.trace(debugMsg);
+            } else {
+                logger.debug(debugMsg);
+            }
+
 
             if (pluginInQueues != null && Helper.isNonEmptyStr(msg.getFrom()) && Helper.isNonEmptyStr(msg.getBody())) {
                 final ChatMessage chatMessage = new ChatMessage(msg.getFrom(), msg.getBody());
