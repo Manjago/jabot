@@ -98,6 +98,7 @@ public class RoomListener implements PacketListener, SubjectUpdatedListener, Par
 
             if (MessageUtils.isSubjectMessage(msg)) {
                 item = new RoomInQueueItem() {
+                    //todo human-readable toString
                     @Override
                     public Object display(RoomMessageFormatter fmt) throws JabotException {
                         return fmt.subjectMessageOnStart(current, msg.getFrom(),
