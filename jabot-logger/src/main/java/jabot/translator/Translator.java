@@ -124,7 +124,6 @@ public class Translator extends ConfigurableRoomChatPlugin {
                     break;
                 case PRESENCE:
                     logger.trace("got presense item {}", item);
-                    processPresence((ChatPresence) item);
                     break;
                 default:
                     logger.error("unknown chatMessageType {}", item.getType());
@@ -177,28 +176,6 @@ public class Translator extends ConfigurableRoomChatPlugin {
             if (Helper.isNonEmptyStr(userMessage)) {
                 chatOut(admin, userMessage);
             }
-        }
-    }
-
-    private void processPresence(ChatPresence chatMessage) throws InterruptedException {
-
-        if (!"available".equals(chatMessage.getStatus())) {
-            logger.trace("bad status {}", chatMessage.getStatus());
-            return;
-        }
-
-        String simpleAddr;
-        try {
-            simpleAddr = Addr3D.fromRaw(chatMessage.getFrom()).getNameServer();
-        } catch (IllegalArgumentException e) {
-            logger.error("fail process message {}", chatMessage, e);
-            return;
-        }
-
-        if (transusers.isOperator(simpleAddr)) {
-            chatOut(simpleAddr, MessageFormat.format("Привет, дружище {0}!", simpleAddr));
-        } else {
-            logger.trace("skip message from not our address {}", simpleAddr);
         }
     }
 
