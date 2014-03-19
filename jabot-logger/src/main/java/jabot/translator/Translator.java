@@ -4,23 +4,22 @@ import jabot.*;
 import jabot.chat.ChatInQueueItem;
 import jabot.chat.ChatMessage;
 import jabot.chat.ChatOutQueueItem;
-import jabot.chat.ChatPresence;
 import jabot.db.Database;
 import jabot.db.DatabaseFactory;
 import jabot.room.ConfigurableRoomChatPlugin;
 import jabot.room.RoomInQueueItem;
 import jabot.room.RoomMessageFormatter;
 import jabot.room.RoomOutQueueItem;
+import jabot.translator.commands.AdminCommandParserImpl;
 import jabot.translator.commands.CommandParser;
-import jabot.translator.commands.CommandParserImpl;
 import jabot.translator.commands.OperatorCmd;
+import jabot.translator.commands.OperatorCommandParserImpl;
 import jabot.translator.dao.Operators;
 import jabot.translator.dao.OperatorsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +31,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
     private final RoomMessageFormatter fmt = new DefaultRoomMessageFormatter(new Messages());
     private String admin;
     private Operators transusers;
-    private CommandParser commandParser;
+    private CommandParser adminCommandParser;
+    private CommandParser operatorCommandParser;
 
     public Translator(String config) throws JabotException {
         super(config);
@@ -61,7 +61,8 @@ public class Translator extends ConfigurableRoomChatPlugin {
             Database db = dbF.create();
 
             transusers = new OperatorsImpl(db);
-            commandParser = new CommandParserImpl(transusers);
+            adminCommandParser = new AdminCommandParserImpl(transusers);
+            operatorCommandParser = new OperatorCommandParserImpl(transusers);
 
         } catch (SQLException e) {
             logg.error("fail check database", e);
@@ -160,17 +161,44 @@ public class Translator extends ConfigurableRoomChatPlugin {
             logger.debug("got message {} from nonadmin", chatMessage.getBody());
         }
 
-        if (transusers.isOperator(simpleAddr)) {
-            final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
-            getRoomOutQueue().put(outQueueItem);
-            logger.debug("send room item {}", outQueueItem);
+        if (transusers.isActiveOperator(simpleAddr)) {
+
+            boolean isProcessed = tryProcessOperatorCommand(chatMessage.getBody(), simpleAddr);
+            if (isProcessed){
+                logger.debug("processed command {} for active operator {}", chatMessage.getBody(), simpleAddr);
+            } else {
+                final RoomOutQueueItem outQueueItem = new RoomOutQueueItem(chatMessage.getBody());
+                getRoomOutQueue().put(outQueueItem);
+                logger.debug("send room item {}", outQueueItem);
+            }
+
         } else {
-            logger.debug("skip message from wrong address {}", simpleAddr);
+
+            if (transusers.isPassiveOperator(simpleAddr)){
+                boolean isProcessed = tryProcessOperatorCommand(chatMessage.getBody(), simpleAddr);
+                if (isProcessed){
+                    logger.debug("processed command {} for passive operator {}", chatMessage.getBody(), simpleAddr);
+                }
+            }
+            logger.trace("skip message from wrong address {}", simpleAddr);
+        }
+    }
+
+    private boolean tryProcessOperatorCommand(String body, String senderJid) throws InterruptedException {
+        OperatorCmd cmd = operatorCommandParser.parse(body + " " + senderJid);
+        if (cmd != null) {
+            String userMessage = cmd.execute();
+            if (Helper.isNonEmptyStr(userMessage)) {
+                chatOut(admin, userMessage);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
     private void processAdminCommand(String body) throws InterruptedException {
-        OperatorCmd cmd = commandParser.parse(body);
+        OperatorCmd cmd = adminCommandParser.parse(body);
         if (cmd != null) {
             String userMessage = cmd.execute();
             if (Helper.isNonEmptyStr(userMessage)) {
@@ -189,7 +217,7 @@ public class Translator extends ConfigurableRoomChatPlugin {
             try {
                 chatOut(String.valueOf(item.display(fmt)));
             } catch (JabotException e) {
-                logger.error("fail diplay item {}, ignored", item, e);
+                logger.error("fail display item {}, ignored", item, e);
             }
         }
 

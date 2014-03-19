@@ -1,6 +1,5 @@
 package jabot.translator.commands;
 
-import jabot.translator.dao.Transusers;
 import jabot.translator.dto.TransUser;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -11,11 +10,11 @@ import java.util.List;
 /**
  * @author Manjago (kirill@temnenkov.com)
  */
-public class CommandParserImplTest {
+public class AdminCommandParserImplTest {
 
     @Test
     public void testParseCreate() throws Exception {
-        CommandParser parser = new CommandParserImpl(new TransusersWrapper() {
+        CommandParser parser = new AdminCommandParserImpl(new TransusersWrapper() {
             @Override
             public TransUser createIfAbsent(String jid, boolean enabled) {
                 TransUser user = new TransUser();
@@ -33,7 +32,7 @@ public class CommandParserImplTest {
 
     @Test
     public void testParseDelete() throws Exception {
-        CommandParser parser = new CommandParserImpl(new TransusersWrapper() {
+        CommandParser parser = new AdminCommandParserImpl(new TransusersWrapper() {
             @Override
             public void deleteIfExists(String jid) {
             }
@@ -45,7 +44,7 @@ public class CommandParserImplTest {
     @Test
     public void testUpdateTrue() throws Exception {
 
-        CommandParser parser = new CommandParserImpl(new TransusersWrapper() {
+        CommandParser parser = new AdminCommandParserImpl(new TransusersWrapper() {
             @Override
             public TransUser updateIfExists(String jid, boolean enabled) {
                 TransUser u = new TransUser();
@@ -62,7 +61,7 @@ public class CommandParserImplTest {
     @Test
     public void testUpdateFalse() throws Exception {
 
-        CommandParser parser = new CommandParserImpl(new TransusersWrapper() {
+        CommandParser parser = new AdminCommandParserImpl(new TransusersWrapper() {
             @Override
             public TransUser updateIfExists(String jid, boolean enabled) {
                 TransUser u = new TransUser();
@@ -78,7 +77,7 @@ public class CommandParserImplTest {
 
     @Test
     public void testList() throws Exception {
-        CommandParser parser = new CommandParserImpl(new TransusersWrapper() {
+        CommandParser parser = new AdminCommandParserImpl(new TransusersWrapper() {
             @Override
             public List<String> getAll() {
                 List<String> data = new ArrayList<>();
@@ -91,31 +90,4 @@ public class CommandParserImplTest {
         TestCase.assertEquals("dummy\n", cmd.execute());
     }
 
-    private class TransusersWrapper implements Transusers {
-
-        @Override
-        public List<String> getAll() {
-            return null;
-        }
-
-        @Override
-        public TransUser createIfAbsent(String jid, boolean enabled) {
-            return null;
-        }
-
-        @Override
-        public void deleteIfExists(String jid) {
-
-        }
-
-        @Override
-        public TransUser updateIfExists(String jid, boolean enabled) {
-            return null;
-        }
-
-        @Override
-        public void close() throws Exception {
-
-        }
-    }
 }

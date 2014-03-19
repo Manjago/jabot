@@ -42,18 +42,27 @@ public class OperatorsImplTest {
 
     @Test
     public void testIsOperator() throws Exception {
-        assertFalse(operators.isOperator("test"));
+        assertFalse(operators.isActiveOperator("test"));
         operators.createIfAbsent("test", true);
-        assertTrue(operators.isOperator("test"));
+        assertTrue(operators.isActiveOperator("test"));
     }
 
     @Test
     public void testIsOperatorForInactive() throws Exception {
-        assertFalse(operators.isOperator("test"));
+        assertFalse(operators.isActiveOperator("test"));
         operators.createIfAbsent("test", true);
-        assertTrue(operators.isOperator("test"));
+        assertTrue(operators.isActiveOperator("test"));
         operators.updateIfExists("test", false);
-        assertFalse(operators.isOperator("test"));
+        assertFalse(operators.isActiveOperator("test"));
+    }
+
+    @Test
+    public void testIsPassiveOperator() throws Exception {
+        assertFalse(operators.isPassiveOperator("test"));
+        operators.createIfAbsent("test", true);
+        assertFalse(operators.isPassiveOperator("test"));
+        operators.updateIfExists("test", false);
+        assertTrue(operators.isPassiveOperator("test"));
     }
 
     @Test
@@ -93,7 +102,7 @@ public class OperatorsImplTest {
 
     @Test
     public void testCreateIfAbsent() throws Exception {
-        assertFalse(operators.isOperator("1"));
+        assertFalse(operators.isActiveOperator("1"));
         TransUser stored = operators.createIfAbsent("1", true);
         assertNotNull(stored);
         assertEquals("1", stored.getJid());
@@ -108,18 +117,18 @@ public class OperatorsImplTest {
     public void testDeleteIfExists() throws Exception {
         operators.createIfAbsent("1", true);
         operators.deleteIfExists("1");
-        assertFalse(operators.isOperator("1"));
+        assertFalse(operators.isActiveOperator("1"));
     }
 
     @Test
     public void testDeleteIfExistsNone() throws Exception {
         operators.deleteIfExists("1");
-        assertFalse(operators.isOperator("1"));
+        assertFalse(operators.isActiveOperator("1"));
     }
 
     @Test
     public void testUpdateIfExists() throws Exception {
-        assertFalse(operators.isOperator("1"));
+        assertFalse(operators.isActiveOperator("1"));
         TransUser stored = operators.createIfAbsent("1", true);
         assertNotNull(stored);
         assertEquals("1", stored.getJid());

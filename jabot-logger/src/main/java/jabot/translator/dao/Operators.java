@@ -6,7 +6,8 @@ import java.util.List;
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
 public interface Operators extends Transusers {
-    boolean isOperator(String jid);
+    boolean isActiveOperator(String jid);
+    boolean isPassiveOperator(String jid);
 
     List<String> getOperators();
 }

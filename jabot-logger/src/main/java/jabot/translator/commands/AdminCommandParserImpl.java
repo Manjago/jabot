@@ -10,12 +10,12 @@ import java.util.List;
 /**
  * @author Kirill Temnenkov (ktemnenkov@intervale.ru)
  */
-public class CommandParserImpl implements CommandParser {
+public class AdminCommandParserImpl implements CommandParser {
 
     private final List<PatternParser> parsers;
     private final Transusers transusers;
 
-    public CommandParserImpl(Transusers transusers) {
+    public AdminCommandParserImpl(Transusers transusers) {
         this.transusers = transusers;
         parsers = Arrays.asList(
                 new CreatePatternParser(),

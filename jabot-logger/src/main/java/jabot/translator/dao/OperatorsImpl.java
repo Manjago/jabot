@@ -34,13 +34,25 @@ public class OperatorsImpl implements Operators {
     }
 
     @Override
-    public boolean isOperator(String jid) {
+    public boolean isActiveOperator(String jid) {
         try {
             TransUser user = dao.get(jid);
             return user != null && user.isEnabled();
 
         } catch (SQLException e) {
-            logger.error("fail isOperator {}", jid, e);
+            logger.error("fail isActiveOperator {}", jid, e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isPassiveOperator(String jid) {
+        try {
+            TransUser user = dao.get(jid);
+            return user != null && !user.isEnabled();
+
+        } catch (SQLException e) {
+            logger.error("fail isPassiveOperator {}", jid, e);
             return false;
         }
     }

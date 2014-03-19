@@ -213,17 +213,18 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
         if (cmd == null) {
             return;
         }
-        chatOut(MessageFormat.format("got cmd {0}", cmd));
 
         try {
             switch (cmd) {
                 case "POSTME": {
+                    chatOut(MessageFormat.format("got cmd {0}", cmd));
                     String psto = getPsto();
                     chatOut(psto);
                     chatOut(MessageFormat.format("process cmd {0}", cmd));
                 }
                 break;
                 case "POST": {
+                    chatOut(MessageFormat.format("got cmd {0}", cmd));
                     String psto = getPsto();
                     sendStat("828.test", psto);
                     logger.debug("posted by test request");
@@ -231,6 +232,7 @@ public class RoomLogger extends ConfigurableRoomChatPlugin {
                 }
                 break;
                 case "REPOST": {
+                    chatOut(MessageFormat.format("got cmd {0}", cmd));
                     String psto = getPsto();
                     sendStat(area, psto);
                     logger.debug("posted by request");
